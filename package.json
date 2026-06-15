@@ -1,0 +1,16 @@
+{
+  "name": "splitmaa",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@11.5.3",
+  "scripts": {
+    "mobile:start": "pnpm --filter mobile start",
+    "mobile:web": "pnpm --filter mobile web",
+    "mobile:android": "pnpm --filter mobile android",
+    "mobile:ios": "pnpm --filter mobile ios",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "eval:smoke": "python tools/evals/run_eval.py --dataset datasets/splitmaa/test.jsonl --limit 50"
+  }
+}

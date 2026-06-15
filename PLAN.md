@@ -1,0 +1,73 @@
+# Splitmaa Build Plan
+
+## Product Goal
+
+Build an edge-device LLM system where a local function-calling model turns chat or voice commands into safe, validated expense actions on a mobile device. The React Native app is the reference client and showcase surface.
+
+## Architecture
+
+Splitmaa uses a validation-first command pipeline:
+
+```text
+input -> compact context -> parser -> validated action -> confirmation -> guided execution -> deterministic state update -> logs
+```
+
+The local model is never allowed to directly mutate app state.
+
+## Current Status
+
+Phase 0 is being bootstrapped from an empty workspace.
+
+## Phase Plan
+
+1. Repo setup and source-of-truth docs.
+2. Theme, branding, and animation foundation.
+3. Core money, contacts, and insight logic.
+4. Action system with Zod validation.
+5. Edge runtime contracts and diagnostics.
+6. Local parsers and FunctionGemma boundary.
+7. Floating assistant UI.
+8. Confirmation and guided execution.
+9. Core screens.
+10. Eval dataset and runner.
+11. Baseline evaluation.
+12. Native model runner boundary.
+13. Fine-tuning preparation.
+14. Fine-tuning execution if justified.
+15. Mobile conversion.
+16. Real device integration.
+17. Diagnostics and performance.
+18. Optional Supabase sync.
+19. Packaging and open-source polish.
+
+## Preview Instructions
+
+```bash
+pnpm install
+pnpm mobile:web
+```
+
+On Windows PowerShell, use `pnpm.cmd` if needed.
+
+## Testing Instructions
+
+```bash
+pnpm typecheck
+pnpm test
+```
+
+## Deployment Instructions
+
+Deployment is not configured yet. Android APK and EAS preview documentation will be added before open-source release.
+
+## Open Questions
+
+- Which Supabase features should remain optional for the first public release?
+- When should the parser move from rule-based fallback to real on-device inference?
+- Which Android device should be the first real-device target?
+
+## Risks
+
+- Native FunctionGemma integration may require device-specific runtime work.
+- Fine-tuning should not start until evals expose specific failure modes.
+- Mobile distribution must stay honest about what is mocked versus running locally.

@@ -39,6 +39,8 @@ Polished local MVP complete. Current phase: FunctionGemma-callable tool contract
 - 2026-06-15: Refined guided execution with dynamic member commentary and a one-shot group detail reveal animation.
 - 2026-06-15: Added FunctionGemma-callable tool contracts in `@splitmaa/core`: tool definitions, Zod argument validation, and conversion from model tool calls into validated app actions.
 - 2026-06-15: Updated the FunctionGemma runner boundary to accept tool definitions and optionally return typed tool calls.
+- 2026-06-15: Wired `functionGemmaParser` to call a tool-aware runner, validate typed/raw tool calls, convert them into app actions, and fall back to the thin rule-based parser only when the runner is not ready.
+- 2026-06-15: Routed the mobile assistant store through the FunctionGemma parser adapter using the unavailable runner placeholder plus fallback, so the app path now matches the future native runner boundary.
 
 ## Learnings
 
@@ -74,8 +76,8 @@ Polished local MVP complete. Current phase: FunctionGemma-callable tool contract
 
 ## Next Session Checklist
 
-- Expand FunctionGemma tool execution around the existing core actions, not the rule-based parser.
 - Replace placeholder FunctionGemma runner with Android Kotlin implementation when a model artifact/runtime path is available.
+- Feed the Android runner output into the existing typed/raw tool-call return shape.
 - Build Android development build/APK path after the model/tool boundary is stable enough to showcase.
 - Grow smoke evals from 5 examples to 300 examples.
 - Keep updating `SESSION_BRIDGE.md`, `TODO.md`, and `README.md` after meaningful progress.

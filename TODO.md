@@ -5,7 +5,8 @@
 - [x] FunctionGemma-callable tool definitions.
 - [x] Model tool-call argument validation.
 - [x] Conversion from model tool calls to validated app actions.
-- [ ] FunctionGemma parser adapter that consumes runner tool calls.
+- [x] FunctionGemma parser adapter that consumes runner tool calls.
+- [x] Mobile assistant routed through FunctionGemma parser adapter.
 - [ ] Native Android FunctionGemma runner implementation.
 
 ## Completed
@@ -21,7 +22,7 @@
 
 ## Next Up
 
-- [ ] FunctionGemma parser adapter wired to tool calls.
+- [ ] Native Android FunctionGemma runner implementation.
 - [ ] Real FunctionGemma native inference.
 - [ ] Android development build / APK.
 - [ ] Full 300-example smoke eval dataset.
@@ -33,7 +34,7 @@
 - [x] RuleBasedParser.
 - [x] FunctionGemmaParser placeholder.
 - [x] FunctionGemma tool registry.
-- [ ] Runner-backed FunctionGemmaParser.
+- [x] Runner-backed FunctionGemmaParser.
 
 ## Eval Pipeline
 
@@ -53,6 +54,7 @@
 - [x] iOS bridge plan.
 - [x] TypeScript native runner boundary.
 - [x] Tool-aware runner input/output types.
+- [x] Mobile wiring to unavailable runner placeholder with fallback.
 
 ## Floating Assistant
 

@@ -5,7 +5,7 @@ FunctionGemma is not running locally in this repo yet.
 Current state:
 
 - `ruleBasedParser` powers the local demo.
-- `functionGemmaParser` is an explicit placeholder.
+- `functionGemmaParser` now calls a tool-aware runner interface and falls back to `ruleBasedParser` only when the runner is not ready.
 - `modelToolDefinitions` lists the tool calls FunctionGemma is allowed to produce.
 - `parseModelToolCall` validates model tool-call arguments before app code sees them.
 - `appActionFromModelToolCall` converts a valid tool call into the existing Zod-backed app action schema.
@@ -20,3 +20,5 @@ TypeScript parser contract -> native Android/iOS runner -> local model inference
 The native runner must never mutate app state directly.
 
 The rule-based parser should stay thin. It exists only to keep the demo usable before the native FunctionGemma runner is ready; natural-language coverage belongs to FunctionGemma plus evals, not TypeScript regex growth.
+
+Current mobile wiring uses `createUnavailableFunctionGemmaRunner()` plus the rule-based fallback. The next implementation should replace that unavailable runner with an Android runner that returns either `toolCall` after native-side parsing or `rawToolCall` for TypeScript validation.

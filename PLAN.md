@@ -16,7 +16,7 @@ The local model is never allowed to directly mutate app state.
 
 ## Current Status
 
-The project now has a bootstrapped monorepo, Expo reference client, bottom navigation, core screens, floating assistant, confirmation flow, theme/branding foundation, pure core money/action/parser contracts, FunctionGemma-callable tool definitions, deterministic action application, AsyncStorage-backed local persistence, smoke evals, and an explicit FunctionGemma runner boundary package.
+The project now has a bootstrapped monorepo, Expo reference client, bottom navigation, core screens, floating assistant, confirmation flow, theme/branding foundation, pure core money/action/parser contracts, FunctionGemma-callable tool definitions, a runner-backed FunctionGemma parser adapter, deterministic action application, AsyncStorage-backed local persistence, smoke evals, and an explicit FunctionGemma runner boundary package.
 
 ## Phase Plan
 
@@ -25,14 +25,14 @@ The project now has a bootstrapped monorepo, Expo reference client, bottom navig
 3. Core money, contacts, and insight logic. Initial money/balance layer complete.
 4. Action system with Zod validation. Initial action layer complete.
 5. Edge runtime contracts and diagnostics. Initial diagnostics contracts complete.
-6. Local parsers and FunctionGemma boundary. Rule-based fallback complete; FunctionGemma tool contract complete; runner-backed parser still pending.
+6. Local parsers and FunctionGemma boundary. Rule-based fallback complete; FunctionGemma tool contract and runner-backed parser adapter complete.
 7. Local persistence. AsyncStorage MVP complete.
 8. Floating assistant UI. Complete for local MVP.
 9. Confirmation and guided execution. Confirmation complete; advanced animations pending.
 10. Core screens. Complete for local MVP.
 11. Eval dataset and runner. Smoke eval complete.
 12. Baseline evaluation. Smoke baseline complete.
-13. Native model runner boundary. Placeholder package and tool-aware TypeScript types complete.
+13. Native model runner boundary. Placeholder package, tool-aware TypeScript types, and mobile adapter wiring complete.
 14. Android FunctionGemma runner implementation.
 15. Fine-tuning preparation.
 16. Fine-tuning execution if justified.

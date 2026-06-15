@@ -1,25 +1,13 @@
-import type { ModelToolCall, ModelToolDefinition } from "@splitmaa/core";
+import type { FunctionGemmaToolRunner } from "@splitmaa/core";
 
-export type FunctionGemmaRunnerStatus = "not_configured" | "loading" | "ready" | "failed";
+export type {
+  FunctionGemmaRunnerInput,
+  FunctionGemmaRunnerResult,
+  FunctionGemmaRunnerStatus,
+  FunctionGemmaToolRunner,
+} from "@splitmaa/core";
 
-export type FunctionGemmaInferenceInput = {
-  prompt: string;
-  maxTokens: number;
-  tools?: ModelToolDefinition[];
-};
-
-export type FunctionGemmaInferenceResult = {
-  text: string;
-  toolCall?: ModelToolCall;
-  rawToolCall?: unknown;
-  latencyMs: number;
-  status: FunctionGemmaRunnerStatus;
-};
-
-export type FunctionGemmaRunner = {
-  getStatus(): Promise<FunctionGemmaRunnerStatus>;
-  infer(input: FunctionGemmaInferenceInput): Promise<FunctionGemmaInferenceResult>;
-};
+export type FunctionGemmaRunner = FunctionGemmaToolRunner;
 
 export function createUnavailableFunctionGemmaRunner(): FunctionGemmaRunner {
   return {

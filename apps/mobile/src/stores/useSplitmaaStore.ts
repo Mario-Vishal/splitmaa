@@ -2,6 +2,7 @@ import {
   applyConfirmedAction,
   calculateBalances,
   createExecutionPlan,
+  createFunctionGemmaParser,
   createInitialDiagnostics,
   createInitialLocalAppState,
   formatMoney,
@@ -12,6 +13,7 @@ import {
   type LocalAppState,
   type RuntimeDiagnostics,
 } from "@splitmaa/core";
+import { createUnavailableFunctionGemmaRunner } from "@splitmaa/functiongemma-runner";
 import { create } from "zustand";
 import {
   clearLocalAppState,
@@ -81,6 +83,11 @@ export const exampleCommands = [
   "Write me a poem",
 ] as const;
 
+const assistantParser = createFunctionGemmaParser({
+  runner: createUnavailableFunctionGemmaRunner(),
+  fallbackParser: ruleBasedParser,
+});
+
 export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
   state: createInitialLocalAppState(),
   diagnostics: createInitialDiagnostics(),
@@ -108,7 +115,7 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
     if (!cleanTranscript) return false;
 
     const now = new Date().toISOString();
-    const result = await ruleBasedParser.parse({
+    const result = await assistantParser.parse({
       transcript: cleanTranscript,
       state: get().state,
       now,
@@ -273,7 +280,7 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
       executionCommentary: [],
     }));
 
-    const result = await ruleBasedParser.parse({
+    const result = await assistantParser.parse({
       transcript: cleanTranscript,
       state: get().state,
       now,

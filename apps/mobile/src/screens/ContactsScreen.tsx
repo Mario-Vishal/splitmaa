@@ -21,8 +21,11 @@ export function ContactsScreen() {
     );
 
     return (
-      <ScreenShell title={selectedContact.displayName} subtitle="Balance and shared expenses">
-        <IconBackButton onPress={() => selectContact(undefined)} />
+      <ScreenShell
+        title={selectedContact.displayName}
+        subtitle="Balance and shared expenses"
+        leading={<IconBackButton onPress={() => selectContact(undefined)} />}
+      >
         <View style={styles.hero}>
           <Text style={styles.heroLabel}>
             {balance && balance.amountCents < 0 ? "You owe" : "Owes you"}

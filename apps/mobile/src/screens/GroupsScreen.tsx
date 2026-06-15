@@ -34,8 +34,11 @@ export function GroupsScreen() {
       .filter(Boolean);
 
     return (
-      <ScreenShell title={selectedGroup.name} subtitle="Members and expenses">
-        <IconBackButton onPress={() => selectGroup(undefined)} />
+      <ScreenShell
+        title={selectedGroup.name}
+        subtitle="Members and expenses"
+        leading={<IconBackButton onPress={() => selectGroup(undefined)} />}
+      >
         <Animated.View
           style={[
             styles.hero,
@@ -65,9 +68,11 @@ export function GroupsScreen() {
         <ScreenCard title="Members">
           <View style={styles.chipWrap}>
             {members.map((member) => (
-              <Text key={member} style={styles.memberChip}>
-                {member}
-              </Text>
+              <View key={member} style={styles.memberTag}>
+                <Text style={styles.memberTagText} numberOfLines={1}>
+                  {member}
+                </Text>
+              </View>
             ))}
           </View>
         </ScreenCard>
@@ -152,16 +157,23 @@ const styles = StyleSheet.create({
   chipWrap: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: theme.spacing.sm,
+    gap: 8,
   },
-  memberChip: {
+  memberTag: {
+    alignItems: "center",
     backgroundColor: theme.colors.surfaceMuted,
-    borderRadius: theme.radii.pill,
+    borderRadius: 10,
+    justifyContent: "center",
+    minHeight: 34,
+    maxWidth: "100%",
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: 7,
+  },
+  memberTagText: {
     color: theme.colors.textPrimary,
     fontSize: 13,
     fontWeight: "800",
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
+    letterSpacing: 0,
   },
   expenseRow: {
     alignItems: "center",

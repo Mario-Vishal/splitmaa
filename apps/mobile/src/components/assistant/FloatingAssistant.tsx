@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  KeyboardAvoidingView,
+  BackHandler,
+  Keyboard,
   PanResponder,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -20,6 +20,7 @@ import { theme } from "../../theme";
 export function FloatingAssistant({ onOpenGroups }: { onOpenGroups: () => void }) {
   const [expanded, setExpanded] = useState(false);
   const [draft, setDraft] = useState("");
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const messages = useSplitmaaStore((store) => store.assistantMessages);
   const pendingAction = useSplitmaaStore((store) => store.pendingAction);
   const guidedExecution = useSplitmaaStore((store) => store.guidedExecution);
@@ -33,6 +34,31 @@ export function FloatingAssistant({ onOpenGroups }: { onOpenGroups: () => void }
       if (gestureState.dy > 42) setExpanded(false);
     },
   });
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener("keyboardDidShow", (event) => {
+      setKeyboardHeight(event.endCoordinates.height);
+    });
+    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!expanded) return undefined;
+
+    const subscription = BackHandler.addEventListener("hardwareBackPress", () => {
+      setExpanded(false);
+      return true;
+    });
+
+    return () => subscription.remove();
+  }, [expanded]);
 
   async function submit(text: string) {
     const clean = text.trim();
@@ -61,10 +87,7 @@ export function FloatingAssistant({ onOpenGroups }: { onOpenGroups: () => void }
   const latestMessage = messages[messages.length - 1];
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      style={styles.sheetWrap}
-    >
+    <View style={[styles.sheetWrap, { bottom: keyboardHeight ? keyboardHeight + 10 : 78 }]}>
       <View style={styles.sheet}>
         <Pressable
           accessibilityRole="button"
@@ -84,7 +107,7 @@ export function FloatingAssistant({ onOpenGroups }: { onOpenGroups: () => void }
             style={styles.closeIcon}
             onPress={() => setExpanded(false)}
           >
-            <Text style={styles.closeIconText}>X</Text>
+            <CloseMark />
           </Pressable>
         </View>
 
@@ -104,7 +127,7 @@ export function FloatingAssistant({ onOpenGroups }: { onOpenGroups: () => void }
           <TextInput
             value={draft}
             onChangeText={setDraft}
-            placeholder="Create a group called California add Sai and Deepak"
+            placeholder="Ask Splitmaa..."
             placeholderTextColor={theme.colors.textSecondary}
             style={styles.input}
             returnKeyType="send"
@@ -115,7 +138,16 @@ export function FloatingAssistant({ onOpenGroups }: { onOpenGroups: () => void }
           </Pressable>
         </View>
       </View>
-    </KeyboardAvoidingView>
+    </View>
+  );
+}
+
+function CloseMark() {
+  return (
+    <View style={styles.closeMark}>
+      <View style={[styles.closeMarkStroke, styles.closeMarkForward]} />
+      <View style={[styles.closeMarkStroke, styles.closeMarkBack]} />
+    </View>
   );
 }
 
@@ -224,7 +256,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: theme.colors.textPrimary,
     borderRadius: theme.radii.pill,
-    bottom: 78,
+    bottom: 88,
     flexDirection: "row",
     gap: theme.spacing.sm,
     paddingHorizontal: theme.spacing.md,
@@ -245,7 +277,6 @@ const styles = StyleSheet.create({
     fontWeight: "900",
   },
   sheetWrap: {
-    bottom: 64,
     left: 0,
     position: "absolute",
     right: 0,
@@ -284,17 +315,29 @@ const styles = StyleSheet.create({
   },
   closeIcon: {
     alignItems: "center",
-    backgroundColor: theme.colors.surfaceMuted,
-    borderRadius: 16,
-    height: 32,
+    borderRadius: 22,
+    height: 44,
     justifyContent: "center",
-    width: 32,
+    width: 44,
   },
-  closeIconText: {
-    color: theme.colors.textPrimary,
-    fontSize: 17,
-    fontWeight: "900",
-    lineHeight: 20,
+  closeMark: {
+    height: 18,
+    width: 18,
+  },
+  closeMarkStroke: {
+    backgroundColor: theme.colors.textPrimary,
+    borderRadius: 999,
+    height: 2.5,
+    left: 1,
+    position: "absolute",
+    top: 8,
+    width: 16,
+  },
+  closeMarkForward: {
+    transform: [{ rotate: "45deg" }],
+  },
+  closeMarkBack: {
+    transform: [{ rotate: "-45deg" }],
   },
   inputShell: {
     alignItems: "center",
@@ -396,7 +439,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: theme.colors.textPrimary,
     borderRadius: 18,
-    bottom: 78,
+    bottom: 88,
     flexDirection: "row",
     gap: theme.spacing.md,
     left: theme.spacing.md,

@@ -48,6 +48,8 @@ Polished local MVP complete. Current phase: FunctionGemma real-device inference 
 - 2026-06-14: Fixed native Android packaging by moving MediaPipe OpenCL `uses-native-library` declarations under the module manifest `<application>`.
 - 2026-06-14: Switched PNPM to hoisted node linking for Windows Android native builds, removing unused Reanimated and Gesture Handler dependencies that were triggering avoidable CMake work.
 - 2026-06-14: Verified `pnpm.cmd typecheck`, `pnpm.cmd test`, `pnpm.cmd eval:smoke`, and `gradlew.bat :app:assembleDebug`; debug APK produced at `apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk`.
+- 2026-06-14: Installed bundled release APK on physical Android device after debug APK showed Metro bundle loading error.
+- 2026-06-14: Fixed mobile polish issues found on device: centered fixed bottom tab bar, keyboard-aware assistant sheet, Android hardware back handling, native-feeling header back control, drawn close icon, and rectangular member tags in group detail.
 
 ## Learnings
 

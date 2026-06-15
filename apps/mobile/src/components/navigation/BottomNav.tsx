@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { theme } from "../../theme";
 
 export type AppTab = "home" | "groups" | "contacts" | "diagnostics";
@@ -7,7 +7,7 @@ const tabs: Array<{ id: AppTab; label: string }> = [
   { id: "home", label: "Home" },
   { id: "groups", label: "Groups" },
   { id: "contacts", label: "People" },
-  { id: "diagnostics", label: "Diagnostics" },
+  { id: "diagnostics", label: "Status" },
 ];
 
 export function BottomNav({
@@ -19,7 +19,7 @@ export function BottomNav({
 }) {
   return (
     <View style={styles.wrap}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.nav}>
+      <View style={styles.nav}>
         {tabs.map((tab) => {
           const active = tab.id === activeTab;
           return (
@@ -28,13 +28,16 @@ export function BottomNav({
               accessibilityRole="button"
               accessibilityState={{ selected: active }}
               onPress={() => onChange(tab.id)}
-              style={[styles.item, active && styles.itemActive]}
+              style={({ pressed }) => [styles.item, pressed && styles.itemPressed]}
             >
-              <Text style={[styles.label, active && styles.labelActive]}>{tab.label}</Text>
+              <View style={[styles.indicator, active && styles.indicatorActive]} />
+              <Text style={[styles.label, active && styles.labelActive]} numberOfLines={1}>
+                {tab.label}
+              </Text>
             </Pressable>
           );
         })}
-      </ScrollView>
+      </View>
     </View>
   );
 }
@@ -42,33 +45,50 @@ export function BottomNav({
 const styles = StyleSheet.create({
   wrap: {
     backgroundColor: theme.colors.background,
-    paddingBottom: theme.spacing.sm,
+    paddingBottom: theme.spacing.md,
     paddingHorizontal: theme.spacing.md,
+    paddingTop: 6,
   },
   nav: {
+    alignItems: "center",
+    alignSelf: "center",
     backgroundColor: theme.colors.surface,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radii.pill,
-    borderWidth: 1,
-    gap: theme.spacing.xs,
+    borderRadius: 24,
+    flexDirection: "row",
+    justifyContent: "center",
+    maxWidth: 430,
     padding: 5,
+    width: "100%",
+    ...theme.shadows.card,
   },
   item: {
     alignItems: "center",
-    borderRadius: theme.radii.pill,
+    borderRadius: 19,
+    flex: 1,
+    gap: 4,
     justifyContent: "center",
-    minHeight: 42,
-    paddingHorizontal: theme.spacing.lg,
+    minHeight: 48,
+    paddingHorizontal: 2,
   },
-  itemActive: {
-    backgroundColor: theme.colors.textPrimary,
+  itemPressed: {
+    backgroundColor: theme.colors.surfaceMuted,
+  },
+  indicator: {
+    backgroundColor: "transparent",
+    borderRadius: 999,
+    height: 4,
+    width: 18,
+  },
+  indicatorActive: {
+    backgroundColor: theme.colors.accent,
   },
   label: {
     color: theme.colors.textSecondary,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "800",
+    letterSpacing: 0,
   },
   labelActive: {
-    color: theme.colors.surface,
+    color: theme.colors.textPrimary,
   },
 });

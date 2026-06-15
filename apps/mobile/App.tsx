@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { BackHandler, SafeAreaView, StyleSheet, Text, View } from "react-native";
 import { FloatingAssistant } from "./src/components/assistant/FloatingAssistant";
 import { BottomNav, type AppTab } from "./src/components/navigation/BottomNav";
 import { ContactsScreen } from "./src/screens/ContactsScreen";
@@ -14,11 +14,38 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<AppTab>("home");
   const hydrate = useSplitmaaStore((store) => store.hydrate);
   const guidedExecution = useSplitmaaStore((store) => store.guidedExecution);
+  const selectedGroupId = useSplitmaaStore((store) => store.selectedGroupId);
+  const selectedContactId = useSplitmaaStore((store) => store.selectedContactId);
+  const selectGroup = useSplitmaaStore((store) => store.selectGroup);
+  const selectContact = useSplitmaaStore((store) => store.selectContact);
   const isExecuting = guidedExecution.status === "running";
 
   useEffect(() => {
     void hydrate();
   }, [hydrate]);
+
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (activeTab === "groups" && selectedGroupId) {
+        selectGroup(undefined);
+        return true;
+      }
+
+      if (activeTab === "contacts" && selectedContactId) {
+        selectContact(undefined);
+        return true;
+      }
+
+      if (activeTab !== "home") {
+        setActiveTab("home");
+        return true;
+      }
+
+      return false;
+    });
+
+    return () => subscription.remove();
+  }, [activeTab, selectContact, selectGroup, selectedContactId, selectedGroupId]);
 
   return (
     <View style={styles.root}>

@@ -1,14 +1,16 @@
-import type { PropsWithChildren } from "react";
+import type { PropsWithChildren, ReactNode } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { theme } from "../../theme";
 
 export function ScreenShell({
   title,
   subtitle,
+  leading,
   children,
-}: PropsWithChildren<{ title: string; subtitle: string }>) {
+}: PropsWithChildren<{ title: string; subtitle: string; leading?: ReactNode }>) {
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {leading ? <View style={styles.topBar}>{leading}</View> : null}
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
         {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
@@ -27,6 +29,11 @@ const styles = StyleSheet.create({
   },
   header: {
     gap: 3,
+  },
+  topBar: {
+    alignItems: "center",
+    flexDirection: "row",
+    minHeight: 44,
   },
   title: {
     color: theme.colors.textPrimary,

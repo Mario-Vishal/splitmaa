@@ -10,12 +10,13 @@
 - [x] Install dependencies.
 - [x] Run typecheck.
 - [x] Initialize root git repository.
-- [ ] Create GitHub repository and push initial commits.
+- [x] Create GitHub repository and push initial commits.
 
 ## Completed
 
 - [x] Captured project framing: edge-device LLM system, mobile reference client.
 - [x] Documented model-as-action-proposer safety rule.
+- [x] Published GitHub repository: https://github.com/Mario-Vishal/splitmaa
 
 ## Next Up
 
@@ -77,7 +78,7 @@
 
 - [ ] Full local FunctionGemma inference is not implemented yet.
 - [x] Expo/native package compatibility checked with `pnpm.cmd typecheck`.
-- [ ] GitHub push is blocked until `gh` auth is valid.
+- [x] GitHub repository was created and pushed.
 
 ## Nice To Have Later
 

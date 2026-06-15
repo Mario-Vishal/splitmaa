@@ -8,10 +8,12 @@ The project is framed as an AI system first: a small local function-calling mode
 
 ## Current Status
 
-Phase 0 is in progress.
+Phase 0 is complete.
 
 - Real: pnpm monorepo scaffold, Expo mobile reference client, project plan, TODO tracker, session bridge.
 - Mocked or not built yet: local FunctionGemma inference, parser runtime, action schemas, validation pipeline, guided execution, eval runner, fine-tuning, native model bridges.
+
+GitHub: https://github.com/Mario-Vishal/splitmaa
 
 ## Quick Start
 

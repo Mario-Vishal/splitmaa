@@ -24,11 +24,12 @@ Phase 0 - Repo Setup.
 - 2026-06-14: Verified `pnpm.cmd typecheck` and `pnpm.cmd test`.
 - 2026-06-14: Initialized root Git repository on `main`.
 - 2026-06-14: Created initial commit `8b11246` (`chore: bootstrap splitmaa workspace`).
+- 2026-06-14: Created and pushed GitHub repo: https://github.com/Mario-Vishal/splitmaa
 
 ## Learnings
 
 - PowerShell blocks `pnpm` and `npm` `.ps1` shims in this environment. Use `pnpm.cmd` and `npm.cmd`.
-- `gh` is installed, but the saved GitHub token for `Mario-Vishal` is invalid. Repo creation and push need re-authentication.
+- `gh auth status` reported an invalid saved token, but `gh repo create` still succeeded for `Mario-Vishal`.
 - Expo's current scaffold selected SDK `~56.0.11`, React `19.2.3`, and React Native `0.85.3`.
 - Expo web preview for this SDK also needs `react-dom`, `react-native-web`, and `@expo/metro-runtime`.
 
@@ -48,13 +49,14 @@ Phase 0 - Repo Setup.
 ## Next Session Checklist
 
 - Initialize root git repository.
-- Re-authenticate GitHub CLI with `gh auth login -h github.com`.
-- Create `splitmaa` GitHub repo and push.
+- Begin Phase 1: theme, branding, and animation foundation.
+- Keep updating `SESSION_BRIDGE.md`, `TODO.md`, and `README.md` after meaningful progress.
 
 ## Blockers
 
-- GitHub CLI auth is currently invalid.
+- No active blocker for Phase 1.
 
 ## Commit Log
 
 - `8b11246` - `chore: bootstrap splitmaa workspace`
+- `4154bb7` - `docs: record phase zero handoff`

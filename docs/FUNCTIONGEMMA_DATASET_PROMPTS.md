@@ -98,7 +98,11 @@ Do not include EUR, GBP, crypto, bank sync, cloud sync, invoices, or non-expense
 ## Few-Shot Examples
 
 ```text
-Use these examples as the style guide:
+Use these examples as the style guide. For the full validated reference set, use:
+datasets/splitmaa_functiongemma/reference_realistic_examples.jsonl
+
+The reference file has 70 validated examples: 10 entity, 10 expense, 10 multi-step, 10 lookup/navigation, 10 financial, 10 clarification-response, and 10 unsupported/adversarial examples. They all use the updated single tool name:
+extract_workflow_intent
 
 {"id":"example_create_group_001","input":"create a group called California add Sai and Deepak","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"entity_mutation","confidence":0.91,"currencyHint":"USD","operations":[{"operationType":"create_group","args":{"groupName":"California","members":[{"refType":"name","value":"Sai"},{"refType":"name","value":"Deepak"}],"currency":"USD"}}],"missingFields":[],"ambiguities":[]}}}
 {"id":"example_add_expense_001","input":"add 18 dollars for milk paid by me split with Aravind","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"expense_mutation","confidence":0.9,"currencyHint":"USD","operations":[{"operationType":"add_expense","args":{"description":"milk","amountText":"18 dollars","currency":"USD","paidBy":{"refType":"current_user"},"split":{"splitType":"equal","participants":[{"refType":"current_user"},{"refType":"name","value":"Aravind"}]},"category":"groceries","paymentType":"unknown"}}],"missingFields":[],"ambiguities":[]}}}
@@ -112,6 +116,38 @@ Use these examples as the style guide:
 {"id":"example_clarification_001","input":"add dinner","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"expense_mutation","confidence":0.72,"operations":[],"missingFields":["amount","paidBy","participants"],"ambiguities":[]}}}
 {"id":"example_clarification_response_001","input":"the second one","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"clarification_response","confidence":0.92,"pendingWorkflowRef":{"refType":"active_pending_workflow"},"pendingEventType":"contact_picker","operations":[{"operationType":"select_option","args":{"selection":{"selectionType":"ordinal","ordinal":2,"rawText":"the second one"}}}],"missingFields":[],"ambiguities":[]}}}
 {"id":"example_unsupported_001","input":"book a flight to Goa","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"unsupported","confidence":0.92,"operations":[],"missingFields":[],"ambiguities":["I cannot book travel; I can only manage local Splitmaa expense data."]}}}
+```
+
+## Realistic Reference Examples
+
+Use the reference file as your primary few-shot material when generating batches:
+
+```powershell
+Get-Content datasets\splitmaa_functiongemma\reference_realistic_examples.jsonl
+```
+
+When asking ChatGPT to generate a batch, paste the Master Prompt, then paste 10-20 relevant lines from `reference_realistic_examples.jsonl` for that workflow type. Do not paste old examples with tool names like `create_group`, `add_expense`, `search_records`, or `draft_expense_plan` at the top level. Those are retired. The only top-level tool name is `extract_workflow_intent`.
+
+The model must learn this distinction:
+
+- `workflowType` chooses the product workflow.
+- `operationType` chooses semantic operations inside that workflow.
+- SQLite queries, UI pickers, confirmation previews, navigation, highlighting, and commits are app execution details, not model tool chains.
+
+Prompt to paste before a workflow-specific batch:
+
+```text
+Below are validated Splitmaa examples. Copy the same architecture exactly:
+- top-level expected.name must be extract_workflow_intent
+- arguments.schemaVersion must be "1.0"
+- use workflowType and operations
+- use amountText, never amountCents
+- use dateText/dateIntent, never resolved UTC dates unless the user gave exact dates
+- use refs like {"refType":"current_user"} and {"refType":"name","value":"Pabba"}
+- incomplete Splitmaa requests use missingFields
+- out-of-domain requests use workflowType unsupported
+
+Now generate new examples with different names, amounts, dates, groups, wording, typos, and speech-to-text phrasing.
 ```
 
 ## Batch Prompts

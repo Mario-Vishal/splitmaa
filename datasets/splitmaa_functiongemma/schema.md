@@ -70,3 +70,11 @@ python tools/finetune/validate_splitmaa_dataset.py datasets/splitmaa_functiongem
 ```
 
 The local validator is the source of truth before examples move into train, validation, or locked test files.
+
+Validated realistic reference examples live at:
+
+```text
+datasets/splitmaa_functiongemma/reference_realistic_examples.jsonl
+```
+
+Use that file as the few-shot source when generating new ChatGPT batches. It intentionally uses only the final single top-level tool name, `extract_workflow_intent`.

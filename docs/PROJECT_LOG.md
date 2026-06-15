@@ -22,6 +22,7 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Added app-owned risk classification, `amountText` normalization, and missing-info vs unsupported handling in the workflow layer.
 - Added durable SQLite `workflow_state` and `workflow_audit_logs` tables for pending workflows, guarded commits, and future audit traces.
 - Rewrote FunctionGemma dataset schema, prompts, seed examples, validator, and converter around the single workflow-intent function.
+- Added a validated realistic reference JSONL file with 70 examples covering the final `extract_workflow_intent` architecture across entity, expense, multi-step, lookup/navigation, financial, clarification-response, and unsupported/adversarial scenarios.
 
 ### Learnings
 

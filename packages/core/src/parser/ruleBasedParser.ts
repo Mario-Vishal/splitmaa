@@ -54,7 +54,7 @@ export function parseRule(input: ParserInput): AppAction {
   }
 
   const expenseMatch = transcript.match(
-    /add\s+([\d.]+)\s+(dollars?|usd|rupees?|inr)?\s+for\s+(.+?)(?:\s+paid by\s+(.+?))?(?:\s+split\s+(?:with|between)\s+(.+))?$/i,
+    /add\s+([\d.]+)\s+(dollars?|usd|rupees?|inr)?\s+for\s+(.+?)(?:\s+paid by\s+(.+?))?(?:\s+(?:using|with)\s+.+?)?(?:\s+split\s+(?:with|between)\s+(.+))?$/i,
   );
   if (expenseMatch) {
     const participantNames = splitNames(expenseMatch[5] ?? "");

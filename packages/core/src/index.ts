@@ -7,6 +7,8 @@ export * from "./domain/localStateSchema";
 export * from "./actions/schemas";
 export * from "./actions/executionPlan";
 export * from "./parser/types";
+export * from "./parser/fakeParser";
 export * from "./parser/ruleBasedParser";
+export * from "./parser/functionGemmaParser";
 export * from "./runtime/diagnostics";
 export * from "./state/applyAction";

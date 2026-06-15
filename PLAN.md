@@ -16,7 +16,7 @@ The local model is never allowed to directly mutate app state.
 
 ## Current Status
 
-The project now has a bootstrapped monorepo, Expo reference client, theme/branding foundation, pure core money/action/parser contracts, deterministic action application, and AsyncStorage-backed local persistence.
+The project now has a bootstrapped monorepo, Expo reference client, bottom navigation, core screens, floating assistant, confirmation flow, theme/branding foundation, pure core money/action/parser contracts, deterministic action application, AsyncStorage-backed local persistence, smoke evals, and an explicit FunctionGemma runner boundary package.
 
 ## Phase Plan
 
@@ -27,12 +27,12 @@ The project now has a bootstrapped monorepo, Expo reference client, theme/brandi
 5. Edge runtime contracts and diagnostics. Initial diagnostics contracts complete.
 6. Local parsers and FunctionGemma boundary. Rule-based fallback complete; FunctionGemma boundary still pending.
 7. Local persistence. AsyncStorage MVP complete.
-8. Floating assistant UI.
-8. Confirmation and guided execution.
-9. Core screens.
-10. Eval dataset and runner.
-11. Baseline evaluation.
-12. Native model runner boundary.
+8. Floating assistant UI. Complete for local MVP.
+9. Confirmation and guided execution. Confirmation complete; advanced animations pending.
+10. Core screens. Complete for local MVP.
+11. Eval dataset and runner. Smoke eval complete.
+12. Baseline evaluation. Smoke baseline complete.
+13. Native model runner boundary. Placeholder package complete.
 13. Fine-tuning preparation.
 14. Fine-tuning execution if justified.
 15. Mobile conversion.

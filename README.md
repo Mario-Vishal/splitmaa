@@ -8,10 +8,10 @@ The project is framed as an AI system first: a small local function-calling mode
 
 ## Current Status
 
-Local persistence foundation is complete.
+Local MVP is complete.
 
-- Real: pnpm monorepo scaffold, Expo mobile reference client, theme/branding foundation, pure money helpers, action schemas, rule-based parser fallback, deterministic action application, AsyncStorage local persistence, project plan, TODO tracker, session bridge.
-- Mocked or not built yet: real local FunctionGemma inference, floating assistant, confirmation cards, guided execution animations, eval runner, fine-tuning, native model bridges.
+- Real: pnpm monorepo scaffold, Expo mobile reference client, bottom navigation, Home/Groups/Contacts/Diagnostics screens, floating assistant, confirmation cards, rule-based parser fallback, action schemas, deterministic action application, AsyncStorage local persistence, audit logs, smoke eval runner, native runner boundary package, project plan, TODO tracker, session bridge.
+- Mocked or not built yet: real local FunctionGemma inference, real guided entity animations, full eval dataset, fine-tuned model, Android APK/dev build packaging, Supabase sync.
 
 GitHub: https://github.com/Mario-Vishal/splitmaa
 
@@ -30,6 +30,7 @@ pnpm mobile:android
 pnpm mobile:ios
 pnpm typecheck
 pnpm test
+pnpm eval:smoke
 ```
 
 On Windows PowerShell, use `pnpm.cmd` if script execution policy blocks `pnpm`:
@@ -72,4 +73,4 @@ TODO.md            Phase tracker
 
 ## Roadmap
 
-The full roadmap is tracked in [PLAN.md](./PLAN.md) and [TODO.md](./TODO.md). The next major phase is the floating assistant and confirmation-card workflow.
+The full roadmap is tracked in [PLAN.md](./PLAN.md) and [TODO.md](./TODO.md). The next major phase is Android dev build/APK packaging and then real native FunctionGemma integration.

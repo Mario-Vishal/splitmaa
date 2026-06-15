@@ -11,7 +11,17 @@ pnpm mobile:web
 
 ## Android
 
-Android debug and preview APK instructions will be added after the app has the first assistant flow.
+Expo Go may reject the project if its installed client does not support the app's current Expo SDK.
+
+For now:
+
+```bash
+pnpm mobile:start
+```
+
+Then scan the QR code with a compatible Expo Go version.
+
+Android development build and preview APK instructions are still pending.
 
 ## iOS
 

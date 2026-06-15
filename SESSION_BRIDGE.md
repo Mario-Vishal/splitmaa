@@ -11,7 +11,7 @@ This file is the source of truth for continuing Splitmaa across Codex sessions. 
 
 ## Current Phase
 
-Local persistence foundation complete. Next phase: floating assistant and confirmation-card workflow.
+Local MVP complete. Next phase: Android dev build/APK packaging and real native FunctionGemma integration planning.
 
 ## Latest Completion Log
 
@@ -29,6 +29,8 @@ Local persistence foundation complete. Next phase: floating assistant and confir
 - 2026-06-15: Added core money helpers, balance logic, action schemas, execution plans, parser contracts, diagnostics, and deterministic action application.
 - 2026-06-15: Added AsyncStorage local persistence with snapshot validation and Zustand store hydration.
 - 2026-06-15: Verified `pnpm.cmd typecheck`, `pnpm.cmd test`, and Expo web export.
+- 2026-06-15: Added bottom navigation, Home/Groups/Contacts/Diagnostics screens, floating assistant, confirmation cards, and persisted confirmed assistant actions.
+- 2026-06-15: Added smoke eval dataset/runner and FunctionGemma runner boundary package.
 
 ## Learnings
 
@@ -46,6 +48,7 @@ Local persistence foundation complete. Next phase: floating assistant and confir
 - Use a root-level `SESSION_BRIDGE.md` instead of burying handoff notes in docs so future sessions load project state quickly.
 - Use AsyncStorage for MVP local persistence rather than SQLite or Supabase so the app remains easy to preview.
 - Persist validated `LocalAppState` snapshots first; add repositories/query services once the assistant workflow is ready.
+- Keep the MVP local and honest: FunctionGemma native inference is represented by a placeholder boundary until real Kotlin/Swift runner work is done.
 
 ## Decisions
 
@@ -56,9 +59,9 @@ Local persistence foundation complete. Next phase: floating assistant and confir
 
 ## Next Session Checklist
 
-- Build floating assistant UI with typed chat messages.
-- Add confirmation cards that call `applyConfirmedAction` only after user approval.
-- Add audit logs for parsed/proposed/confirmed actions.
+- Build Android development build/APK path.
+- Replace placeholder FunctionGemma runner with Android Kotlin implementation when a model artifact/runtime path is available.
+- Grow smoke evals from 5 examples to 300 examples.
 - Keep updating `SESSION_BRIDGE.md`, `TODO.md`, and `README.md` after meaningful progress.
 
 ## Blockers

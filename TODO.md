@@ -2,14 +2,16 @@
 
 ## Current Phase
 
-- [x] Theme tokens.
-- [x] Logo and wordmark components.
-- [x] Animation constants.
-- [x] Money helpers and balance logic.
-- [x] Action schemas and execution plans.
-- [x] Parser interface and rule-based fallback.
-- [x] AsyncStorage local persistence.
-- [x] Zustand store hydration and save/reset actions.
+- [x] Bottom navigation.
+- [x] Home screen.
+- [x] Groups screen.
+- [x] Contacts screen.
+- [x] Diagnostics screen.
+- [x] Floating assistant.
+- [x] Confirmation cards.
+- [x] Confirmed action persistence.
+- [x] Smoke eval runner.
+- [x] FunctionGemma runner boundary placeholder.
 
 ## Completed
 
@@ -17,25 +19,26 @@
 - [x] Documented model-as-action-proposer safety rule.
 - [x] Published GitHub repository: https://github.com/Mario-Vishal/splitmaa
 - [x] Verified Expo web export with local persistence wiring.
+- [x] Built local MVP assistant workflow.
 
 ## Next Up
 
-- [ ] Floating assistant UI.
-- [ ] Confirmation cards.
-- [ ] Guided execution commentary bar.
+- [ ] Android development build / APK.
+- [ ] Real FunctionGemma native inference.
+- [ ] Full 300-example smoke eval dataset.
 
 ## AI Runtime
 
 - [x] Parser interface.
-- [ ] FakeParser.
+- [x] FakeParser.
 - [x] RuleBasedParser.
-- [ ] FunctionGemmaParser placeholder.
+- [x] FunctionGemmaParser placeholder.
 
 ## Eval Pipeline
 
-- [ ] Eval schema.
-- [ ] Smoke dataset.
-- [ ] Eval runner.
+- [x] Smoke dataset.
+- [x] Eval runner.
+- [ ] Full eval schema/report files.
 
 ## Fine-Tuning
 
@@ -45,21 +48,21 @@
 
 ## Mobile Inference
 
-- [ ] Android bridge plan.
-- [ ] iOS bridge plan.
-- [ ] TypeScript native runner boundary.
+- [x] Android bridge plan.
+- [x] iOS bridge plan.
+- [x] TypeScript native runner boundary.
 
 ## Floating Assistant
 
-- [ ] Collapsed assistant state.
-- [ ] Expanded chat state.
-- [ ] Confirmation mode.
-- [ ] Diagnostics mode.
+- [x] Collapsed assistant state.
+- [x] Expanded chat state.
+- [x] Confirmation mode.
+- [x] Diagnostics mode.
 
 ## Guided Execution Animations
 
-- [ ] Execution step model.
-- [ ] Commentary bar.
+- [x] Execution step model.
+- [x] Commentary after confirmation.
 - [ ] Entity highlight strategy.
 
 ## Ground Truth Queries
@@ -67,7 +70,7 @@
 - [x] AsyncStorage local state snapshot.
 - [x] Validated local state load/save.
 - [ ] Query services.
-- [ ] Audit logs.
+- [x] Audit logs for confirmed assistant actions.
 
 ## Packaging
 

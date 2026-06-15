@@ -41,5 +41,6 @@ React Native and Expo provide the mobile showcase surface. TypeScript owns UI, a
 
 - No real FunctionGemma mobile inference yet.
 - Rule-based parser exists only as a narrow fallback.
-- AsyncStorage local persistence exists for MVP snapshots, but repository/query services are not complete.
-- No eval runner yet.
+- AsyncStorage local persistence exists for MVP snapshots.
+- Smoke eval runner exists; full eval dataset is not complete.
+- FunctionGemma runner package exists as an unavailable placeholder, not real inference.

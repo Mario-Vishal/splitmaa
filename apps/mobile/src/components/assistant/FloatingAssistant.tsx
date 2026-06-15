@@ -29,9 +29,10 @@ export function FloatingAssistant({ onOpenGroups }: { onOpenGroups: () => void }
   const confirmPendingAction = useSplitmaaStore((store) => store.confirmPendingAction);
   const cancelPendingAction = useSplitmaaStore((store) => store.cancelPendingAction);
   const panResponder = PanResponder.create({
-    onMoveShouldSetPanResponder: (_, gestureState) => Math.abs(gestureState.dy) > 8,
+    onStartShouldSetPanResponder: () => false,
+    onMoveShouldSetPanResponder: (_, gestureState) => Math.abs(gestureState.dy) > 4,
     onPanResponderRelease: (_, gestureState) => {
-      if (gestureState.dy > 42) setExpanded(false);
+      if (gestureState.dy > 24 || gestureState.vy > 0.65) setExpanded(false);
     },
   });
 
@@ -89,26 +90,27 @@ export function FloatingAssistant({ onOpenGroups }: { onOpenGroups: () => void }
   return (
     <View style={[styles.sheetWrap, { bottom: keyboardHeight ? keyboardHeight + 10 : 78 }]}>
       <View style={styles.sheet}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Close assistant"
-          onPress={() => setExpanded(false)}
-          style={styles.grabberHit}
-          {...panResponder.panHandlers}
-        >
-          <View style={styles.grabber} />
-        </Pressable>
-
-        <View style={styles.header}>
-          <Text style={styles.title}>Splitmaa</Text>
+        <View style={styles.sheetTop} {...panResponder.panHandlers}>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Close assistant"
-            style={styles.closeIcon}
             onPress={() => setExpanded(false)}
+            style={styles.grabberHit}
           >
-            <CloseMark />
+            <View style={styles.grabber} />
           </Pressable>
+
+          <View style={styles.header}>
+            <Text style={styles.title}>Splitmaa</Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Close assistant"
+              style={styles.closeIcon}
+              onPress={() => setExpanded(false)}
+            >
+              <CloseMark />
+            </Pressable>
+          </View>
         </View>
 
         {pendingAction ? (
@@ -302,6 +304,9 @@ const styles = StyleSheet.create({
     alignSelf: "stretch",
     paddingBottom: theme.spacing.xs,
     paddingTop: 2,
+  },
+  sheetTop: {
+    gap: theme.spacing.xs,
   },
   header: {
     alignItems: "center",

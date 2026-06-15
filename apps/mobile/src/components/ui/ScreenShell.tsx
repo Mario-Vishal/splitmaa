@@ -6,14 +6,22 @@ export function ScreenShell({
   title,
   subtitle,
   leading,
+  trailing,
   children,
-}: PropsWithChildren<{ title: string; subtitle: string; leading?: ReactNode }>) {
+}: PropsWithChildren<{ title: string; subtitle: string; leading?: ReactNode; trailing?: ReactNode }>) {
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {leading ? <View style={styles.topBar}>{leading}</View> : null}
-      <View style={styles.header}>
-        <Text style={styles.title}>{title}</Text>
-        {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+    <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      {leading ? (
+        <View style={styles.topBar}>
+          {leading}
+        </View>
+      ) : null}
+      <View style={[styles.header, trailing ? styles.headerWithAction : null]}>
+        <View style={styles.headerText}>
+          <Text style={styles.title}>{title}</Text>
+          {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+        </View>
+        {trailing ? <View style={styles.headerAction}>{trailing}</View> : null}
       </View>
       {children}
       <View style={styles.bottomSpacer} />
@@ -28,12 +36,27 @@ const styles = StyleSheet.create({
     paddingTop: theme.spacing.lg,
   },
   header: {
+    alignItems: "flex-start",
+    flexDirection: "row",
     gap: 3,
+    justifyContent: "space-between",
   },
   topBar: {
     alignItems: "center",
     flexDirection: "row",
+    justifyContent: "space-between",
     minHeight: 44,
+  },
+  headerWithAction: {
+    alignItems: "center",
+  },
+  headerText: {
+    flex: 1,
+    gap: 3,
+  },
+  headerAction: {
+    alignItems: "center",
+    marginLeft: theme.spacing.md,
   },
   title: {
     color: theme.colors.textPrimary,

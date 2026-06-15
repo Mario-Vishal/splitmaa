@@ -1,4 +1,5 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { AccountButton } from "../components/account/AccountButton";
 import { ContactCard, GroupCard } from "../components/ui/EntityCards";
 import { ScreenCard } from "../components/ui/ScreenCard";
 import { ScreenShell } from "../components/ui/ScreenShell";
@@ -8,9 +9,11 @@ import { theme } from "../theme";
 export function HomeScreen({
   onOpenGroups,
   onOpenContacts,
+  onOpenAccount,
 }: {
   onOpenGroups: () => void;
   onOpenContacts: () => void;
+  onOpenAccount: () => void;
 }) {
   const state = useSplitmaaStore((store) => store.state);
   const selectGroup = useSplitmaaStore((store) => store.selectGroup);
@@ -21,6 +24,7 @@ export function HomeScreen({
     <ScreenShell
       title="Hello, Mario"
       subtitle="Balances, groups, and contacts"
+      trailing={<AccountButton onPress={onOpenAccount} />}
     >
       <View style={styles.summaryCard}>
         <Text style={styles.summaryLabel}>You are owed</Text>

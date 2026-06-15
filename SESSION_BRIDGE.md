@@ -50,6 +50,7 @@ Polished local MVP complete. Current phase: FunctionGemma real-device inference 
 - 2026-06-14: Verified `pnpm.cmd typecheck`, `pnpm.cmd test`, `pnpm.cmd eval:smoke`, and `gradlew.bat :app:assembleDebug`; debug APK produced at `apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk`.
 - 2026-06-14: Installed bundled release APK on physical Android device after debug APK showed Metro bundle loading error.
 - 2026-06-14: Fixed mobile polish issues found on device: centered fixed bottom tab bar, keyboard-aware assistant sheet, Android hardware back handling, native-feeling header back control, drawn close icon, and rectangular member tags in group detail.
+- 2026-06-14: Added a Home header account icon, account/settings bottom panel with balance/data/runtime status, Android back dismissal, and stronger assistant sheet pull-down dismissal from the sheet header.
 
 ## Learnings
 
@@ -76,6 +77,7 @@ Polished local MVP complete. Current phase: FunctionGemma real-device inference 
 - Prioritize a calm finance UI: fewer visible chat messages, stronger debt summary, tappable cards, and detail views over a generic chatbot layout.
 - Prefer native app density over website spacing: compact headers, short subtitles, filled surfaces, and fewer full-width controls.
 - Assistant should stay compact and utilitarian; avoid filler messages and obvious explanatory copy.
+- Account/settings should be a native-feeling panel opened from a person icon, not a hamburger/sidebar pattern.
 - Do not add predefined prompt chips unless they are explicitly requested; use placeholder hints instead.
 - Guided assistant execution should shrink to commentary/progress while running and expand to a compact summary after completion.
 - Do not use the rule-based parser as runtime fallback. FunctionGemma is responsible for language understanding; TypeScript owns tool definitions, validation, deterministic execution, and auditability.
@@ -92,7 +94,7 @@ Polished local MVP complete. Current phase: FunctionGemma real-device inference 
 
 ## Next Session Checklist
 
-- Install/run the Android debug APK that includes `@splitmaa/functiongemma-runner` on a physical Android device.
+- Install/run the Android release APK on the connected physical Android device after each UI polish pass.
 - Push a MediaPipe-compatible `.task` model to `/data/local/tmp/llm/splitmaa_functiongemma.task`.
 - Test the command path on a physical Android device and inspect diagnostics/model readiness behavior.
 - Grow smoke evals from 5 examples to 300 examples.
@@ -100,7 +102,6 @@ Polished local MVP complete. Current phase: FunctionGemma real-device inference 
 
 ## Blockers
 
-- No Android device is currently visible to `adb devices`.
 - No compatible `.task` model file exists in the repo yet. Real inference requires a MediaPipe `.task` model at `/data/local/tmp/llm/splitmaa_functiongemma.task`.
 
 ## Commit Log

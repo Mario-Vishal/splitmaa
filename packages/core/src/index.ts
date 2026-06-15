@@ -14,3 +14,4 @@ export * from "./runtime/diagnostics";
 export * from "./state/applyAction";
 export * from "./tools/modelTools";
 export * from "./query/localQueries";
+export * from "./workflow/intent";

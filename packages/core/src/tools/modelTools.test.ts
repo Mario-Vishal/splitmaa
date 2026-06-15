@@ -2,30 +2,35 @@ import { describe, expect, it } from "vitest";
 import { appActionFromModelToolCall, modelToolDefinitions, parseModelToolCall } from "./modelTools";
 
 describe("model tools", () => {
-  it("exports FunctionGemma-callable tool definitions", () => {
-    expect(modelToolDefinitions.map((tool) => tool.name)).toEqual([
-      "create_group",
-      "create_contact",
-      "add_expense",
-      "settle_up",
-      "draft_expense_plan",
-      "query_balance",
-      "query_financial_summary",
-      "search_records",
-      "open_record",
-      "show_search_results",
-      "clarification_required",
-      "unsupported_request",
-    ]);
-    expect(modelToolDefinitions.find((tool) => tool.name === "query_balance")?.mutatesState).toBe(false);
+  it("exports only the FunctionGemma workflow intent tool", () => {
+    expect(modelToolDefinitions.map((tool) => tool.name)).toEqual(["extract_workflow_intent"]);
+    expect(modelToolDefinitions[0].mutatesState).toBe(false);
+    expect(modelToolDefinitions[0].requiresConfirmation).toBe(false);
   });
 
-  it("converts a create_group tool call into a validated app action", () => {
+  it("converts a create_group workflow intent into a validated app action", () => {
     const call = parseModelToolCall({
-      name: "create_group",
+      name: "extract_workflow_intent",
       arguments: {
-        groupName: "california",
-        memberNames: ["sai", "deepak"],
+        schemaVersion: "1.0",
+        workflowType: "entity_mutation",
+        confidence: 0.91,
+        operations: [
+          {
+            operationType: "create_group",
+            args: {
+              groupName: "california",
+              members: [
+                { refType: "current_user" },
+                { refType: "name", value: "sai" },
+                { refType: "name", value: "deepak" },
+              ],
+              currency: "USD",
+            },
+          },
+        ],
+        missingFields: [],
+        ambiguities: [],
       },
     });
 
@@ -37,36 +42,54 @@ describe("model tools", () => {
     expect(action.type).toBe("CREATE_GROUP");
     if (action.type === "CREATE_GROUP") {
       expect(action.groupName).toBe("california");
-      expect(action.memberNames).toEqual(["sai", "deepak"]);
+      expect(action.memberNames).toEqual(["You", "sai", "deepak"]);
       expect(action.currency).toBe("USD");
     }
   });
 
-  it("converts a complex draft plan tool call into a validated app action", () => {
+  it("converts a complex multi-step workflow into a draft app action and normalizes amountText", () => {
     const call = parseModelToolCall({
-      name: "draft_expense_plan",
+      name: "extract_workflow_intent",
       arguments: {
+        schemaVersion: "1.0",
+        workflowType: "multi_step",
+        confidence: 0.91,
         operations: [
           {
-            type: "create_group",
-            groupName: "Road trip",
-            memberNames: ["You", "Abhishek", "Vishal", "Koushik"],
-            currency: "USD",
+            operationType: "create_group",
+            args: {
+              groupName: "Road trip",
+              members: [
+                { refType: "current_user" },
+                { refType: "name", value: "Abhishek" },
+                { refType: "name", value: "Vishal" },
+                { refType: "name", value: "Koushik" },
+              ],
+              currency: "USD",
+            },
           },
           {
-            type: "add_expense",
-            groupName: "Road trip",
-            description: "coffee",
-            amountCents: 2000,
-            currency: "USD",
-            paidByName: "You",
-            participantNames: ["Abhishek", "Koushik"],
-            splitType: "equal",
-            category: "food",
-            paymentType: "unknown",
+            operationType: "add_expense",
+            args: {
+              groupRef: { refType: "name", value: "Road trip" },
+              description: "coffee",
+              amountText: "$20",
+              currency: "USD",
+              paidBy: { refType: "current_user" },
+              split: {
+                splitType: "equal",
+                participants: [
+                  { refType: "name", value: "Abhishek" },
+                  { refType: "name", value: "Koushik" },
+                ],
+              },
+              category: "food",
+              paymentType: "unknown",
+            },
           },
         ],
-        summary: "Create Road trip and add coffee.",
+        missingFields: [],
+        ambiguities: [],
       },
     });
 
@@ -80,22 +103,38 @@ describe("model tools", () => {
       expect(action.operations).toHaveLength(2);
       expect(action.operations[1]).toMatchObject({
         type: "add_expense",
+        amountCents: 2000,
         participantNames: ["Abhishek", "Koushik"],
       });
     }
   });
 
-  it("rejects invalid tool arguments before app code executes", () => {
+  it("rejects unknown top-level fields and unknown operation types", () => {
     expect(() =>
       parseModelToolCall({
-        name: "add_expense",
+        name: "extract_workflow_intent",
         arguments: {
-          description: "dinner",
-          amountCents: -1,
-          currency: "USD",
-          paidByName: "You",
-          participantNames: ["Sai"],
-          splitType: "equal",
+          schemaVersion: "1.0",
+          workflowType: "entity_mutation",
+          confidence: 0.8,
+          operations: [],
+          missingFields: ["groupName"],
+          ambiguities: [],
+          unexpected: true,
+        },
+      }),
+    ).toThrow();
+
+    expect(() =>
+      parseModelToolCall({
+        name: "extract_workflow_intent",
+        arguments: {
+          schemaVersion: "1.0",
+          workflowType: "entity_mutation",
+          confidence: 0.8,
+          operations: [{ operationType: "invented_operation", args: {} }],
+          missingFields: [],
+          ambiguities: [],
         },
       }),
     ).toThrow();
@@ -104,9 +143,21 @@ describe("model tools", () => {
   it("rejects unsupported v1 currencies", () => {
     expect(() =>
       parseModelToolCall({
-        name: "query_balance",
+        name: "extract_workflow_intent",
         arguments: {
-          currency: "EUR",
+          schemaVersion: "1.0",
+          workflowType: "financial_answer",
+          confidence: 0.88,
+          operations: [
+            {
+              operationType: "compute_balance",
+              args: {
+                currency: "EUR",
+              },
+            },
+          ],
+          missingFields: [],
+          ambiguities: [],
         },
       }),
     ).toThrow();

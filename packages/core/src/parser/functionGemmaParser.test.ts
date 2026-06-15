@@ -4,7 +4,7 @@ import { modelToolDefinitions } from "../tools/modelTools";
 import { createFunctionGemmaParser, type FunctionGemmaToolRunner } from "./functionGemmaParser";
 
 describe("functionGemmaParser", () => {
-  it("passes Splitmaa tools to the runner and returns a validated app action", async () => {
+  it("passes only extract_workflow_intent to the runner and returns a validated app action", async () => {
     let receivedToolNames: string[] = [];
     const runner: FunctionGemmaToolRunner = {
       async getStatus() {
@@ -15,10 +15,26 @@ describe("functionGemmaParser", () => {
         return {
           text: "",
           rawToolCall: {
-            name: "create_group",
+            name: "extract_workflow_intent",
             arguments: {
-              groupName: "california",
-              memberNames: ["sai", "deepak"],
+              schemaVersion: "1.0",
+              workflowType: "entity_mutation",
+              confidence: 0.91,
+              operations: [
+                {
+                  operationType: "create_group",
+                  args: {
+                    groupName: "california",
+                    members: [
+                      { refType: "current_user" },
+                      { refType: "name", value: "sai" },
+                      { refType: "name", value: "deepak" },
+                    ],
+                  },
+                },
+              ],
+              missingFields: [],
+              ambiguities: [],
             },
           },
           latencyMs: 12,
@@ -40,11 +56,11 @@ describe("functionGemmaParser", () => {
     expect(result.action.type).toBe("CREATE_GROUP");
     if (result.action.type === "CREATE_GROUP") {
       expect(result.action.groupName).toBe("california");
-      expect(result.action.memberNames).toEqual(["sai", "deepak"]);
+      expect(result.action.memberNames).toEqual(["You", "sai", "deepak"]);
     }
   });
 
-  it("accepts raw JSON tool calls from the runner", async () => {
+  it("accepts raw JSON workflow tool calls from the runner", async () => {
     const runner: FunctionGemmaToolRunner = {
       async getStatus() {
         return "ready";
@@ -52,9 +68,22 @@ describe("functionGemmaParser", () => {
       async infer() {
         return {
           text: JSON.stringify({
-            name: "query_balance",
+            name: "extract_workflow_intent",
             arguments: {
-              personName: "Alex",
+              schemaVersion: "1.0",
+              workflowType: "financial_answer",
+              confidence: 0.86,
+              operations: [
+                {
+                  operationType: "compute_balance",
+                  args: {
+                    personRef: { refType: "name", value: "Alex" },
+                    currency: "USD",
+                  },
+                },
+              ],
+              missingFields: [],
+              ambiguities: [],
             },
           }),
           latencyMs: 8,
@@ -106,14 +135,28 @@ describe("functionGemmaParser", () => {
       async infer() {
         return {
           text: JSON.stringify({
-            name: "add_expense",
+            name: "extract_workflow_intent",
             arguments: {
-              description: "dinner",
-              amountCents: -1,
-              currency: "USD",
-              paidByName: "You",
-              participantNames: ["Sai"],
-              splitType: "equal",
+              schemaVersion: "1.0",
+              workflowType: "expense_mutation",
+              confidence: 0.7,
+              operations: [
+                {
+                  operationType: "add_expense",
+                  args: {
+                    description: "dinner",
+                    amountText: "-1",
+                    currency: "USD",
+                    paidBy: { refType: "current_user" },
+                    split: {
+                      splitType: "equal",
+                      participants: [{ refType: "name", value: "Sai" }],
+                    },
+                  },
+                },
+              ],
+              missingFields: [],
+              ambiguities: [],
             },
           }),
           latencyMs: 5,

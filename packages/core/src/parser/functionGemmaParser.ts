@@ -147,9 +147,9 @@ function unsupportedResult(
 
 function unsupportedReadyReason(raw: unknown): string {
   const modelText = extractRawModelText(raw);
-  if (!modelText) return "FunctionGemma did not return a valid Splitmaa tool call.";
+  if (!modelText) return "FunctionGemma did not return a valid Splitmaa workflow intent.";
 
-  return `FunctionGemma did not return a valid Splitmaa tool call. It returned: ${modelText}`;
+  return `FunctionGemma did not return a valid Splitmaa workflow intent. It returned: ${modelText}`;
 }
 
 function extractRawModelText(raw: unknown): string | undefined {
@@ -166,9 +166,9 @@ function extractRawModelText(raw: unknown): string | undefined {
 
 function createFunctionGemmaPrompt(input: ParserInput): string {
   return JSON.stringify({
-    role: "splitmaa_function_calling_parser",
+    role: "splitmaa_workflow_intent_extractor",
     instruction:
-      "Return exactly one tool call matching the provided tools. The app validates and executes tools. Use clarification_required for missing information and unsupported_request for out-of-scope requests.",
+      "Return exactly one extract_workflow_intent tool call. Extract workflow type, strict operations, names/references, amountText, dateText/dateIntent, missingFields, and ambiguities. Do not output trusted database IDs unless they came from trusted pending UI context. Use unsupported only for out-of-domain requests, not incomplete Splitmaa actions.",
     transcript: input.transcript,
     context: compactStateContext(input.state),
   });

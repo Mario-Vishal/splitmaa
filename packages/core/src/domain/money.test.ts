@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { formatMoney, splitEqually, toCents } from "./money";
+import { formatMoney, normalizeAmountText, splitEqually, toCents } from "./money";
 
 describe("money helpers", () => {
   it("converts decimal money to integer cents", () => {
     expect(toCents("12.34")).toBe(1234);
     expect(toCents("$8")).toBe(800);
+    expect(normalizeAmountText("₹200", "INR")).toBe(20000);
   });
 
   it("rejects zero, negative, and over-precise amounts", () => {

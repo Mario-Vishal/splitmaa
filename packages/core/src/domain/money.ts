@@ -5,22 +5,30 @@ const currencyDecimals: Record<CurrencyCode, number> = {
   INR: 2,
 };
 
-export function toCents(amount: string | number): number {
-  const raw = typeof amount === "number" ? String(amount) : amount.trim();
-  const normalized = raw.replace(/[$,\u20b9\u20ac\u00a3\s]/g, "");
+export const currencyExponent: Record<CurrencyCode, number> = currencyDecimals;
 
-  if (!/^\d+(\.\d{1,2})?$/.test(normalized)) {
+export function toCents(amount: string | number): number {
+  return normalizeAmountText(amount, "USD");
+}
+
+export function normalizeAmountText(amount: string | number, currency: CurrencyCode): number {
+  const raw = typeof amount === "number" ? String(amount) : amount.trim();
+  const normalized = raw.replace(/[$,\u20b9,\s]/g, "");
+  const exponent = currencyExponent[currency];
+
+  if (!new RegExp(`^\\d+(\\.\\d{1,${exponent}})?$`).test(normalized)) {
     throw new Error(`Invalid money amount: ${amount}`);
   }
 
   const [whole, fraction = ""] = normalized.split(".");
-  const cents = Number(whole) * 100 + Number(fraction.padEnd(2, "0"));
+  const scale = 10 ** exponent;
+  const minorUnits = Number(whole) * scale + Number(fraction.padEnd(exponent, "0"));
 
-  if (!Number.isSafeInteger(cents) || cents <= 0) {
+  if (!Number.isSafeInteger(minorUnits) || minorUnits <= 0) {
     throw new Error("Money amount must be greater than zero");
   }
 
-  return cents;
+  return minorUnits;
 }
 
 export function formatMoney(amountCents: number, currency: CurrencyCode): string {

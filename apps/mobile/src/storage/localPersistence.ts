@@ -14,7 +14,7 @@ import {
 
 export const splitmaaStorageKey = "splitmaa.localAppState.v1";
 const databaseName = "splitmaa.db";
-const databaseVersion = 1;
+const databaseVersion = 2;
 const migratedMetadataKey = "async_storage_migrated";
 
 export type PersistenceLoadResult = {
@@ -77,6 +77,9 @@ export async function saveLocalAppState(state: LocalAppState): Promise<void> {
 
 export async function clearLocalAppState(): Promise<void> {
   const db = await openSplitmaaDb();
+  await db.withExclusiveTransactionAsync(async (tx) => {
+    await clearWorkflowTables(tx);
+  });
   await writeState(db, createInitialLocalAppState());
 }
 
@@ -207,6 +210,69 @@ async function migrateSchema(db: Database): Promise<void> {
           summary TEXT NOT NULL,
           createdAt TEXT NOT NULL
         );
+      `);
+    }
+
+    if (currentVersion < 2) {
+      await tx.execAsync(`
+        CREATE TABLE IF NOT EXISTS workflow_state (
+          id TEXT PRIMARY KEY NOT NULL,
+          userId TEXT NOT NULL,
+          accountId TEXT,
+          sessionId TEXT,
+          sourceMessageId TEXT,
+          workflowType TEXT NOT NULL,
+          status TEXT NOT NULL,
+          statusReason TEXT,
+          originalUserMessage TEXT NOT NULL,
+          parsedIntentJson TEXT NOT NULL,
+          resolvedEntitiesJson TEXT,
+          pendingUiEventJson TEXT,
+          resultSnapshotJson TEXT,
+          idempotencyKey TEXT NOT NULL UNIQUE,
+          schemaVersion TEXT NOT NULL,
+          workflowVersion TEXT NOT NULL,
+          modelVersion TEXT,
+          clientVersion TEXT,
+          confirmationTokenHash TEXT,
+          createdAt TEXT NOT NULL,
+          updatedAt TEXT NOT NULL,
+          expiresAt TEXT,
+          lockedAt TEXT,
+          committedAt TEXT,
+          failedAt TEXT,
+          cancelledAt TEXT
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_workflow_state_user_status
+          ON workflow_state(userId, status, updatedAt);
+
+        CREATE TABLE IF NOT EXISTS workflow_audit_logs (
+          auditId TEXT PRIMARY KEY NOT NULL,
+          workflowId TEXT NOT NULL,
+          userId TEXT NOT NULL,
+          sourceMessageId TEXT,
+          modelVersion TEXT,
+          schemaVersion TEXT NOT NULL,
+          clientVersion TEXT,
+          originalUserMessage TEXT NOT NULL,
+          rawModelOutput TEXT,
+          validatedIntentJson TEXT NOT NULL,
+          resolvedEntitiesJson TEXT,
+          uiEventsJson TEXT,
+          confirmationSummaryJson TEXT,
+          userConfirmationAction TEXT,
+          beforeSnapshotJson TEXT,
+          afterSnapshotJson TEXT,
+          idempotencyKey TEXT NOT NULL,
+          commitResult TEXT NOT NULL,
+          failureReason TEXT,
+          createdAt TEXT NOT NULL,
+          FOREIGN KEY (workflowId) REFERENCES workflow_state(id) ON DELETE CASCADE
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_workflow_audit_workflow
+          ON workflow_audit_logs(workflowId, createdAt);
       `);
     }
 
@@ -470,5 +536,12 @@ async function clearTables(tx: Database): Promise<void> {
     DELETE FROM contact_aliases;
     DELETE FROM contacts;
     DELETE FROM metadata;
+  `);
+}
+
+async function clearWorkflowTables(tx: Database): Promise<void> {
+  await tx.execAsync(`
+    DELETE FROM workflow_audit_logs;
+    DELETE FROM workflow_state;
   `);
 }

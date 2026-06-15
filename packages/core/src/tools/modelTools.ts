@@ -1,92 +1,20 @@
 import { z } from "zod";
 import {
-  addExpenseActionSchema,
-  createContactActionSchema,
-  createGroupActionSchema,
-  draftExpensePlanActionSchema,
-  openRecordActionSchema,
-  parseAppAction,
-  queryFinancialSummaryActionSchema,
-  queryBalanceActionSchema,
-  searchRecordsActionSchema,
-  settleUpActionSchema,
-  showSearchResultsActionSchema,
-  type AppAction,
-} from "../actions/schemas";
+  parseWorkflowIntent,
+  workflowIntentToAppAction,
+  workflowIntentSchema,
+  type WorkflowIntent,
+} from "../workflow/intent";
+import type { AppAction } from "../actions/schemas";
 
-const baseActionFields = {
-  id: true,
-  transcript: true,
-  confidence: true,
-  type: true,
-} as const;
+export const extractWorkflowIntentToolArgsSchema = workflowIntentSchema;
 
-export const createGroupToolArgsSchema = createGroupActionSchema.omit(baseActionFields);
-export const createContactToolArgsSchema = createContactActionSchema.omit(baseActionFields);
-export const addExpenseToolArgsSchema = addExpenseActionSchema.omit(baseActionFields);
-export const settleUpToolArgsSchema = settleUpActionSchema.omit(baseActionFields);
-export const draftExpensePlanToolArgsSchema = draftExpensePlanActionSchema.omit(baseActionFields);
-export const queryBalanceToolArgsSchema = queryBalanceActionSchema.omit(baseActionFields);
-export const queryFinancialSummaryToolArgsSchema = queryFinancialSummaryActionSchema.omit(baseActionFields);
-export const searchRecordsToolArgsSchema = searchRecordsActionSchema.omit(baseActionFields);
-export const openRecordToolArgsSchema = openRecordActionSchema.omit(baseActionFields);
-export const showSearchResultsToolArgsSchema = showSearchResultsActionSchema.omit(baseActionFields);
-
-export const modelToolCallSchema = z.discriminatedUnion("name", [
-  z.object({
-    name: z.literal("create_group"),
-    arguments: createGroupToolArgsSchema,
-  }),
-  z.object({
-    name: z.literal("create_contact"),
-    arguments: createContactToolArgsSchema,
-  }),
-  z.object({
-    name: z.literal("add_expense"),
-    arguments: addExpenseToolArgsSchema,
-  }),
-  z.object({
-    name: z.literal("settle_up"),
-    arguments: settleUpToolArgsSchema,
-  }),
-  z.object({
-    name: z.literal("draft_expense_plan"),
-    arguments: draftExpensePlanToolArgsSchema,
-  }),
-  z.object({
-    name: z.literal("query_balance"),
-    arguments: queryBalanceToolArgsSchema,
-  }),
-  z.object({
-    name: z.literal("query_financial_summary"),
-    arguments: queryFinancialSummaryToolArgsSchema,
-  }),
-  z.object({
-    name: z.literal("search_records"),
-    arguments: searchRecordsToolArgsSchema,
-  }),
-  z.object({
-    name: z.literal("open_record"),
-    arguments: openRecordToolArgsSchema,
-  }),
-  z.object({
-    name: z.literal("show_search_results"),
-    arguments: showSearchResultsToolArgsSchema,
-  }),
-  z.object({
-    name: z.literal("clarification_required"),
-    arguments: z.object({
-      question: z.string().min(1),
-      missingFields: z.array(z.string().min(1)),
-    }),
-  }),
-  z.object({
-    name: z.literal("unsupported_request"),
-    arguments: z.object({
-      reason: z.string().min(1),
-    }),
-  }),
-]);
+export const modelToolCallSchema = z
+  .object({
+    name: z.literal("extract_workflow_intent"),
+    arguments: extractWorkflowIntentToolArgsSchema,
+  })
+  .strict();
 
 export type ModelToolCall = z.infer<typeof modelToolCallSchema>;
 export type ModelToolName = ModelToolCall["name"];
@@ -112,329 +40,75 @@ export type ModelToolActionContext = {
 
 export const modelToolDefinitions: ModelToolDefinition[] = [
   {
-    name: "create_group",
-    description: "Create an expense group and ensure the named members exist as contacts.",
-    mutatesState: true,
-    requiresConfirmation: true,
-    parameters: {
-      type: "object",
-      required: ["groupName", "memberNames"],
-      additionalProperties: false,
-      properties: {
-        groupName: { type: "string", minLength: 1 },
-        memberNames: {
-          type: "array",
-          minItems: 1,
-          items: { type: "string", minLength: 1 },
-        },
-        currency: { type: "string", enum: ["USD", "INR"], default: "USD" },
-      },
-    },
-  },
-  {
-    name: "create_contact",
-    description: "Create a contact profile for a person mentioned by the user.",
-    mutatesState: true,
-    requiresConfirmation: true,
-    parameters: {
-      type: "object",
-      required: ["displayName"],
-      additionalProperties: false,
-      properties: {
-        displayName: { type: "string", minLength: 1 },
-        email: { type: "string", format: "email" },
-        phone: { type: "string" },
-      },
-    },
-  },
-  {
-    name: "add_expense",
-    description: "Record an equal-split expense paid by one person and shared by participants.",
-    mutatesState: true,
-    requiresConfirmation: true,
-    parameters: {
-      type: "object",
-      required: ["description", "amountCents", "currency", "paidByName", "participantNames", "splitType"],
-      additionalProperties: false,
-      properties: {
-        groupName: { type: "string" },
-        description: { type: "string", minLength: 1 },
-        amountCents: { type: "integer", minimum: 1 },
-        currency: { type: "string", enum: ["USD", "INR"] },
-        paidByName: { type: "string", minLength: 1 },
-        participantNames: {
-          type: "array",
-          minItems: 1,
-          items: { type: "string", minLength: 1 },
-        },
-        splitType: { type: "string", const: "equal" },
-        category: {
-          type: "string",
-          enum: ["food", "transport", "groceries", "travel", "housing", "utilities", "other"],
-          default: "other",
-        },
-        paymentType: {
-          type: "string",
-          enum: ["cash", "card", "upi", "venmo", "unknown"],
-          default: "unknown",
-        },
-        expenseDate: { type: "string", description: "ISO date/time if the user gives an expense date." },
-      },
-    },
-  },
-  {
-    name: "settle_up",
-    description: "Record a payment from one person to another to reduce an open balance.",
-    mutatesState: true,
-    requiresConfirmation: true,
-    parameters: {
-      type: "object",
-      required: ["fromName", "toName", "amountCents", "currency"],
-      additionalProperties: false,
-      properties: {
-        fromName: { type: "string", minLength: 1 },
-        toName: { type: "string", minLength: 1 },
-        amountCents: { type: "integer", minimum: 1 },
-        currency: { type: "string", enum: ["USD", "INR"] },
-        paymentType: {
-          type: "string",
-          enum: ["cash", "card", "upi", "venmo", "unknown"],
-          default: "unknown",
-        },
-        settlementDate: { type: "string", description: "ISO date/time if the user gives a settlement date." },
-      },
-    },
-  },
-  {
-    name: "draft_expense_plan",
+    name: "extract_workflow_intent",
     description:
-      "Draft a confirmed multi-step plan for a complex Splitmaa command containing group/contact creation, expenses, or settlements. The app resolves contacts, asks clarification, confirms, and executes deterministically.",
-    mutatesState: true,
-    requiresConfirmation: true,
+      "Extract one strict Splitmaa workflow intent. The app owns SQLite lookup, trusted IDs, UI clarification, confirmation, money/date normalization, persistence, navigation, and audit.",
+    mutatesState: false,
+    requiresConfirmation: false,
     parameters: {
       type: "object",
-      required: ["operations"],
+      required: ["schemaVersion", "workflowType", "confidence", "operations", "missingFields", "ambiguities"],
       additionalProperties: false,
       properties: {
+        schemaVersion: { type: "string", const: "1.0" },
+        workflowVersion: { type: "string", default: "1.0" },
+        modelVersion: { type: "string" },
+        clientVersion: { type: "string" },
+        workflowType: {
+          type: "string",
+          enum: [
+            "entity_mutation",
+            "expense_mutation",
+            "multi_step",
+            "record_lookup",
+            "financial_answer",
+            "clarification_response",
+            "unsupported",
+          ],
+        },
+        confidence: { type: "number", minimum: 0, maximum: 1 },
+        locale: { type: "string", default: "en-US" },
+        currencyHint: { type: "string", enum: ["USD", "INR"] },
+        pendingWorkflowRef: referenceParameter(),
+        pendingEventType: { type: "string" },
         operations: {
           type: "array",
-          minItems: 1,
-          maxItems: 5,
+          maxItems: 10,
           items: {
             oneOf: [
-              {
-                type: "object",
-                required: ["type", "groupName", "memberNames"],
-                additionalProperties: false,
-                properties: {
-                  type: { type: "string", const: "create_group" },
-                  groupName: { type: "string", minLength: 1 },
-                  memberNames: {
-                    type: "array",
-                    minItems: 1,
-                    maxItems: 8,
-                    items: { type: "string", minLength: 1 },
-                  },
-                  currency: { type: "string", enum: ["USD", "INR"], default: "USD" },
-                },
-              },
-              {
-                type: "object",
-                required: ["type", "displayName"],
-                additionalProperties: false,
-                properties: {
-                  type: { type: "string", const: "create_contact" },
-                  displayName: { type: "string", minLength: 1 },
-                  email: { type: "string", format: "email" },
-                  phone: { type: "string" },
-                },
-              },
-              {
-                type: "object",
-                required: ["type", "description", "amountCents", "currency", "paidByName", "participantNames", "splitType"],
-                additionalProperties: false,
-                properties: {
-                  type: { type: "string", const: "add_expense" },
-                  groupName: { type: "string" },
-                  description: { type: "string", minLength: 1 },
-                  amountCents: { type: "integer", minimum: 1 },
-                  currency: { type: "string", enum: ["USD", "INR"] },
-                  paidByName: { type: "string", minLength: 1 },
-                  participantNames: {
-                    type: "array",
-                    minItems: 1,
-                    maxItems: 8,
-                    items: { type: "string", minLength: 1 },
-                  },
-                  splitType: { type: "string", const: "equal" },
-                  category: {
-                    type: "string",
-                    enum: ["food", "transport", "groceries", "travel", "housing", "utilities", "other"],
-                    default: "other",
-                  },
-                  paymentType: {
-                    type: "string",
-                    enum: ["cash", "card", "upi", "venmo", "unknown"],
-                    default: "unknown",
-                  },
-                  expenseDate: { type: "string" },
-                },
-              },
-              {
-                type: "object",
-                required: ["type", "fromName", "toName", "amountCents", "currency"],
-                additionalProperties: false,
-                properties: {
-                  type: { type: "string", const: "settle_up" },
-                  fromName: { type: "string", minLength: 1 },
-                  toName: { type: "string", minLength: 1 },
-                  amountCents: { type: "integer", minimum: 1 },
-                  currency: { type: "string", enum: ["USD", "INR"] },
-                  paymentType: {
-                    type: "string",
-                    enum: ["cash", "card", "upi", "venmo", "unknown"],
-                    default: "unknown",
-                  },
-                  settlementDate: { type: "string" },
-                },
-              },
+              createContactOperationParameter(),
+              createGroupOperationParameter(),
+              groupMemberOperationParameter("add_group_member"),
+              groupMemberOperationParameter("remove_group_member"),
+              addExpenseOperationParameter(),
+              recordRefOperationParameter("edit_expense", "expenseRef"),
+              recordRefOperationParameter("delete_expense", "expenseRef"),
+              settleUpOperationParameter(),
+              changeSplitOperationParameter(),
+              searchRecordsOperationParameter(),
+              openRecordOperationParameter(),
+              listRecordsOperationParameter(),
+              showPreviousOperationParameter(),
+              getRecordMetadataOperationParameter(),
+              computeOperationParameter("compute_balance"),
+              computeOperationParameter("compute_total"),
+              computeOperationParameter("compute_summary"),
+              computeOperationParameter("compute_date_window_total"),
+              clarificationOperationParameter("select_option"),
+              clarificationOperationParameter("provide_contact_details"),
+              clarificationOperationParameter("provide_missing_field"),
+              clarificationOperationParameter("cancel_pending_workflow"),
             ],
           },
         },
-        summary: { type: "string", minLength: 1 },
-      },
-    },
-  },
-  {
-    name: "query_balance",
-    description: "Read local balances without changing app data.",
-    mutatesState: false,
-    requiresConfirmation: false,
-    parameters: {
-      type: "object",
-      required: [],
-      additionalProperties: false,
-      properties: {
-        personName: { type: "string", minLength: 1 },
-        currency: { type: "string", enum: ["USD", "INR"], default: "USD" },
-        dateRange: dateRangeParameter(),
-      },
-    },
-  },
-  {
-    name: "query_financial_summary",
-    description: "Read a grounded financial summary from local data without changing state.",
-    mutatesState: false,
-    requiresConfirmation: false,
-    parameters: {
-      type: "object",
-      required: ["summaryType"],
-      additionalProperties: false,
-      properties: {
-        summaryType: {
-          type: "string",
-          enum: [
-            "total_owed_to_me",
-            "total_i_owe",
-            "net_balance",
-            "total_spent",
-            "person_balance",
-            "group_total",
-          ],
-        },
-        personName: { type: "string", minLength: 1 },
-        groupName: { type: "string", minLength: 1 },
-        currency: { type: "string", enum: ["USD", "INR"], default: "USD" },
-        dateRange: dateRangeParameter(),
-      },
-    },
-  },
-  {
-    name: "search_records",
-    description: "Search local contacts, groups, expenses, settlements, or activity logs.",
-    mutatesState: false,
-    requiresConfirmation: false,
-    parameters: {
-      type: "object",
-      required: ["query", "entityTypes"],
-      additionalProperties: false,
-      properties: {
-        query: { type: "string", minLength: 1 },
-        entityTypes: entityTypesParameter(),
-        personName: { type: "string", minLength: 1 },
-        groupName: { type: "string", minLength: 1 },
-        currency: { type: "string", enum: ["USD", "INR"] },
-        category: {
-          type: "string",
-          enum: ["food", "transport", "groceries", "travel", "housing", "utilities", "other"],
-        },
-        dateRange: dateRangeParameter(),
-        limit: { type: "integer", minimum: 1, maximum: 50, default: 10 },
-      },
-    },
-  },
-  {
-    name: "open_record",
-    description: "Navigate to a local record and optionally highlight it.",
-    mutatesState: false,
-    requiresConfirmation: false,
-    parameters: {
-      type: "object",
-      required: ["entityType"],
-      additionalProperties: false,
-      properties: {
-        entityType: entityTypeParameter(),
-        recordId: { type: "string", minLength: 1 },
-        searchQuery: { type: "string", minLength: 1 },
-        highlightRecordId: { type: "string", minLength: 1 },
-      },
-    },
-  },
-  {
-    name: "show_search_results",
-    description: "Show a previously created search result set and optionally highlight one result.",
-    mutatesState: false,
-    requiresConfirmation: false,
-    parameters: {
-      type: "object",
-      required: ["resultSetId"],
-      additionalProperties: false,
-      properties: {
-        resultSetId: { type: "string", minLength: 1 },
-        highlightRecordId: { type: "string", minLength: 1 },
-      },
-    },
-  },
-  {
-    name: "clarification_required",
-    description: "Ask for missing information before choosing a mutation or query tool.",
-    mutatesState: false,
-    requiresConfirmation: false,
-    parameters: {
-      type: "object",
-      required: ["question", "missingFields"],
-      additionalProperties: false,
-      properties: {
-        question: { type: "string", minLength: 1 },
         missingFields: {
           type: "array",
-          minItems: 1,
           items: { type: "string", minLength: 1 },
         },
-      },
-    },
-  },
-  {
-    name: "unsupported_request",
-    description: "Reject requests outside Splitmaa's local expense, search, navigation, and balance scope.",
-    mutatesState: false,
-    requiresConfirmation: false,
-    parameters: {
-      type: "object",
-      required: ["reason"],
-      additionalProperties: false,
-      properties: {
-        reason: { type: "string", minLength: 1 },
+        ambiguities: {
+          type: "array",
+          items: { type: "string", minLength: 1 },
+        },
       },
     },
   },
@@ -444,67 +118,429 @@ export function parseModelToolCall(value: unknown): ModelToolCall {
   return modelToolCallSchema.parse(value);
 }
 
+export function parseExtractedWorkflowIntent(value: unknown): WorkflowIntent {
+  return parseWorkflowIntent(value);
+}
+
 export function appActionFromModelToolCall(call: ModelToolCall, context: ModelToolActionContext): AppAction {
-  const common = {
-    id: createActionId(call.name, context.now),
-    transcript: context.transcript,
-    confidence: context.confidence ?? 0.8,
+  return workflowIntentToAppAction(call.arguments, context);
+}
+
+function referenceParameter(): Record<string, unknown> {
+  return {
+    oneOf: [
+      { type: "object", required: ["refType"], additionalProperties: false, properties: { refType: { type: "string", const: "current_user" } } },
+      {
+        type: "object",
+        required: ["refType", "value"],
+        additionalProperties: false,
+        properties: { refType: { type: "string", const: "name" }, value: { type: "string", minLength: 1 } },
+      },
+      {
+        type: "object",
+        required: ["refType", "entityType", "id"],
+        additionalProperties: false,
+        properties: {
+          refType: { type: "string", const: "record_ref" },
+          entityType: entityTypeParameter(),
+          id: { type: "string", minLength: 1 },
+        },
+      },
+      { type: "object", required: ["refType"], additionalProperties: false, properties: { refType: { type: "string", const: "last_result" } } },
+      {
+        type: "object",
+        required: ["refType"],
+        additionalProperties: false,
+        properties: { refType: { type: "string", const: "active_pending_workflow" } },
+      },
+    ],
   };
-
-  switch (call.name) {
-    case "create_group":
-      return parseAppAction({ ...common, type: "CREATE_GROUP", ...call.arguments });
-    case "create_contact":
-      return parseAppAction({ ...common, type: "CREATE_CONTACT", ...call.arguments });
-    case "add_expense":
-      return parseAppAction({ ...common, type: "ADD_EXPENSE", ...call.arguments });
-    case "settle_up":
-      return parseAppAction({ ...common, type: "SETTLE_UP", ...call.arguments });
-    case "draft_expense_plan":
-      return parseAppAction({ ...common, type: "DRAFT_EXPENSE_PLAN", ...call.arguments });
-    case "query_balance":
-      return parseAppAction({ ...common, type: "QUERY_BALANCE", ...call.arguments });
-    case "query_financial_summary":
-      return parseAppAction({ ...common, type: "QUERY_FINANCIAL_SUMMARY", ...call.arguments });
-    case "search_records":
-      return parseAppAction({ ...common, type: "SEARCH_RECORDS", ...call.arguments });
-    case "open_record":
-      return parseAppAction({ ...common, type: "OPEN_RECORD", ...call.arguments });
-    case "show_search_results":
-      return parseAppAction({ ...common, type: "SHOW_SEARCH_RESULTS", ...call.arguments });
-    case "clarification_required":
-      return parseAppAction({ ...common, type: "CLARIFICATION_REQUIRED", ...call.arguments });
-    case "unsupported_request":
-      return parseAppAction({ ...common, type: "UNSUPPORTED_REQUEST", ...call.arguments });
-  }
 }
 
-function createActionId(toolName: ModelToolName, now: string): string {
-  return `tool_${toolName}_${now.replace(/[^0-9]/g, "")}`;
+function createContactOperationParameter(): Record<string, unknown> {
+  return {
+    type: "object",
+    required: ["operationType", "args"],
+    additionalProperties: false,
+    properties: {
+      operationType: { type: "string", const: "create_contact" },
+      args: {
+        type: "object",
+        required: ["displayName"],
+        additionalProperties: false,
+        properties: {
+          displayName: { type: "string", minLength: 1 },
+          email: { type: "string", format: "email" },
+          phone: { type: "string" },
+        },
+      },
+    },
+  };
 }
 
-function dateRangeParameter() {
+function createGroupOperationParameter(): Record<string, unknown> {
+  return {
+    type: "object",
+    required: ["operationType", "args"],
+    additionalProperties: false,
+    properties: {
+      operationType: { type: "string", const: "create_group" },
+      args: {
+        type: "object",
+        required: ["groupName", "members"],
+        additionalProperties: false,
+        properties: {
+          groupName: { type: "string", minLength: 1 },
+          members: { type: "array", minItems: 1, maxItems: 16, items: referenceParameter() },
+          currency: { type: "string", enum: ["USD", "INR"], default: "USD" },
+        },
+      },
+    },
+  };
+}
+
+function groupMemberOperationParameter(operationType: string): Record<string, unknown> {
+  return {
+    type: "object",
+    required: ["operationType", "args"],
+    additionalProperties: false,
+    properties: {
+      operationType: { type: "string", const: operationType },
+      args: {
+        type: "object",
+        required: ["groupRef", "member"],
+        additionalProperties: false,
+        properties: { groupRef: referenceParameter(), member: referenceParameter() },
+      },
+    },
+  };
+}
+
+function addExpenseOperationParameter(): Record<string, unknown> {
+  return {
+    type: "object",
+    required: ["operationType", "args"],
+    additionalProperties: false,
+    properties: {
+      operationType: { type: "string", const: "add_expense" },
+      args: {
+        type: "object",
+        required: ["description", "amountText", "currency", "paidBy", "split"],
+        additionalProperties: false,
+        properties: {
+          description: { type: "string", minLength: 1 },
+          amountText: { type: "string", minLength: 1 },
+          currency: { type: "string", enum: ["USD", "INR"] },
+          groupRef: referenceParameter(),
+          paidBy: referenceParameter(),
+          split: splitParameter(),
+          category: { type: "string", enum: ["food", "transport", "groceries", "travel", "housing", "utilities", "other"], default: "other" },
+          paymentType: { type: "string", enum: ["cash", "card", "upi", "venmo", "unknown"], default: "unknown" },
+          date: dateRangeParameter(),
+        },
+      },
+    },
+  };
+}
+
+function recordRefOperationParameter(operationType: string, refKey: string): Record<string, unknown> {
+  return {
+    type: "object",
+    required: ["operationType", "args"],
+    additionalProperties: false,
+    properties: {
+      operationType: { type: "string", const: operationType },
+      args: {
+        type: "object",
+        required: [refKey],
+        additionalProperties: false,
+        properties: { [refKey]: referenceParameter() },
+      },
+    },
+  };
+}
+
+function settleUpOperationParameter(): Record<string, unknown> {
+  return {
+    type: "object",
+    required: ["operationType", "args"],
+    additionalProperties: false,
+    properties: {
+      operationType: { type: "string", const: "settle_up" },
+      args: {
+        type: "object",
+        required: ["from", "to", "amountText", "currency"],
+        additionalProperties: false,
+        properties: {
+          from: referenceParameter(),
+          to: referenceParameter(),
+          amountText: { type: "string", minLength: 1 },
+          currency: { type: "string", enum: ["USD", "INR"] },
+          paymentType: { type: "string", enum: ["cash", "card", "upi", "venmo", "unknown"], default: "unknown" },
+          date: dateRangeParameter(),
+        },
+      },
+    },
+  };
+}
+
+function changeSplitOperationParameter(): Record<string, unknown> {
+  return {
+    type: "object",
+    required: ["operationType", "args"],
+    additionalProperties: false,
+    properties: {
+      operationType: { type: "string", const: "change_split" },
+      args: {
+        type: "object",
+        required: ["expenseRef", "split"],
+        additionalProperties: false,
+        properties: { expenseRef: referenceParameter(), split: splitParameter() },
+      },
+    },
+  };
+}
+
+function searchRecordsOperationParameter(): Record<string, unknown> {
+  return {
+    type: "object",
+    required: ["operationType", "args"],
+    additionalProperties: false,
+    properties: {
+      operationType: { type: "string", const: "search_records" },
+      args: {
+        type: "object",
+        required: ["query", "entityTypes"],
+        additionalProperties: false,
+        properties: {
+          query: { type: "string", minLength: 1 },
+          entityTypes: { type: "array", minItems: 1, items: entityTypeParameter() },
+          personRef: referenceParameter(),
+          groupRef: referenceParameter(),
+          currency: { type: "string", enum: ["USD", "INR"] },
+          category: { type: "string", enum: ["food", "transport", "groceries", "travel", "housing", "utilities", "other"] },
+          dateRange: dateRangeParameter(),
+          limit: { type: "integer", minimum: 1, maximum: 50, default: 10 },
+        },
+      },
+    },
+  };
+}
+
+function openRecordOperationParameter(): Record<string, unknown> {
+  return {
+    type: "object",
+    required: ["operationType", "args"],
+    additionalProperties: false,
+    properties: {
+      operationType: { type: "string", const: "open_record" },
+      args: {
+        type: "object",
+        required: ["entityType"],
+        additionalProperties: false,
+        properties: {
+          entityType: entityTypeParameter(),
+          recordRef: referenceParameter(),
+          searchQuery: { type: "string", minLength: 1 },
+          highlightRef: referenceParameter(),
+        },
+      },
+    },
+  };
+}
+
+function listRecordsOperationParameter(): Record<string, unknown> {
+  return {
+    type: "object",
+    required: ["operationType", "args"],
+    additionalProperties: false,
+    properties: {
+      operationType: { type: "string", const: "list_records" },
+      args: {
+        type: "object",
+        required: ["entityType"],
+        additionalProperties: false,
+        properties: {
+          entityType: entityTypeParameter(),
+          groupRef: referenceParameter(),
+          limit: { type: "integer", minimum: 1, maximum: 50, default: 20 },
+        },
+      },
+    },
+  };
+}
+
+function showPreviousOperationParameter(): Record<string, unknown> {
+  return {
+    type: "object",
+    required: ["operationType", "args"],
+    additionalProperties: false,
+    properties: {
+      operationType: { type: "string", const: "show_previous" },
+      args: {
+        type: "object",
+        additionalProperties: false,
+        properties: { target: { type: "string", enum: ["last_result_set", "last_record", "active_pending_workflow"], default: "last_result_set" } },
+      },
+    },
+  };
+}
+
+function getRecordMetadataOperationParameter(): Record<string, unknown> {
+  return {
+    type: "object",
+    required: ["operationType", "args"],
+    additionalProperties: false,
+    properties: {
+      operationType: { type: "string", const: "get_record_metadata" },
+      args: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          entityType: entityTypeParameter(),
+          recordRef: referenceParameter(),
+          query: { type: "string", minLength: 1 },
+        },
+      },
+    },
+  };
+}
+
+function computeOperationParameter(operationType: string): Record<string, unknown> {
+  return {
+    type: "object",
+    required: ["operationType", "args"],
+    additionalProperties: false,
+    properties: {
+      operationType: { type: "string", const: operationType },
+      args: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          metric: { type: "string", enum: ["total_owed_to_me", "total_i_owe", "net_balance", "total_spent", "person_balance", "group_total"] },
+          personRef: referenceParameter(),
+          groupRef: referenceParameter(),
+          currency: { type: "string", enum: ["USD", "INR"], default: "USD" },
+          dateRange: dateRangeParameter(),
+        },
+      },
+    },
+  };
+}
+
+function clarificationOperationParameter(operationType: string): Record<string, unknown> {
+  return {
+    type: "object",
+    required: ["operationType", "args"],
+    additionalProperties: false,
+    properties: {
+      operationType: { type: "string", const: operationType },
+      args: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          selection: selectionParameter(),
+          displayName: { type: "string", minLength: 1 },
+          email: { type: "string", format: "email" },
+          phone: { type: "string" },
+          fieldName: { type: "string", minLength: 1 },
+          valueText: { type: "string", minLength: 1 },
+        },
+      },
+    },
+  };
+}
+
+function splitParameter(): Record<string, unknown> {
+  return {
+    oneOf: [
+      {
+        type: "object",
+        required: ["splitType", "participants"],
+        additionalProperties: false,
+        properties: {
+          splitType: { type: "string", const: "equal" },
+          participants: { type: "array", minItems: 1, maxItems: 16, items: referenceParameter() },
+        },
+      },
+      {
+        type: "object",
+        required: ["splitType", "participant"],
+        additionalProperties: false,
+        properties: {
+          splitType: { type: "string", const: "full_amount" },
+          participant: referenceParameter(),
+        },
+      },
+    ],
+  };
+}
+
+function selectionParameter(): Record<string, unknown> {
+  return {
+    oneOf: [
+      {
+        type: "object",
+        required: ["selectionType", "ordinal", "rawText"],
+        additionalProperties: false,
+        properties: {
+          selectionType: { type: "string", const: "ordinal" },
+          ordinal: { type: "integer", minimum: 1 },
+          rawText: { type: "string", minLength: 1 },
+        },
+      },
+      {
+        type: "object",
+        required: ["selectionType", "label"],
+        additionalProperties: false,
+        properties: {
+          selectionType: { type: "string", const: "label" },
+          label: { type: "string", minLength: 1 },
+          rawText: { type: "string", minLength: 1 },
+        },
+      },
+      {
+        type: "object",
+        required: ["selectionType"],
+        additionalProperties: false,
+        properties: {
+          selectionType: { type: "string", const: "cancel" },
+          rawText: { type: "string", minLength: 1 },
+        },
+      },
+    ],
+  };
+}
+
+function dateRangeParameter(): Record<string, unknown> {
   return {
     type: "object",
     additionalProperties: false,
     properties: {
+      dateText: { type: "string", minLength: 1 },
+      dateIntent: {
+        type: "string",
+        enum: [
+          "today",
+          "yesterday",
+          "current_calendar_month",
+          "previous_calendar_month",
+          "current_calendar_year",
+          "previous_calendar_year",
+          "explicit_range",
+          "unspecified",
+        ],
+        default: "unspecified",
+      },
       startDate: { type: "string" },
       endDate: { type: "string" },
     },
   };
 }
 
-function entityTypeParameter() {
+function entityTypeParameter(): Record<string, unknown> {
   return {
     type: "string",
     enum: ["contact", "group", "expense", "settlement", "activity_log"],
-  };
-}
-
-function entityTypesParameter() {
-  return {
-    type: "array",
-    minItems: 1,
-    items: entityTypeParameter(),
   };
 }

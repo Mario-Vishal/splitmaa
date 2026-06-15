@@ -10,6 +10,7 @@ import {
   type AppAction,
   type ExecutionStep,
   type LocalAppState,
+  type ParserResult,
   type RuntimeDiagnostics,
 } from "@splitmaa/core";
 import { DEFAULT_ANDROID_MODEL_PATH, createNativeFunctionGemmaRunner } from "@splitmaa/functiongemma-runner";
@@ -72,6 +73,7 @@ type SplitmaaStore = {
   cancelPendingAction: () => void;
   addSampleExpense: () => Promise<void>;
   resetLocalState: () => Promise<void>;
+  refreshModelStatus: () => Promise<void>;
 };
 
 export const exampleCommands = [
@@ -82,10 +84,12 @@ export const exampleCommands = [
   "Write me a poem",
 ] as const;
 
+const functionGemmaRunner = createNativeFunctionGemmaRunner({
+  modelPath: DEFAULT_ANDROID_MODEL_PATH,
+});
+
 const assistantParser = createFunctionGemmaParser({
-  runner: createNativeFunctionGemmaRunner({
-    modelPath: DEFAULT_ANDROID_MODEL_PATH,
-  }),
+  runner: functionGemmaRunner,
 });
 
 export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
@@ -127,15 +131,7 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
 
     const action = result.action;
     const executionPlan = createExecutionPlan(action);
-    const diagnostics: RuntimeDiagnostics = {
-      parserName: result.parserName,
-      modelStatus: "not_configured",
-      contextSizeChars: result.contextSizeChars,
-      latencyMs: result.latencyMs,
-      fallbackUsed: result.fallbackUsed,
-      offlineReady: true,
-      updatedAt: now,
-    };
+    const diagnostics = diagnosticsFromParserResult(result, now);
 
     set({
       diagnostics,
@@ -262,12 +258,14 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
         lastPersistenceSource: result.source,
         lastMessage: result.source === "storage" ? "Loaded local data." : "Started from seed data.",
       });
+      void get().refreshModelStatus();
     } catch {
       set({
         hydrated: true,
         persistenceStatus: "error",
         lastMessage: "Could not load local data.",
       });
+      void get().refreshModelStatus();
     }
   },
   async parseCommand(transcript) {
@@ -287,15 +285,7 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
     });
     const action = result.action;
     const executionPlan = createExecutionPlan(action);
-    const diagnostics: RuntimeDiagnostics = {
-      parserName: result.parserName,
-      modelStatus: "not_configured",
-      contextSizeChars: result.contextSizeChars,
-      latencyMs: result.latencyMs,
-      fallbackUsed: result.fallbackUsed,
-      offlineReady: true,
-      updatedAt: now,
-    };
+    const diagnostics = diagnosticsFromParserResult(result, now);
 
     if (action.type === "QUERY_BALANCE") {
       set((current) => ({
@@ -412,6 +402,19 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
     await saveLocalAppState(state);
     set({ persistenceStatus: "ready", lastPersistenceSource: "seed" });
   },
+  async refreshModelStatus() {
+    const now = new Date().toISOString();
+    const modelStatus = await functionGemmaRunner.getStatus();
+    set((current) => ({
+      diagnostics: {
+        ...current.diagnostics,
+        parserName: "function_gemma",
+        modelStatus,
+        offlineReady: modelStatus === "ready",
+        updatedAt: now,
+      },
+    }));
+  },
 }));
 
 function wait(ms: number): Promise<void> {
@@ -486,5 +489,19 @@ function assistantMessage(text: string, createdAt = new Date().toISOString()): A
     role: "assistant",
     text,
     createdAt,
+  };
+}
+
+function diagnosticsFromParserResult(result: ParserResult, updatedAt: string): RuntimeDiagnostics {
+  const modelStatus = result.modelStatus ?? "not_configured";
+
+  return {
+    parserName: result.parserName,
+    modelStatus,
+    contextSizeChars: result.contextSizeChars,
+    latencyMs: result.latencyMs,
+    fallbackUsed: result.fallbackUsed,
+    offlineReady: modelStatus === "ready",
+    updatedAt,
   };
 }

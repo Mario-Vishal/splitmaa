@@ -7,9 +7,9 @@ import {
   type ModelToolCall,
   type ModelToolDefinition,
 } from "../tools/modelTools";
-import type { CommandParser, ParserInput, ParserResult } from "./types";
+import type { CommandParser, ModelLifecycleStatus, ParserInput, ParserResult } from "./types";
 
-export type FunctionGemmaRunnerStatus = "not_configured" | "loading" | "ready" | "failed";
+export type FunctionGemmaRunnerStatus = ModelLifecycleStatus;
 
 export type FunctionGemmaRunnerInput = {
   prompt: string;
@@ -75,6 +75,7 @@ export function createFunctionGemmaParser(options: FunctionGemmaParserOptions): 
           latencyMs: result.latencyMs,
           contextSizeChars,
           fallbackUsed: false,
+          modelStatus: result.status,
         };
       } catch {
         return unsupportedResult(input, result.status, result.latencyMs, contextSizeChars, result);
@@ -131,6 +132,7 @@ function unsupportedResult(
     latencyMs,
     contextSizeChars,
     fallbackUsed: false,
+    modelStatus: status,
   };
 }
 

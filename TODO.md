@@ -9,6 +9,7 @@
 - [x] Mobile assistant routed through FunctionGemma parser adapter with no runtime fallback.
 - [x] Native Android FunctionGemma runner implementation.
 - [x] Android dev build with native module.
+- [x] Diagnostics wired to real native FunctionGemma runner status.
 - [ ] Real device run with `.task` model at `/data/local/tmp/llm/splitmaa_functiongemma.task`.
 - [x] Configure local JDK/JAVA_HOME for Android Gradle builds.
 - [x] Configure Android platform tools/adb on PATH.
@@ -59,6 +60,7 @@
 - [x] Tool-aware runner input/output types.
 - [x] Android MediaPipe native module.
 - [x] Mobile wiring to native runner without fallback.
+- [x] Status screen can re-check native model readiness.
 
 ## Floating Assistant
 

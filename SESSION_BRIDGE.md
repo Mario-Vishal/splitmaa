@@ -51,6 +51,7 @@ Polished local MVP complete. Current phase: FunctionGemma real-device inference 
 - 2026-06-14: Installed bundled release APK on physical Android device after debug APK showed Metro bundle loading error.
 - 2026-06-14: Fixed mobile polish issues found on device: centered fixed bottom tab bar, keyboard-aware assistant sheet, Android hardware back handling, native-feeling header back control, drawn close icon, and rectangular member tags in group detail.
 - 2026-06-14: Added a Home header account icon, account/settings bottom panel with balance/data/runtime status, Android back dismissal, and stronger assistant sheet pull-down dismissal from the sheet header.
+- 2026-06-14: Wired FunctionGemma diagnostics to the real native runner status, added a Status screen model check action, documented the on-device `.task` push command, and confirmed the connected phone is missing `/data/local/tmp/llm/splitmaa_functiongemma.task`.
 
 ## Learnings
 
@@ -82,6 +83,7 @@ Polished local MVP complete. Current phase: FunctionGemma real-device inference 
 - Guided assistant execution should shrink to commentary/progress while running and expand to a compact summary after completion.
 - Do not use the rule-based parser as runtime fallback. FunctionGemma is responsible for language understanding; TypeScript owns tool definitions, validation, deterministic execution, and auditability.
 - Build the FunctionGemma tool surface before APK packaging so the native runner has stable functions to call.
+- Keep speech-to-text separate from FunctionGemma. STT should produce a transcript, then the transcript should enter the existing FunctionGemma tool-call pipeline.
 - Use `node-linker=hoisted` for this Windows workspace so Android CMake sees short `node_modules/<package>` paths.
 - Remove unused native UI libraries when they are not powering the current app; Reanimated and Gesture Handler added native build cost without active usage.
 

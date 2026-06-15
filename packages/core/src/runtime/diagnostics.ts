@@ -1,6 +1,5 @@
-import type { ParserName } from "../parser/types";
-
-export type ModelLifecycleStatus = "not_configured" | "loading" | "ready" | "failed";
+import type { ModelLifecycleStatus, ParserName } from "../parser/types";
+export type { ModelLifecycleStatus } from "../parser/types";
 
 export type RuntimeDiagnostics = {
   parserName: ParserName;

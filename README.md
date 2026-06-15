@@ -42,6 +42,20 @@ Native Android model testing requires a development build/APK, not Expo Go. The 
 
 During development, push a MediaPipe-compatible `.task` model with `adb push path/to/model.task /data/local/tmp/llm/splitmaa_functiongemma.task`.
 
+On Windows with a connected Android device:
+
+```powershell
+$env:ANDROID_HOME="$env:LOCALAPPDATA\Android\Sdk"
+$env:Path="$env:ANDROID_HOME\platform-tools;$env:Path"
+adb shell mkdir -p /data/local/tmp/llm
+adb push C:\path\to\model.task /data/local/tmp/llm/splitmaa_functiongemma.task
+adb shell ls -lh /data/local/tmp/llm/splitmaa_functiongemma.task
+```
+
+After pushing the model, open Splitmaa -> Status -> Check model. The status must show `ready` before assistant commands can produce real FunctionGemma tool calls. The app does not fall back to the rule-based parser at runtime.
+
+Speech-to-text is intentionally separate from FunctionGemma. The STT layer should later produce a transcript locally, then pass that text into the same FunctionGemma tool-call pipeline.
+
 To build the Android debug APK locally on Windows:
 
 ```powershell

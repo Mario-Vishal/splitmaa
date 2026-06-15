@@ -8,10 +8,10 @@ The project is framed as an AI system first: a small local function-calling mode
 
 ## Current Status
 
-Local MVP is complete.
+Local MVP is moving into the local-first AI phase.
 
-- Real: pnpm monorepo scaffold, Expo mobile reference client, Splitwise/Notion-inspired Home, Groups, Contacts, and Diagnostics screens, group/contact detail views, compact bottom-sheet assistant, confirmation cards, FunctionGemma-only parser adapter, FunctionGemma-callable tool contracts, Android MediaPipe native runner module, Android debug APK build, action schemas, deterministic action application, AsyncStorage local persistence, audit logs, smoke eval runner, guided create-group execution animation, project plan, TODO tracker, session bridge.
-- Mocked or not built yet: bundled/downloaded model artifact, verified real-device FunctionGemma inference run, full eval dataset, fine-tuned model, Supabase sync.
+- Real: pnpm monorepo scaffold, Expo mobile reference client, Splitwise/Notion-inspired Home, Groups, Contacts, and Diagnostics screens, group/contact detail views, compact bottom-sheet assistant, confirmation cards, FunctionGemma-only parser adapter, FunctionGemma-callable tool contracts, Android LiteRT-LM native runner module, Android debug APK build, action schemas, deterministic action application, SQLite local persistence with one-time AsyncStorage migration, audit logs, local query/search/navigation helpers, smoke eval runner, guided create-group execution animation, starter fine-tune dataset tooling, project plan, TODO tracker, and project log.
+- Not complete yet: Splitmaa-specific fine-tuned FunctionGemma model, final 1,500-3,000 example training dataset, mobile SQLite adapter unit tests, speech-to-text, Supabase sync.
 
 GitHub: https://github.com/Mario-Vishal/splitmaa
 
@@ -34,13 +34,13 @@ pnpm test
 pnpm eval:smoke
 ```
 
-Native Android model testing requires a development build/APK, not Expo Go. The runner loads:
+Native Android model testing requires a development build/APK, not Expo Go. The current LiteRT-LM runner loads:
 
 ```text
-/data/local/tmp/llm/splitmaa_functiongemma.task
+/data/local/tmp/llm/mobile_actions_q8_ekv1024.litertlm
 ```
 
-During development, push a MediaPipe-compatible `.task` model with `adb push path/to/model.task /data/local/tmp/llm/splitmaa_functiongemma.task`.
+During development, push a LiteRT-LM `.litertlm` model with `adb push path/to/model.litertlm /data/local/tmp/llm/mobile_actions_q8_ekv1024.litertlm`.
 
 On Windows with a connected Android device:
 
@@ -48,11 +48,13 @@ On Windows with a connected Android device:
 $env:ANDROID_HOME="$env:LOCALAPPDATA\Android\Sdk"
 $env:Path="$env:ANDROID_HOME\platform-tools;$env:Path"
 adb shell mkdir -p /data/local/tmp/llm
-adb push C:\path\to\model.task /data/local/tmp/llm/splitmaa_functiongemma.task
-adb shell ls -lh /data/local/tmp/llm/splitmaa_functiongemma.task
+adb push C:\path\to\model.litertlm /data/local/tmp/llm/mobile_actions_q8_ekv1024.litertlm
+adb shell ls -lh /data/local/tmp/llm/mobile_actions_q8_ekv1024.litertlm
 ```
 
 After pushing the model, open Splitmaa -> Status -> Check model. The status must show `ready` before assistant commands can produce real FunctionGemma tool calls. The app does not fall back to the rule-based parser at runtime.
+
+The Mobile Actions model loads but is not useful for Splitmaa prompts. The fine-tuning path should use base `google/functiongemma-270m-it` with the dataset format in `datasets/splitmaa_functiongemma`.
 
 Speech-to-text is intentionally separate from FunctionGemma. The STT layer should later produce a transcript locally, then pass that text into the same FunctionGemma tool-call pipeline.
 
@@ -92,7 +94,7 @@ User text or voice transcript
 -> confirmation card or answer card
 -> user approval for mutations
 -> guided execution animation
--> deterministic local state update
+-> deterministic SQLite-backed local state update
 -> audit log and diagnostics
 ```
 
@@ -106,11 +108,32 @@ packages/core      Shared domain logic and contracts
 docs               Architecture, deployment, and project narrative
 tools              Evals, fine-tuning, conversion, and benchmarks
 datasets           Splitmaa command datasets
+docs/PROJECT_LOG.md Source of truth for completions, learnings, tradeoffs, and next steps
 SESSION_BRIDGE.md  Source of truth for session handoff
 PLAN.md            Build plan
 TODO.md            Phase tracker
 ```
 
+## Fine-Tune Dataset Workflow
+
+Canonical staging JSONL lives in:
+
+```text
+datasets/splitmaa_functiongemma
+```
+
+Validate generated batches:
+
+```bash
+python tools/finetune/validate_splitmaa_dataset.py datasets/splitmaa_functiongemma/train.jsonl datasets/splitmaa_functiongemma/validation.jsonl datasets/splitmaa_functiongemma/test.jsonl
+```
+
+Convert a validated split to FunctionGemma chat/tool-call JSONL:
+
+```bash
+python tools/finetune/convert_to_functiongemma.py datasets/splitmaa_functiongemma/train.jsonl .local-models/splitmaa_train.functiongemma.jsonl
+```
+
 ## Roadmap
 
-The full roadmap is tracked in [PLAN.md](./PLAN.md) and [TODO.md](./TODO.md). The next major phase is installing the debug APK on a physical Android device, pushing a compatible `.task` model, and verifying real FunctionGemma inference.
+The full roadmap is tracked in [PLAN.md](./PLAN.md), [TODO.md](./TODO.md), and [docs/PROJECT_LOG.md](./docs/PROJECT_LOG.md). The next major phase is building a fresh Android APK with SQLite, verifying local persistence on device, and growing the validated FunctionGemma fine-tune dataset.

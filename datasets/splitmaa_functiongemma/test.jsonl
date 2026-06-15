@@ -1,0 +1,3 @@
+{"id":"unsupported_test_001","input":"write me a poem about expenses","expected":{"name":"unsupported_request","arguments":{"reason":"I can help with Splitmaa groups, contacts, expenses, balances, searches, and navigation."}}}
+{"id":"group_total_test_001","input":"how much did we spend in Goa Trip","expected":{"name":"query_financial_summary","arguments":{"summaryType":"group_total","groupName":"Goa Trip","currency":"USD"}}}
+{"id":"search_timestamp_test_001","input":"when was the dinner expense added","expected":{"name":"search_records","arguments":{"query":"dinner","entityTypes":["expense"],"limit":10}}}

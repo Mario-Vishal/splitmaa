@@ -1,0 +1,4 @@
+{"id":"settle_up_validation_001","input":"record that Deepak paid me 25 dollars","expected":{"name":"settle_up","arguments":{"fromName":"Deepak","toName":"You","amountCents":2500,"currency":"USD","paymentType":"unknown"}}}
+{"id":"query_balance_validation_001","input":"how much do I owe Aravind","expected":{"name":"query_balance","arguments":{"personName":"Aravind","currency":"USD"}}}
+{"id":"open_record_validation_001","input":"open the milk expense","expected":{"name":"open_record","arguments":{"entityType":"expense","searchQuery":"milk"}}}
+{"id":"clarification_validation_001","input":"add dinner from yesterday","expected":{"name":"clarification_required","arguments":{"question":"Who paid, how much was it, and who should it be split with?","missingFields":["amountCents","paidByName","participantNames"]}}}

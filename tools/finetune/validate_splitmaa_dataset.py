@@ -14,6 +14,7 @@ ALLOWED_TOOLS = {
     "create_contact",
     "add_expense",
     "settle_up",
+    "draft_expense_plan",
     "query_balance",
     "query_financial_summary",
     "search_records",
@@ -131,6 +132,22 @@ def validate_tool_arguments(name: str, arguments: dict[str, Any], prefix: str) -
         require_string(arguments, "toName", prefix, errors)
         require_positive_int(arguments, "amountCents", prefix, errors)
         require_string(arguments, "currency", prefix, errors)
+    elif name == "draft_expense_plan":
+        operations = arguments.get("operations")
+        if not isinstance(operations, list) or not operations:
+            errors.append(f"{prefix}: draft_expense_plan.operations must be a non-empty array")
+        elif len(operations) > 5:
+            errors.append(f"{prefix}: draft_expense_plan.operations must contain at most 5 operations")
+        else:
+            for index, operation in enumerate(operations, start=1):
+                if not isinstance(operation, dict):
+                    errors.append(f"{prefix}: draft operation {index} must be an object")
+                    continue
+                operation_type = operation.get("type")
+                if operation_type not in {"create_group", "create_contact", "add_expense", "settle_up"}:
+                    errors.append(f"{prefix}: invalid draft operation type {operation_type!r}")
+                    continue
+                errors.extend(validate_tool_arguments(operation_type, operation, f"{prefix}:operation[{index}]"))
     elif name == "query_financial_summary":
         if arguments.get("summaryType") not in ALLOWED_SUMMARY_TYPES:
             errors.append(f"{prefix}: invalid summaryType {arguments.get('summaryType')!r}")
@@ -176,6 +193,8 @@ def require_string_list(arguments: dict[str, Any], key: str, prefix: str, errors
     value = arguments.get(key)
     if not isinstance(value, list) or not value or any(not isinstance(item, str) or not item.strip() for item in value):
         errors.append(f"{prefix}: {key} must be a non-empty string array")
+    elif key in {"memberNames", "participantNames"} and len(value) > 8:
+        errors.append(f"{prefix}: {key} must contain at most 8 people")
 
 
 def require_positive_int(arguments: dict[str, Any], key: str, prefix: str, errors: list[str]) -> None:

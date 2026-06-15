@@ -1,4 +1,4 @@
-import type { AppAction } from "../actions/schemas";
+import { parseAppAction, type AppAction } from "../actions/schemas";
 import { splitEqually } from "../domain/money";
 import type { Contact, Expense, Group, LocalAppState, Settlement } from "../domain/types";
 
@@ -21,6 +21,8 @@ export function applyConfirmedAction(
       return addExpense(state, action, now);
     case "SETTLE_UP":
       return settleUp(state, action, now);
+    case "DRAFT_EXPENSE_PLAN":
+      return applyDraftExpensePlan(state, action, now);
     case "QUERY_BALANCE":
     case "QUERY_FINANCIAL_SUMMARY":
     case "SEARCH_RECORDS":
@@ -32,6 +34,85 @@ export function applyConfirmedAction(
         state,
         message: "No local data changed.",
       };
+  }
+}
+
+function applyDraftExpensePlan(
+  state: LocalAppState,
+  action: Extract<AppAction, { type: "DRAFT_EXPENSE_PLAN" }>,
+  now: string,
+): ApplyActionResult {
+  let nextState = state;
+  const messages: string[] = [];
+
+  action.operations.forEach((operation, index) => {
+    const childAction = actionFromDraftOperation(action, operation, index, now);
+    const result = applyConfirmedAction(nextState, childAction, now);
+    nextState = result.state;
+    messages.push(result.message);
+  });
+
+  return {
+    state: touch(nextState, now),
+    message: action.summary ?? messages.join(" "),
+  };
+}
+
+function actionFromDraftOperation(
+  action: Extract<AppAction, { type: "DRAFT_EXPENSE_PLAN" }>,
+  operation: Extract<AppAction, { type: "DRAFT_EXPENSE_PLAN" }>["operations"][number],
+  index: number,
+  now: string,
+): AppAction {
+  const common = {
+    id: `${action.id}_${index + 1}`,
+    transcript: action.transcript,
+    confidence: action.confidence,
+  };
+
+  switch (operation.type) {
+    case "create_group":
+      return parseAppAction({
+        ...common,
+        type: "CREATE_GROUP",
+        groupName: operation.groupName,
+        memberNames: operation.memberNames,
+        currency: operation.currency,
+      });
+    case "create_contact":
+      return parseAppAction({
+        ...common,
+        type: "CREATE_CONTACT",
+        displayName: operation.displayName,
+        email: operation.email,
+        phone: operation.phone,
+      });
+    case "add_expense":
+      return parseAppAction({
+        ...common,
+        type: "ADD_EXPENSE",
+        groupName: operation.groupName,
+        description: operation.description,
+        amountCents: operation.amountCents,
+        currency: operation.currency,
+        paidByName: operation.paidByName,
+        participantNames: operation.participantNames,
+        splitType: operation.splitType,
+        category: operation.category,
+        paymentType: operation.paymentType,
+        expenseDate: operation.expenseDate,
+      });
+    case "settle_up":
+      return parseAppAction({
+        ...common,
+        type: "SETTLE_UP",
+        fromName: operation.fromName,
+        toName: operation.toName,
+        amountCents: operation.amountCents,
+        currency: operation.currency,
+        paymentType: operation.paymentType,
+        settlementDate: operation.settlementDate,
+      });
   }
 }
 

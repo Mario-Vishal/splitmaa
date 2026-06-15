@@ -3,6 +3,7 @@ import {
   addExpenseActionSchema,
   createContactActionSchema,
   createGroupActionSchema,
+  draftExpensePlanActionSchema,
   openRecordActionSchema,
   parseAppAction,
   queryFinancialSummaryActionSchema,
@@ -24,6 +25,7 @@ export const createGroupToolArgsSchema = createGroupActionSchema.omit(baseAction
 export const createContactToolArgsSchema = createContactActionSchema.omit(baseActionFields);
 export const addExpenseToolArgsSchema = addExpenseActionSchema.omit(baseActionFields);
 export const settleUpToolArgsSchema = settleUpActionSchema.omit(baseActionFields);
+export const draftExpensePlanToolArgsSchema = draftExpensePlanActionSchema.omit(baseActionFields);
 export const queryBalanceToolArgsSchema = queryBalanceActionSchema.omit(baseActionFields);
 export const queryFinancialSummaryToolArgsSchema = queryFinancialSummaryActionSchema.omit(baseActionFields);
 export const searchRecordsToolArgsSchema = searchRecordsActionSchema.omit(baseActionFields);
@@ -46,6 +48,10 @@ export const modelToolCallSchema = z.discriminatedUnion("name", [
   z.object({
     name: z.literal("settle_up"),
     arguments: settleUpToolArgsSchema,
+  }),
+  z.object({
+    name: z.literal("draft_expense_plan"),
+    arguments: draftExpensePlanToolArgsSchema,
   }),
   z.object({
     name: z.literal("query_balance"),
@@ -196,6 +202,106 @@ export const modelToolDefinitions: ModelToolDefinition[] = [
           default: "unknown",
         },
         settlementDate: { type: "string", description: "ISO date/time if the user gives a settlement date." },
+      },
+    },
+  },
+  {
+    name: "draft_expense_plan",
+    description:
+      "Draft a confirmed multi-step plan for a complex Splitmaa command containing group/contact creation, expenses, or settlements. The app resolves contacts, asks clarification, confirms, and executes deterministically.",
+    mutatesState: true,
+    requiresConfirmation: true,
+    parameters: {
+      type: "object",
+      required: ["operations"],
+      additionalProperties: false,
+      properties: {
+        operations: {
+          type: "array",
+          minItems: 1,
+          maxItems: 5,
+          items: {
+            oneOf: [
+              {
+                type: "object",
+                required: ["type", "groupName", "memberNames"],
+                additionalProperties: false,
+                properties: {
+                  type: { type: "string", const: "create_group" },
+                  groupName: { type: "string", minLength: 1 },
+                  memberNames: {
+                    type: "array",
+                    minItems: 1,
+                    maxItems: 8,
+                    items: { type: "string", minLength: 1 },
+                  },
+                  currency: { type: "string", enum: ["USD", "INR"], default: "USD" },
+                },
+              },
+              {
+                type: "object",
+                required: ["type", "displayName"],
+                additionalProperties: false,
+                properties: {
+                  type: { type: "string", const: "create_contact" },
+                  displayName: { type: "string", minLength: 1 },
+                  email: { type: "string", format: "email" },
+                  phone: { type: "string" },
+                },
+              },
+              {
+                type: "object",
+                required: ["type", "description", "amountCents", "currency", "paidByName", "participantNames", "splitType"],
+                additionalProperties: false,
+                properties: {
+                  type: { type: "string", const: "add_expense" },
+                  groupName: { type: "string" },
+                  description: { type: "string", minLength: 1 },
+                  amountCents: { type: "integer", minimum: 1 },
+                  currency: { type: "string", enum: ["USD", "INR"] },
+                  paidByName: { type: "string", minLength: 1 },
+                  participantNames: {
+                    type: "array",
+                    minItems: 1,
+                    maxItems: 8,
+                    items: { type: "string", minLength: 1 },
+                  },
+                  splitType: { type: "string", const: "equal" },
+                  category: {
+                    type: "string",
+                    enum: ["food", "transport", "groceries", "travel", "housing", "utilities", "other"],
+                    default: "other",
+                  },
+                  paymentType: {
+                    type: "string",
+                    enum: ["cash", "card", "upi", "venmo", "unknown"],
+                    default: "unknown",
+                  },
+                  expenseDate: { type: "string" },
+                },
+              },
+              {
+                type: "object",
+                required: ["type", "fromName", "toName", "amountCents", "currency"],
+                additionalProperties: false,
+                properties: {
+                  type: { type: "string", const: "settle_up" },
+                  fromName: { type: "string", minLength: 1 },
+                  toName: { type: "string", minLength: 1 },
+                  amountCents: { type: "integer", minimum: 1 },
+                  currency: { type: "string", enum: ["USD", "INR"] },
+                  paymentType: {
+                    type: "string",
+                    enum: ["cash", "card", "upi", "venmo", "unknown"],
+                    default: "unknown",
+                  },
+                  settlementDate: { type: "string" },
+                },
+              },
+            ],
+          },
+        },
+        summary: { type: "string", minLength: 1 },
       },
     },
   },
@@ -354,6 +460,8 @@ export function appActionFromModelToolCall(call: ModelToolCall, context: ModelTo
       return parseAppAction({ ...common, type: "ADD_EXPENSE", ...call.arguments });
     case "settle_up":
       return parseAppAction({ ...common, type: "SETTLE_UP", ...call.arguments });
+    case "draft_expense_plan":
+      return parseAppAction({ ...common, type: "DRAFT_EXPENSE_PLAN", ...call.arguments });
     case "query_balance":
       return parseAppAction({ ...common, type: "QUERY_BALANCE", ...call.arguments });
     case "query_financial_summary":

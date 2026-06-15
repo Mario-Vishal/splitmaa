@@ -63,6 +63,49 @@ export const settleUpActionSchema = baseActionSchema.extend({
   settlementDate: z.string().optional(),
 });
 
+export const draftExpensePlanOperationSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("create_group"),
+    groupName: z.string().min(1),
+    memberNames: z.array(z.string().min(1)).min(1).max(8),
+    currency: currencySchema.default("USD"),
+  }),
+  z.object({
+    type: z.literal("create_contact"),
+    displayName: z.string().min(1),
+    email: z.email().optional(),
+    phone: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal("add_expense"),
+    groupName: z.string().optional(),
+    description: z.string().min(1),
+    amountCents: z.number().int().positive(),
+    currency: currencySchema,
+    paidByName: z.string().min(1),
+    participantNames: z.array(z.string().min(1)).min(1).max(8),
+    splitType: z.literal("equal"),
+    category: categorySchema.default("other"),
+    paymentType: paymentTypeSchema.default("unknown"),
+    expenseDate: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal("settle_up"),
+    fromName: z.string().min(1),
+    toName: z.string().min(1),
+    amountCents: z.number().int().positive(),
+    currency: currencySchema,
+    paymentType: paymentTypeSchema.default("unknown"),
+    settlementDate: z.string().optional(),
+  }),
+]);
+
+export const draftExpensePlanActionSchema = baseActionSchema.extend({
+  type: z.literal("DRAFT_EXPENSE_PLAN"),
+  operations: z.array(draftExpensePlanOperationSchema).min(1).max(5),
+  summary: z.string().min(1).optional(),
+});
+
 export const queryBalanceActionSchema = baseActionSchema.extend({
   type: z.literal("QUERY_BALANCE"),
   personName: z.string().min(1).optional(),
@@ -128,6 +171,7 @@ export const appActionSchema = z.discriminatedUnion("type", [
   createContactActionSchema,
   addExpenseActionSchema,
   settleUpActionSchema,
+  draftExpensePlanActionSchema,
   queryBalanceActionSchema,
   queryFinancialSummaryActionSchema,
   searchRecordsActionSchema,

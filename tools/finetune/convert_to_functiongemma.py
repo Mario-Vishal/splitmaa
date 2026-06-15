@@ -14,6 +14,7 @@ TOOLS = [
     {"type": "function", "function": {"name": "create_contact", "description": "Create a contact profile for a person mentioned by the user."}},
     {"type": "function", "function": {"name": "add_expense", "description": "Record an equal-split expense paid by one person and shared by participants."}},
     {"type": "function", "function": {"name": "settle_up", "description": "Record a payment from one person to another to reduce an open balance."}},
+    {"type": "function", "function": {"name": "draft_expense_plan", "description": "Draft a confirmed multi-step plan for a complex Splitmaa command."}},
     {"type": "function", "function": {"name": "query_balance", "description": "Read local balances without changing app data."}},
     {"type": "function", "function": {"name": "query_financial_summary", "description": "Read a grounded financial summary from local data."}},
     {"type": "function", "function": {"name": "search_records", "description": "Search local contacts, groups, expenses, settlements, or activity logs."}},

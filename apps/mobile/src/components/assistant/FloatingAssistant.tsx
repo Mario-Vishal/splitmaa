@@ -295,6 +295,10 @@ function describeAction(action: AppAction): string {
       return action.displayName;
     case "SETTLE_UP":
       return `${action.fromName} pays ${action.toName} ${formatMoney(action.amountCents, action.currency)}`;
+    case "DRAFT_EXPENSE_PLAN":
+      return `${action.operations.length} planned step${action.operations.length === 1 ? "" : "s"}: ${action.operations
+        .map((operation) => operation.type.replaceAll("_", " "))
+        .join(", ")}`;
     case "QUERY_BALANCE":
       return "Answer from local balances.";
     case "QUERY_FINANCIAL_SUMMARY":

@@ -122,6 +122,12 @@ Canonical staging JSONL lives in:
 datasets/splitmaa_functiongemma
 ```
 
+Prompt templates for generating reviewed batches are tracked in:
+
+```text
+docs/FUNCTIONGEMMA_DATASET_PROMPTS.md
+```
+
 Validate generated batches:
 
 ```bash

@@ -10,12 +10,13 @@
     "test": 300
   },
   "current_counts": {
-    "train": 6,
+    "train": 7,
     "validation": 4,
     "test": 3
   },
   "notes": [
     "These files are a seed scaffold, not the final fine-tune dataset.",
+    "draft_expense_plan is now available for complex 2-5 step commands.",
     "Generated batches must pass tools/finetune/validate_splitmaa_dataset.py before being merged.",
     "The locked test set should grow deliberately and then remain unchanged."
   ]

@@ -15,6 +15,8 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Added local query/search helpers for balances, financial summaries, record search, and open-record navigation.
 - Wired assistant read/search/open actions to grounded answers, result cards, app navigation, and record highlighting.
 - Added starter fine-tune dataset splits and local validator/converter scripts.
+- Added `draft_expense_plan` for complex 2-5 step commands; confirmed plans execute through deterministic child actions.
+- Added the FunctionGemma prompt library with few-shot JSONL examples for each planned tool.
 
 ### Learnings
 
@@ -28,6 +30,7 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Query helpers currently run over validated `LocalAppState` loaded from SQLite instead of exposing raw SQL repositories to screens.
 - AsyncStorage migration leaves the old key untouched for development rollback.
 - Dataset files are starter scaffolds only; final train/validation/test sizes still need generated and reviewed batches.
+- Complex natural-language commands should use `draft_expense_plan`; the app remains responsible for contact lookup, duplicate disambiguation, missing full-name/email UI, confirmation, split math, and persistence.
 
 ### Known Issues
 
@@ -39,6 +42,7 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 
 - Add mobile persistence unit tests around the SQLite adapter.
 - Generate dataset batches by tool type, validate them locally, and grow the locked test set carefully.
+- Use `docs/FUNCTIONGEMMA_DATASET_PROMPTS.md` as the source prompt library for ChatGPT batch generation.
 - Add repository-style SQLite query functions if direct SQL performance becomes necessary.
 - Build and install a fresh Android APK after the SQLite dependency change.
 - Verify create group, add expense, reset local data, and restart persistence on the physical Android device.

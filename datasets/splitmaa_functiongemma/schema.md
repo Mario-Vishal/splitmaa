@@ -22,6 +22,7 @@ Supported tool names:
 - `create_contact`
 - `add_expense`
 - `settle_up`
+- `draft_expense_plan`
 - `query_balance`
 - `query_financial_summary`
 - `search_records`
@@ -29,5 +30,7 @@ Supported tool names:
 - `show_search_results`
 - `clarification_required`
 - `unsupported_request`
+
+`draft_expense_plan` is for complex multi-step commands only. It contains 1-5 operations, and each operation must be one of `create_group`, `create_contact`, `add_expense`, or `settle_up`. Use `clarification_required` instead when a required group name, amount, payer, participant, or duplicate-contact choice is missing.
 
 The local validator in `tools/finetune/validate_splitmaa_dataset.py` is the source of truth before examples move into train, validation, or locked test files.

@@ -8,6 +8,7 @@ describe("model tools", () => {
       "create_contact",
       "add_expense",
       "settle_up",
+      "draft_expense_plan",
       "query_balance",
       "query_financial_summary",
       "search_records",
@@ -38,6 +39,49 @@ describe("model tools", () => {
       expect(action.groupName).toBe("california");
       expect(action.memberNames).toEqual(["sai", "deepak"]);
       expect(action.currency).toBe("USD");
+    }
+  });
+
+  it("converts a complex draft plan tool call into a validated app action", () => {
+    const call = parseModelToolCall({
+      name: "draft_expense_plan",
+      arguments: {
+        operations: [
+          {
+            type: "create_group",
+            groupName: "Road trip",
+            memberNames: ["You", "Abhishek", "Vishal", "Koushik"],
+            currency: "USD",
+          },
+          {
+            type: "add_expense",
+            groupName: "Road trip",
+            description: "coffee",
+            amountCents: 2000,
+            currency: "USD",
+            paidByName: "You",
+            participantNames: ["Abhishek", "Koushik"],
+            splitType: "equal",
+            category: "food",
+            paymentType: "unknown",
+          },
+        ],
+        summary: "Create Road trip and add coffee.",
+      },
+    });
+
+    const action = appActionFromModelToolCall(call, {
+      transcript: "create a group and add coffee",
+      now: "2026-06-14T00:00:00.000Z",
+    });
+
+    expect(action.type).toBe("DRAFT_EXPENSE_PLAN");
+    if (action.type === "DRAFT_EXPENSE_PLAN") {
+      expect(action.operations).toHaveLength(2);
+      expect(action.operations[1]).toMatchObject({
+        type: "add_expense",
+        participantNames: ["Abhishek", "Koushik"],
+      });
     }
   });
 

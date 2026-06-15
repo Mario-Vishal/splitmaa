@@ -13,7 +13,7 @@ import {
   type LocalAppState,
   type RuntimeDiagnostics,
 } from "@splitmaa/core";
-import { createUnavailableFunctionGemmaRunner } from "@splitmaa/functiongemma-runner";
+import { DEFAULT_ANDROID_MODEL_PATH, createNativeFunctionGemmaRunner } from "@splitmaa/functiongemma-runner";
 import { create } from "zustand";
 import {
   clearLocalAppState,
@@ -84,7 +84,9 @@ export const exampleCommands = [
 ] as const;
 
 const assistantParser = createFunctionGemmaParser({
-  runner: createUnavailableFunctionGemmaRunner(),
+  runner: createNativeFunctionGemmaRunner({
+    modelPath: DEFAULT_ANDROID_MODEL_PATH,
+  }),
   fallbackParser: ruleBasedParser,
 });
 

@@ -16,7 +16,7 @@ The local model is never allowed to directly mutate app state.
 
 ## Current Status
 
-The project now has a bootstrapped monorepo, Expo reference client, bottom navigation, core screens, floating assistant, confirmation flow, theme/branding foundation, pure core money/action/parser contracts, FunctionGemma-callable tool definitions, a runner-backed FunctionGemma parser adapter, deterministic action application, AsyncStorage-backed local persistence, smoke evals, and an explicit FunctionGemma runner boundary package.
+The project now has a bootstrapped monorepo, Expo reference client, bottom navigation, core screens, floating assistant, confirmation flow, theme/branding foundation, pure core money/action/parser contracts, FunctionGemma-callable tool definitions, a runner-backed FunctionGemma parser adapter, an Android MediaPipe native runner module, deterministic action application, AsyncStorage-backed local persistence, and smoke evals.
 
 ## Phase Plan
 
@@ -32,8 +32,8 @@ The project now has a bootstrapped monorepo, Expo reference client, bottom navig
 10. Core screens. Complete for local MVP.
 11. Eval dataset and runner. Smoke eval complete.
 12. Baseline evaluation. Smoke baseline complete.
-13. Native model runner boundary. Placeholder package, tool-aware TypeScript types, and mobile adapter wiring complete.
-14. Android FunctionGemma runner implementation.
+13. Native model runner boundary. Tool-aware TypeScript types and mobile adapter wiring complete.
+14. Android FunctionGemma runner implementation. MediaPipe native module complete; device build/test pending.
 15. Fine-tuning preparation.
 16. Fine-tuning execution if justified.
 17. Mobile conversion.
@@ -66,11 +66,12 @@ Deployment is not configured yet. Android APK and EAS preview documentation will
 ## Open Questions
 
 - Which Supabase features should remain optional for the first public release?
-- Which FunctionGemma Android runtime path should be used first for local inference?
+- Which exact `.task` model artifact should be the first real-device target?
 - Which Android device should be the first real-device target?
 
 ## Risks
 
 - Native FunctionGemma integration may require device-specific runtime work.
+- Android native compile requires local JDK/`JAVA_HOME`.
 - Fine-tuning should not start until evals expose specific failure modes.
 - Mobile distribution must stay honest about what is mocked versus running locally.

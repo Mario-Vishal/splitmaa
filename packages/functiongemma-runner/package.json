@@ -10,7 +10,11 @@
     "lint": "node -e \"console.log('No functiongemma runner lint configured yet')\""
   },
   "dependencies": {
-    "@splitmaa/core": "workspace:*"
+    "@splitmaa/core": "workspace:*",
+    "expo-modules-core": "~56.0.16"
+  },
+  "peerDependencies": {
+    "react-native": "*"
   },
   "devDependencies": {
     "typescript": "~6.0.3"

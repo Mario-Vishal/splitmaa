@@ -11,7 +11,7 @@ This file is the source of truth for continuing Splitmaa across Codex sessions. 
 
 ## Current Phase
 
-Polished local MVP complete. Current phase: FunctionGemma-callable tool contracts, then native Android runner integration. Do not grow the rule-based parser except as a thin demo fallback.
+Polished local MVP complete. Current phase: native Android FunctionGemma real-device testing. Do not grow the rule-based parser except as a thin demo fallback.
 
 ## Latest Completion Log
 
@@ -41,6 +41,8 @@ Polished local MVP complete. Current phase: FunctionGemma-callable tool contract
 - 2026-06-15: Updated the FunctionGemma runner boundary to accept tool definitions and optionally return typed tool calls.
 - 2026-06-15: Wired `functionGemmaParser` to call a tool-aware runner, validate typed/raw tool calls, convert them into app actions, and fall back to the thin rule-based parser only when the runner is not ready.
 - 2026-06-15: Routed the mobile assistant store through the FunctionGemma parser adapter using the unavailable runner placeholder plus fallback, so the app path now matches the future native runner boundary.
+- 2026-06-15: Implemented the Android native FunctionGemma runner as an Expo module using MediaPipe GenAI `LlmInference` with `com.google.mediapipe:tasks-genai:0.10.27`.
+- 2026-06-15: Wired mobile to `createNativeFunctionGemmaRunner()` with model path `/data/local/tmp/llm/splitmaa_functiongemma.task`; Expo Go/failure cases still fall back to the rule-based parser.
 
 ## Learnings
 
@@ -50,15 +52,17 @@ Polished local MVP complete. Current phase: FunctionGemma-callable tool contract
 - Expo web preview for this SDK also needs `react-dom`, `react-native-web`, and `@expo/metro-runtime`.
 - Expo native additions are pinned through `expo install`: AsyncStorage, SVG, Reanimated, and Gesture Handler.
 - `@react-native/metro-config` needed a direct `0.85.3` pin to satisfy React Native peer dependencies.
+- Expo autolinking detects `@splitmaa/functiongemma-runner` and `expo.modules.splitmaafunctiongemma.SplitmaaFunctionGemmaModule`.
+- Local Android Gradle compile is currently blocked because Java/JDK is not installed or `JAVA_HOME` is not set in this shell.
 
 ## Tradeoffs
 
 - Start with a small, honest Expo reference client instead of trying to complete native model integration during setup.
-- Keep FunctionGemma execution documented as future work until a real native runner exists.
+- Native FunctionGemma requires a development build/APK; Expo Go cannot load the native module.
 - Use a root-level `SESSION_BRIDGE.md` instead of burying handoff notes in docs so future sessions load project state quickly.
 - Use AsyncStorage for MVP local persistence rather than SQLite or Supabase so the app remains easy to preview.
 - Persist validated `LocalAppState` snapshots first; add repositories/query services once the assistant workflow is ready.
-- Keep the MVP local and honest: FunctionGemma native inference is represented by a placeholder boundary until real Kotlin/Swift runner work is done.
+- Keep the MVP local and honest: Android native runner code exists, but real inference is unverified until a compatible `.task` model is on a physical device.
 - Prioritize a calm finance UI: fewer visible chat messages, stronger debt summary, tappable cards, and detail views over a generic chatbot layout.
 - Prefer native app density over website spacing: compact headers, short subtitles, filled surfaces, and fewer full-width controls.
 - Assistant should stay compact and utilitarian; avoid filler messages and obvious explanatory copy.
@@ -76,15 +80,16 @@ Polished local MVP complete. Current phase: FunctionGemma-callable tool contract
 
 ## Next Session Checklist
 
-- Replace placeholder FunctionGemma runner with Android Kotlin implementation when a model artifact/runtime path is available.
-- Feed the Android runner output into the existing typed/raw tool-call return shape.
-- Build Android development build/APK path after the model/tool boundary is stable enough to showcase.
+- Build Android development build/APK that includes `@splitmaa/functiongemma-runner`.
+- Push a MediaPipe-compatible `.task` model to `/data/local/tmp/llm/splitmaa_functiongemma.task`.
+- Test the command path on a physical Android device and inspect diagnostics/fallback behavior.
 - Grow smoke evals from 5 examples to 300 examples.
 - Keep updating `SESSION_BRIDGE.md`, `TODO.md`, and `README.md` after meaningful progress.
 
 ## Blockers
 
-- No active blocker for Phase 1.
+- Android native compile requires Java/JDK on PATH (`JAVA_HOME`). `gradlew :app:assembleDebug` failed before Gradle execution because Java was missing.
+- Real inference also requires a compatible MediaPipe `.task` model at `/data/local/tmp/llm/splitmaa_functiongemma.task`.
 
 ## Commit Log
 

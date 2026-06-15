@@ -10,8 +10,8 @@ The project is framed as an AI system first: a small local function-calling mode
 
 Local MVP is complete.
 
-- Real: pnpm monorepo scaffold, Expo mobile reference client, Splitwise/Notion-inspired Home, Groups, Contacts, and Diagnostics screens, group/contact detail views, compact bottom-sheet assistant, confirmation cards, FunctionGemma parser adapter with rule-based fallback, FunctionGemma-callable tool contracts, action schemas, deterministic action application, AsyncStorage local persistence, audit logs, smoke eval runner, native runner boundary package, guided create-group execution animation, project plan, TODO tracker, session bridge.
-- Mocked or not built yet: real local FunctionGemma inference, native Android FunctionGemma runner, full eval dataset, fine-tuned model, Android APK/dev build packaging, Supabase sync.
+- Real: pnpm monorepo scaffold, Expo mobile reference client, Splitwise/Notion-inspired Home, Groups, Contacts, and Diagnostics screens, group/contact detail views, compact bottom-sheet assistant, confirmation cards, FunctionGemma parser adapter with rule-based fallback, FunctionGemma-callable tool contracts, Android MediaPipe native runner module, action schemas, deterministic action application, AsyncStorage local persistence, audit logs, smoke eval runner, guided create-group execution animation, project plan, TODO tracker, session bridge.
+- Mocked or not built yet: bundled/downloaded model artifact, verified real-device FunctionGemma inference run, full eval dataset, fine-tuned model, Android APK/dev build packaging, Supabase sync.
 
 GitHub: https://github.com/Mario-Vishal/splitmaa
 
@@ -27,11 +27,20 @@ Useful commands:
 ```bash
 pnpm mobile:start
 pnpm mobile:android
+pnpm mobile:android:native
 pnpm mobile:ios
 pnpm typecheck
 pnpm test
 pnpm eval:smoke
 ```
+
+Native Android model testing requires a development build/APK, not Expo Go. The runner loads:
+
+```text
+/data/local/tmp/llm/splitmaa_functiongemma.task
+```
+
+During development, push a MediaPipe-compatible `.task` model with `adb push path/to/model.task /data/local/tmp/llm/splitmaa_functiongemma.task`.
 
 On Windows PowerShell, use `pnpm.cmd` if script execution policy blocks `pnpm`:
 

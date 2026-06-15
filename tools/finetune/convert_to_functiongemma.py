@@ -10,18 +10,13 @@ from typing import Any
 
 
 TOOLS = [
-    {"type": "function", "function": {"name": "create_group", "description": "Create an expense group and ensure the named members exist as contacts."}},
-    {"type": "function", "function": {"name": "create_contact", "description": "Create a contact profile for a person mentioned by the user."}},
-    {"type": "function", "function": {"name": "add_expense", "description": "Record an equal-split expense paid by one person and shared by participants."}},
-    {"type": "function", "function": {"name": "settle_up", "description": "Record a payment from one person to another to reduce an open balance."}},
-    {"type": "function", "function": {"name": "draft_expense_plan", "description": "Draft a confirmed multi-step plan for a complex Splitmaa command."}},
-    {"type": "function", "function": {"name": "query_balance", "description": "Read local balances without changing app data."}},
-    {"type": "function", "function": {"name": "query_financial_summary", "description": "Read a grounded financial summary from local data."}},
-    {"type": "function", "function": {"name": "search_records", "description": "Search local contacts, groups, expenses, settlements, or activity logs."}},
-    {"type": "function", "function": {"name": "open_record", "description": "Navigate to a local record and optionally highlight it."}},
-    {"type": "function", "function": {"name": "show_search_results", "description": "Show a previously created search result set."}},
-    {"type": "function", "function": {"name": "clarification_required", "description": "Ask for missing information."}},
-    {"type": "function", "function": {"name": "unsupported_request", "description": "Reject requests outside Splitmaa scope."}},
+    {
+        "type": "function",
+        "function": {
+            "name": "extract_workflow_intent",
+            "description": "Extract one strict Splitmaa workflow intent. The app owns trusted IDs, SQLite lookup, UI clarification, confirmation, money/date normalization, commits, navigation, and audit.",
+        },
+    },
 ]
 
 
@@ -54,7 +49,7 @@ def convert_item(item: dict[str, Any]) -> dict[str, Any]:
         "messages": [
             {
                 "role": "developer",
-                "content": "You are Splitmaa's local function-calling model. Return exactly one tool call.",
+                "content": "You are Splitmaa's local FunctionGemma workflow intent extractor. Return exactly one extract_workflow_intent tool call.",
             },
             {
                 "role": "user",

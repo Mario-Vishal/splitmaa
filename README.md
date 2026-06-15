@@ -4,14 +4,14 @@ Splitmaa means **Split + Gemma**.
 
 Splitmaa is an independent open-source edge-device LLM project demonstrated through a mobile expense assistant. It is not affiliated with Google or the Gemma team.
 
-The project is framed as an AI system first: a small local function-calling model proposes constrained expense actions, the app validates them, asks for confirmation, and only then executes deterministic product updates.
+The project is framed as an AI system first: a small local function-calling model extracts one constrained workflow intent, while the app validates it, resolves local data, asks for confirmation, and only then executes deterministic product updates.
 
 ## Current Status
 
 Local MVP is moving into the local-first AI phase.
 
-- Real: pnpm monorepo scaffold, Expo mobile reference client, Splitwise/Notion-inspired Home, Groups, Contacts, and Diagnostics screens, group/contact detail views, compact bottom-sheet assistant, confirmation cards, FunctionGemma-only parser adapter, FunctionGemma-callable tool contracts, Android LiteRT-LM native runner module, Android debug APK build, action schemas, deterministic action application, SQLite local persistence with one-time AsyncStorage migration, audit logs, local query/search/navigation helpers, smoke eval runner, guided create-group execution animation, starter fine-tune dataset tooling, project plan, TODO tracker, and project log.
-- Not complete yet: Splitmaa-specific fine-tuned FunctionGemma model, final 1,500-3,000 example training dataset, mobile SQLite adapter unit tests, speech-to-text, Supabase sync.
+- Real: pnpm monorepo scaffold, Expo mobile reference client, Splitwise/Notion-inspired Home, Groups, Contacts, and Diagnostics screens, group/contact detail views, compact bottom-sheet assistant, confirmation cards, FunctionGemma-only parser adapter, single `extract_workflow_intent` model-facing function, strict workflow operation schemas, Android LiteRT-LM native runner module, Android debug APK build, deterministic action application, SQLite local persistence with one-time AsyncStorage migration, workflow state/audit tables, local query/search/navigation helpers, smoke eval runner, guided create-group execution animation, starter fine-tune dataset tooling, project plan, TODO tracker, and project log.
+- Not complete yet: full workflow engine UI for persisted `workflow_state`, Splitmaa-specific fine-tuned FunctionGemma model, final 1,500-3,000 example training dataset, mobile SQLite adapter unit tests, speech-to-text, Supabase sync.
 
 GitHub: https://github.com/Mario-Vishal/splitmaa
 
@@ -54,7 +54,7 @@ adb shell ls -lh /data/local/tmp/llm/mobile_actions_q8_ekv1024.litertlm
 
 After pushing the model, open Splitmaa -> Status -> Check model. The status must show `ready` before assistant commands can produce real FunctionGemma tool calls. The app does not fall back to the rule-based parser at runtime.
 
-The Mobile Actions model loads but is not useful for Splitmaa prompts. The fine-tuning path should use base `google/functiongemma-270m-it` with the dataset format in `datasets/splitmaa_functiongemma`.
+The Mobile Actions model loads but is not useful for Splitmaa prompts. The fine-tuning path should use base `google/functiongemma-270m-it` with the single-function dataset format in `datasets/splitmaa_functiongemma`.
 
 Speech-to-text is intentionally separate from FunctionGemma. The STT layer should later produce a transcript locally, then pass that text into the same FunctionGemma tool-call pipeline.
 
@@ -88,17 +88,17 @@ pnpm.cmd mobile:web
 User text or voice transcript
 -> compact product context
 -> FunctionGemma native runner
--> structured tool call
--> schema validation
+-> extract_workflow_intent tool call
+-> strict workflow schema validation
 -> context resolution and ground-truth lookup
 -> confirmation card or answer card
 -> user approval for mutations
 -> guided execution animation
 -> deterministic SQLite-backed local state update
--> audit log and diagnostics
+-> workflow audit log and diagnostics
 ```
 
-The model is an action proposer, not an executor. No model output should directly mutate state or write to storage.
+The model is a workflow intent extractor, not an executor. It outputs names, natural references, `amountText`, and `dateText`; the app owns trusted IDs, SQLite lookups, money/date normalization, UI clarification, confirmation tokens, guarded commits, navigation, highlighting, and audit.
 
 ## Repository Layout
 
@@ -142,4 +142,4 @@ python tools/finetune/convert_to_functiongemma.py datasets/splitmaa_functiongemm
 
 ## Roadmap
 
-The full roadmap is tracked in [PLAN.md](./PLAN.md), [TODO.md](./TODO.md), and [docs/PROJECT_LOG.md](./docs/PROJECT_LOG.md). The next major phase is building a fresh Android APK with SQLite, verifying local persistence on device, and growing the validated FunctionGemma fine-tune dataset.
+The full roadmap is tracked in [PLAN.md](./PLAN.md), [TODO.md](./TODO.md), and [docs/PROJECT_LOG.md](./docs/PROJECT_LOG.md). The next major phase is implementing the persisted workflow engine around `workflow_state`, then growing the validated FunctionGemma fine-tune dataset.

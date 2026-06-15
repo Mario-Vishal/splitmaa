@@ -3,46 +3,70 @@
 Source files use canonical staging JSONL. Each line is one JSON object:
 
 ```json
-{"id":"create_group_001","input":"create a group called California add Sai and Deepak","expected":{"name":"create_group","arguments":{"groupName":"California","memberNames":["Sai","Deepak"],"currency":"USD"}}}
+{"id":"create_group_001","input":"create a group called California add Sai and Deepak","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"entity_mutation","confidence":0.91,"currencyHint":"USD","operations":[{"operationType":"create_group","args":{"groupName":"California","members":[{"refType":"name","value":"Sai"},{"refType":"name","value":"Deepak"}],"currency":"USD"}}],"missingFields":[],"ambiguities":[]}}}
 ```
 
 Rules:
 
 - English only.
 - Currencies are `USD` and `INR` only.
-- One expected tool call per example.
+- One expected tool call per example: `extract_workflow_intent`.
 - No markdown, no JSON arrays, no comments inside JSONL files.
-- Mutation tools should include enough arguments for deterministic app execution.
-- Read/search/navigation tools should return the intended tool call, not a natural-language answer.
-- Grounded answer examples use trusted app-provided result payloads in `arguments`.
+- The model outputs names and natural references, not trusted database IDs, unless the ID came from trusted pending UI context.
+- The model outputs `amountText` and `currency`; the app converts to minor units.
+- The model outputs `dateText` and `dateIntent`; the app resolves timezone-aware UTC boundaries.
+- Incomplete Splitmaa actions use `missingFields`, not `unsupported`.
+- Out-of-domain requests use `workflowType: "unsupported"`.
+- Search/navigation/display are semantic operations. The app may internally query SQLite, display result cards, navigate, and highlight.
 
-Tool categories:
+Model-facing function:
 
-- `mutate`: `create_group`, `create_contact`, `add_expense`, `settle_up`, `draft_expense_plan`
-- `read`: `query_balance`, `query_financial_summary`
-- `search`: `search_records`
-- `navigate`: `open_record`
-- `display`: `show_search_results`
-- `UI clarification`: `clarification_required`
-- `reject`: `unsupported_request`
+- `extract_workflow_intent`
 
-Navigation/display tools are intentional UI tools, not only database tools. `open_record` should represent a request to switch to the right app surface and highlight an entity. `show_search_results` should represent displaying an existing result set. `clarification_required` can represent text input, full-name/email input, or duplicate-contact selection.
+Workflow types:
 
-Supported tool names:
+- `entity_mutation`
+- `expense_mutation`
+- `multi_step`
+- `record_lookup`
+- `financial_answer`
+- `clarification_response`
+- `unsupported`
 
-- `create_group`
-- `create_contact`
-- `add_expense`
-- `settle_up`
-- `draft_expense_plan`
-- `query_balance`
-- `query_financial_summary`
-- `search_records`
-- `open_record`
-- `show_search_results`
-- `clarification_required`
-- `unsupported_request`
+Operation types:
 
-`draft_expense_plan` is for complex multi-step commands only. It contains 1-5 operations, and each operation must be one of `create_group`, `create_contact`, `add_expense`, or `settle_up`. Use `clarification_required` instead when a required group name, amount, payer, participant, or duplicate-contact choice is missing.
+- Entity: `create_contact`, `create_group`, `add_group_member`, `remove_group_member`
+- Expense: `add_expense`, `edit_expense`, `delete_expense`, `settle_up`, `change_split`
+- Lookup/UI: `search_records`, `open_record`, `list_records`, `show_previous`, `get_record_metadata`
+- Financial: `compute_balance`, `compute_total`, `compute_summary`, `compute_date_window_total`
+- Clarification: `select_option`, `provide_contact_details`, `provide_missing_field`, `cancel_pending_workflow`
 
-The local validator in `tools/finetune/validate_splitmaa_dataset.py` is the source of truth before examples move into train, validation, or locked test files.
+Reference shapes:
+
+```json
+{"refType":"current_user"}
+{"refType":"name","value":"Pabba"}
+{"refType":"record_ref","entityType":"expense","id":"expense_123"}
+{"refType":"last_result"}
+{"refType":"active_pending_workflow"}
+```
+
+Example multi-step command:
+
+```json
+{"id":"multi_step_001","input":"create a group called california and add me and pabba and add milk equal split of 20$","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"multi_step","confidence":0.91,"currencyHint":"USD","operations":[{"operationType":"create_group","args":{"groupName":"california","members":[{"refType":"current_user"},{"refType":"name","value":"pabba"}],"currency":"USD"}},{"operationType":"add_expense","args":{"description":"milk","amountText":"20$","currency":"USD","groupRef":{"refType":"name","value":"california"},"paidBy":{"refType":"current_user"},"split":{"splitType":"equal","participants":[{"refType":"current_user"},{"refType":"name","value":"pabba"}]},"category":"groceries","paymentType":"unknown"}}],"missingFields":[],"ambiguities":[]}}}
+```
+
+Clarification response example:
+
+```json
+{"id":"clarification_response_001","input":"the second one","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"clarification_response","confidence":0.92,"pendingWorkflowRef":{"refType":"active_pending_workflow"},"pendingEventType":"contact_picker","operations":[{"operationType":"select_option","args":{"selection":{"selectionType":"ordinal","ordinal":2,"rawText":"the second one"}}}],"missingFields":[],"ambiguities":[]}}}
+```
+
+Validation command:
+
+```powershell
+python tools/finetune/validate_splitmaa_dataset.py datasets/splitmaa_functiongemma/train.jsonl datasets/splitmaa_functiongemma/validation.jsonl datasets/splitmaa_functiongemma/test.jsonl
+```
+
+The local validator is the source of truth before examples move into train, validation, or locked test files.

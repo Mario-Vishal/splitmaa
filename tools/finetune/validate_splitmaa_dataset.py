@@ -9,23 +9,43 @@ from pathlib import Path
 from typing import Any
 
 
-ALLOWED_TOOLS = {
-    "create_group",
+TOOL_NAME = "extract_workflow_intent"
+WORKFLOW_TYPES = {
+    "entity_mutation",
+    "expense_mutation",
+    "multi_step",
+    "record_lookup",
+    "financial_answer",
+    "clarification_response",
+    "unsupported",
+}
+OPERATION_TYPES = {
     "create_contact",
+    "create_group",
+    "add_group_member",
+    "remove_group_member",
     "add_expense",
+    "edit_expense",
+    "delete_expense",
     "settle_up",
-    "draft_expense_plan",
-    "query_balance",
-    "query_financial_summary",
+    "change_split",
     "search_records",
     "open_record",
-    "show_search_results",
-    "clarification_required",
-    "unsupported_request",
+    "list_records",
+    "show_previous",
+    "get_record_metadata",
+    "compute_balance",
+    "compute_total",
+    "compute_summary",
+    "compute_date_window_total",
+    "select_option",
+    "provide_contact_details",
+    "provide_missing_field",
+    "cancel_pending_workflow",
 }
-
 ALLOWED_CURRENCIES = {"USD", "INR"}
 ALLOWED_ENTITY_TYPES = {"contact", "group", "expense", "settlement", "activity_log"}
+ALLOWED_REFS = {"current_user", "name", "record_ref", "last_result", "active_pending_workflow"}
 ALLOWED_SUMMARY_TYPES = {
     "total_owed_to_me",
     "total_i_owe",
@@ -77,6 +97,7 @@ def validate_item(item: Any, path: Path, line_number: int, seen_ids: set[str]) -
     if not isinstance(item, dict):
         return [f"{prefix}: example must be an object"]
 
+    assert_exact_keys(item, {"id", "input", "expected"}, prefix, errors)
     example_id = item.get("id")
     user_input = item.get("input")
     expected = item.get("expected")
@@ -95,81 +116,184 @@ def validate_item(item: Any, path: Path, line_number: int, seen_ids: set[str]) -
         errors.append(f"{prefix}: expected must be an object")
         return errors
 
-    name = expected.get("name")
-    arguments = expected.get("arguments")
-    if name not in ALLOWED_TOOLS:
-        errors.append(f"{prefix}: unsupported tool {name!r}")
-    if not isinstance(arguments, dict):
+    assert_exact_keys(expected, {"name", "arguments"}, f"{prefix}.expected", errors)
+    if expected.get("name") != TOOL_NAME:
+        errors.append(f"{prefix}: expected.name must be {TOOL_NAME!r}")
+    if not isinstance(expected.get("arguments"), dict):
         errors.append(f"{prefix}: expected.arguments must be an object")
         return errors
 
-    errors.extend(validate_tool_arguments(name, arguments, prefix))
+    errors.extend(validate_intent(expected["arguments"], prefix))
     return errors
 
 
-def validate_tool_arguments(name: str, arguments: dict[str, Any], prefix: str) -> list[str]:
+def validate_intent(arguments: dict[str, Any], prefix: str) -> list[str]:
     errors: list[str] = []
+    allowed = {
+        "schemaVersion",
+        "workflowType",
+        "workflowVersion",
+        "modelVersion",
+        "clientVersion",
+        "confidence",
+        "locale",
+        "currencyHint",
+        "pendingWorkflowRef",
+        "pendingEventType",
+        "operations",
+        "missingFields",
+        "ambiguities",
+    }
+    assert_subset_keys(arguments, allowed, f"{prefix}.arguments", errors)
 
-    for currency in find_currency_values(arguments):
+    if arguments.get("schemaVersion") != "1.0":
+        errors.append(f"{prefix}: schemaVersion must be '1.0'")
+    if arguments.get("workflowType") not in WORKFLOW_TYPES:
+        errors.append(f"{prefix}: invalid workflowType {arguments.get('workflowType')!r}")
+    confidence = arguments.get("confidence")
+    if not isinstance(confidence, (int, float)) or confidence < 0 or confidence > 1:
+        errors.append(f"{prefix}: confidence must be a number from 0 to 1")
+    if "currencyHint" in arguments and arguments["currencyHint"] not in ALLOWED_CURRENCIES:
+        errors.append(f"{prefix}: unsupported currencyHint {arguments['currencyHint']!r}")
+
+    operations = arguments.get("operations")
+    missing_fields = arguments.get("missingFields")
+    ambiguities = arguments.get("ambiguities")
+    if not isinstance(operations, list):
+        errors.append(f"{prefix}: operations must be an array")
+        operations = []
+    if not isinstance(missing_fields, list) or any(not_nonempty_string(item) for item in missing_fields):
+        errors.append(f"{prefix}: missingFields must be a string array")
+    if not isinstance(ambiguities, list) or any(not_nonempty_string(item) for item in ambiguities):
+        errors.append(f"{prefix}: ambiguities must be a string array")
+
+    for index, operation in enumerate(operations, start=1):
+        errors.extend(validate_operation(operation, f"{prefix}.operation[{index}]"))
+
+    if arguments.get("workflowType") != "unsupported" and not operations and not missing_fields:
+        errors.append(f"{prefix}: non-unsupported intents need operations or missingFields")
+
+    return errors
+
+
+def validate_operation(operation: Any, prefix: str) -> list[str]:
+    errors: list[str] = []
+    if not isinstance(operation, dict):
+        return [f"{prefix}: operation must be an object"]
+    assert_exact_keys(operation, {"operationType", "args"}, prefix, errors)
+    operation_type = operation.get("operationType")
+    args = operation.get("args")
+    if operation_type not in OPERATION_TYPES:
+        errors.append(f"{prefix}: invalid operationType {operation_type!r}")
+        return errors
+    if not isinstance(args, dict):
+        errors.append(f"{prefix}: args must be an object")
+        return errors
+
+    if operation_type == "create_contact":
+        assert_subset_keys(args, {"displayName", "email", "phone"}, f"{prefix}.args", errors)
+        require_string(args, "displayName", prefix, errors)
+    elif operation_type == "create_group":
+        assert_subset_keys(args, {"groupName", "members", "currency"}, f"{prefix}.args", errors)
+        require_string(args, "groupName", prefix, errors)
+        require_refs(args.get("members"), f"{prefix}.args.members", errors)
+        validate_currency(args, "currency", prefix, errors, optional=True)
+    elif operation_type == "add_expense":
+        assert_subset_keys(args, {"description", "amountText", "currency", "groupRef", "paidBy", "split", "category", "paymentType", "date"}, f"{prefix}.args", errors)
+        require_string(args, "description", prefix, errors)
+        require_string(args, "amountText", prefix, errors)
+        validate_currency(args, "currency", prefix, errors)
+        validate_ref(args.get("paidBy"), f"{prefix}.args.paidBy", errors)
+        validate_split(args.get("split"), f"{prefix}.args.split", errors)
+        if "groupRef" in args:
+            validate_ref(args["groupRef"], f"{prefix}.args.groupRef", errors)
+    elif operation_type == "settle_up":
+        assert_subset_keys(args, {"from", "to", "amountText", "currency", "paymentType", "date"}, f"{prefix}.args", errors)
+        validate_ref(args.get("from"), f"{prefix}.args.from", errors)
+        validate_ref(args.get("to"), f"{prefix}.args.to", errors)
+        require_string(args, "amountText", prefix, errors)
+        validate_currency(args, "currency", prefix, errors)
+    elif operation_type in {"search_records"}:
+        assert_subset_keys(args, {"query", "entityTypes", "personRef", "groupRef", "currency", "category", "dateRange", "limit"}, f"{prefix}.args", errors)
+        require_string(args, "query", prefix, errors)
+        validate_entity_types(args.get("entityTypes"), f"{prefix}.args.entityTypes", errors)
+    elif operation_type == "open_record":
+        assert_subset_keys(args, {"entityType", "recordRef", "searchQuery", "highlightRef"}, f"{prefix}.args", errors)
+        if args.get("entityType") not in ALLOWED_ENTITY_TYPES:
+            errors.append(f"{prefix}: invalid entityType {args.get('entityType')!r}")
+    elif operation_type == "get_record_metadata":
+        assert_subset_keys(args, {"entityType", "recordRef", "query"}, f"{prefix}.args", errors)
+        if args.get("entityType") not in ALLOWED_ENTITY_TYPES:
+            errors.append(f"{prefix}: invalid entityType {args.get('entityType')!r}")
+    elif operation_type.startswith("compute_"):
+        assert_subset_keys(args, {"metric", "personRef", "groupRef", "currency", "dateRange"}, f"{prefix}.args", errors)
+        if "metric" in args and args["metric"] not in ALLOWED_SUMMARY_TYPES:
+            errors.append(f"{prefix}: invalid metric {args['metric']!r}")
+        validate_currency(args, "currency", prefix, errors, optional=True)
+
+    for currency in find_currency_values(args):
         if currency not in ALLOWED_CURRENCIES:
             errors.append(f"{prefix}: unsupported currency {currency!r}")
-
-    if name == "create_group":
-        require_string(arguments, "groupName", prefix, errors)
-        require_string_list(arguments, "memberNames", prefix, errors)
-    elif name == "create_contact":
-        require_string(arguments, "displayName", prefix, errors)
-    elif name == "add_expense":
-        require_string(arguments, "description", prefix, errors)
-        require_positive_int(arguments, "amountCents", prefix, errors)
-        require_string(arguments, "currency", prefix, errors)
-        require_string(arguments, "paidByName", prefix, errors)
-        require_string_list(arguments, "participantNames", prefix, errors)
-        if arguments.get("splitType") != "equal":
-            errors.append(f"{prefix}: add_expense.splitType must be equal")
-    elif name == "settle_up":
-        require_string(arguments, "fromName", prefix, errors)
-        require_string(arguments, "toName", prefix, errors)
-        require_positive_int(arguments, "amountCents", prefix, errors)
-        require_string(arguments, "currency", prefix, errors)
-    elif name == "draft_expense_plan":
-        operations = arguments.get("operations")
-        if not isinstance(operations, list) or not operations:
-            errors.append(f"{prefix}: draft_expense_plan.operations must be a non-empty array")
-        elif len(operations) > 5:
-            errors.append(f"{prefix}: draft_expense_plan.operations must contain at most 5 operations")
-        else:
-            for index, operation in enumerate(operations, start=1):
-                if not isinstance(operation, dict):
-                    errors.append(f"{prefix}: draft operation {index} must be an object")
-                    continue
-                operation_type = operation.get("type")
-                if operation_type not in {"create_group", "create_contact", "add_expense", "settle_up"}:
-                    errors.append(f"{prefix}: invalid draft operation type {operation_type!r}")
-                    continue
-                errors.extend(validate_tool_arguments(operation_type, operation, f"{prefix}:operation[{index}]"))
-    elif name == "query_financial_summary":
-        if arguments.get("summaryType") not in ALLOWED_SUMMARY_TYPES:
-            errors.append(f"{prefix}: invalid summaryType {arguments.get('summaryType')!r}")
-    elif name == "search_records":
-        require_string(arguments, "query", prefix, errors)
-        entity_types = arguments.get("entityTypes")
-        if not isinstance(entity_types, list) or not entity_types:
-            errors.append(f"{prefix}: search_records.entityTypes must be a non-empty array")
-        elif any(entity_type not in ALLOWED_ENTITY_TYPES for entity_type in entity_types):
-            errors.append(f"{prefix}: invalid entityTypes {entity_types!r}")
-    elif name == "open_record":
-        if arguments.get("entityType") not in ALLOWED_ENTITY_TYPES:
-            errors.append(f"{prefix}: invalid entityType {arguments.get('entityType')!r}")
-    elif name == "show_search_results":
-        require_string(arguments, "resultSetId", prefix, errors)
-    elif name == "clarification_required":
-        require_string(arguments, "question", prefix, errors)
-        require_string_list(arguments, "missingFields", prefix, errors)
-    elif name == "unsupported_request":
-        require_string(arguments, "reason", prefix, errors)
-
     return errors
+
+
+def validate_split(value: Any, prefix: str, errors: list[str]) -> None:
+    if not isinstance(value, dict):
+        errors.append(f"{prefix}: split must be an object")
+        return
+    split_type = value.get("splitType")
+    if split_type == "equal":
+        assert_exact_keys(value, {"splitType", "participants"}, prefix, errors)
+        require_refs(value.get("participants"), f"{prefix}.participants", errors)
+    elif split_type == "full_amount":
+        assert_exact_keys(value, {"splitType", "participant"}, prefix, errors)
+        validate_ref(value.get("participant"), f"{prefix}.participant", errors)
+    else:
+        errors.append(f"{prefix}: invalid splitType {split_type!r}")
+
+
+def require_refs(value: Any, prefix: str, errors: list[str]) -> None:
+    if not isinstance(value, list) or not value:
+        errors.append(f"{prefix}: refs must be a non-empty array")
+        return
+    for index, item in enumerate(value, start=1):
+        validate_ref(item, f"{prefix}[{index}]", errors)
+
+
+def validate_ref(value: Any, prefix: str, errors: list[str]) -> None:
+    if not isinstance(value, dict):
+        errors.append(f"{prefix}: ref must be an object")
+        return
+    ref_type = value.get("refType")
+    if ref_type not in ALLOWED_REFS:
+        errors.append(f"{prefix}: invalid refType {ref_type!r}")
+        return
+    if ref_type == "name":
+        assert_exact_keys(value, {"refType", "value"}, prefix, errors)
+        require_string(value, "value", prefix, errors)
+    elif ref_type == "record_ref":
+        assert_exact_keys(value, {"refType", "entityType", "id"}, prefix, errors)
+        if value.get("entityType") not in ALLOWED_ENTITY_TYPES:
+            errors.append(f"{prefix}: invalid entityType {value.get('entityType')!r}")
+        require_string(value, "id", prefix, errors)
+    else:
+        assert_exact_keys(value, {"refType"}, prefix, errors)
+
+
+def validate_entity_types(value: Any, prefix: str, errors: list[str]) -> None:
+    if not isinstance(value, list) or not value:
+        errors.append(f"{prefix}: entityTypes must be a non-empty array")
+        return
+    for item in value:
+        if item not in ALLOWED_ENTITY_TYPES:
+            errors.append(f"{prefix}: invalid entityType {item!r}")
+
+
+def validate_currency(args: dict[str, Any], key: str, prefix: str, errors: list[str], optional: bool = False) -> None:
+    if key not in args and optional:
+        return
+    if args.get(key) not in ALLOWED_CURRENCIES:
+        errors.append(f"{prefix}: {key} must be USD or INR")
 
 
 def find_currency_values(value: Any) -> list[str]:
@@ -189,18 +313,20 @@ def require_string(arguments: dict[str, Any], key: str, prefix: str, errors: lis
         errors.append(f"{prefix}: {key} must be a non-empty string")
 
 
-def require_string_list(arguments: dict[str, Any], key: str, prefix: str, errors: list[str]) -> None:
-    value = arguments.get(key)
-    if not isinstance(value, list) or not value or any(not isinstance(item, str) or not item.strip() for item in value):
-        errors.append(f"{prefix}: {key} must be a non-empty string array")
-    elif key in {"memberNames", "participantNames"} and len(value) > 8:
-        errors.append(f"{prefix}: {key} must contain at most 8 people")
+def not_nonempty_string(value: Any) -> bool:
+    return not isinstance(value, str) or not value.strip()
 
 
-def require_positive_int(arguments: dict[str, Any], key: str, prefix: str, errors: list[str]) -> None:
-    value = arguments.get(key)
-    if not isinstance(value, int) or value <= 0:
-        errors.append(f"{prefix}: {key} must be a positive integer")
+def assert_exact_keys(value: dict[str, Any], allowed: set[str], prefix: str, errors: list[str]) -> None:
+    assert_subset_keys(value, allowed, prefix, errors)
+    missing = allowed - set(value)
+    for key in sorted(missing):
+        errors.append(f"{prefix}: missing required key {key!r}")
+
+
+def assert_subset_keys(value: dict[str, Any], allowed: set[str], prefix: str, errors: list[str]) -> None:
+    for key in sorted(set(value) - allowed):
+        errors.append(f"{prefix}: unknown key {key!r}")
 
 
 if __name__ == "__main__":

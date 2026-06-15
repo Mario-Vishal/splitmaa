@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
+import { useEffect, useRef } from "react";
+import { Animated, Easing, StyleSheet, Text, View } from "react-native";
 import { formatMoney } from "@splitmaa/core";
 import { GroupCard } from "../components/ui/EntityCards";
 import { IconBackButton } from "../components/ui/IconBackButton";
@@ -12,6 +13,18 @@ export function GroupsScreen() {
   const selectedGroupId = useSplitmaaStore((store) => store.selectedGroupId);
   const selectGroup = useSplitmaaStore((store) => store.selectGroup);
   const selectedGroup = state.groups.find((group) => group.id === selectedGroupId);
+  const reveal = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (!selectedGroupId) return;
+    reveal.setValue(0);
+    Animated.timing(reveal, {
+      toValue: 1,
+      duration: 620,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [reveal, selectedGroupId]);
 
   if (selectedGroup) {
     const expenses = state.expenses.filter((expense) => expense.groupId === selectedGroup.id);
@@ -23,11 +36,31 @@ export function GroupsScreen() {
     return (
       <ScreenShell title={selectedGroup.name} subtitle="Members and expenses">
         <IconBackButton onPress={() => selectGroup(undefined)} />
-        <View style={styles.hero}>
+        <Animated.View
+          style={[
+            styles.hero,
+            {
+              opacity: reveal,
+              transform: [
+                {
+                  scale: reveal.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.96, 1],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <View style={styles.sparkleRow}>
+            <View style={styles.sparkle} />
+            <View style={[styles.sparkle, styles.sparkleSmall]} />
+            <View style={styles.sparkle} />
+          </View>
           <Text style={styles.heroLabel}>Group total</Text>
           <Text style={styles.heroAmount}>{formatMoney(total, selectedGroup.defaultCurrency)}</Text>
           <Text style={styles.heroMeta}>{members.join(", ")}</Text>
-        </View>
+        </Animated.View>
 
         <ScreenCard title="Members">
           <View style={styles.chipWrap}>
@@ -78,7 +111,26 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.textPrimary,
     borderRadius: 22,
     gap: theme.spacing.xs,
+    overflow: "hidden",
     padding: theme.spacing.md,
+  },
+  sparkleRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 6,
+    justifyContent: "flex-end",
+  },
+  sparkle: {
+    backgroundColor: theme.colors.accent,
+    borderRadius: 999,
+    height: 8,
+    opacity: 0.9,
+    width: 8,
+  },
+  sparkleSmall: {
+    height: 5,
+    opacity: 0.72,
+    width: 5,
   },
   heroLabel: {
     color: "rgba(255,255,255,0.7)",

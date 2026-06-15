@@ -138,7 +138,7 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
       guidedExecution: {
         status: "running",
         progress: 0.08,
-        commentary: "Checking local contacts...",
+        commentary: "Fetching contacts...",
         summaryNodes: [],
       },
       assistantMessages: [userMessage(cleanTranscript, now)],
@@ -150,7 +150,7 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
       guidedExecution: {
         ...current.guidedExecution,
         progress: 0.28,
-        commentary: "Resolving Sai and Deepak...",
+        commentary: `Checking local database for ${action.memberNames.join(" and ")}...`,
       },
     }));
 
@@ -194,7 +194,7 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
       guidedExecution: {
         ...current.guidedExecution,
         progress: 0.76,
-        commentary: "Adding members...",
+        commentary: `Adding ${action.memberNames.length} members...`,
       },
     }));
     await saveLocalAppState(nextState);

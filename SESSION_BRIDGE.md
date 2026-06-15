@@ -36,6 +36,7 @@ Polished local MVP complete. Next phase: Android dev build/APK packaging and rea
 - 2026-06-15: Cleaned assistant sheet by removing default filler text, adding an X close button, and making the handle close on tap/downward pull.
 - 2026-06-15: Removed assistant predefined command chips, removed empty/filler message area, replaced text detail back buttons with compact icon buttons, and removed fake static segment controls.
 - 2026-06-15: Added guided create-group execution for `create a group called california add sai and deepak`: compact progress toast, touch-blocking overlay, automatic Groups navigation, created group detail opening, and post-action summary graph above the input.
+- 2026-06-15: Refined guided execution with dynamic member commentary and a one-shot group detail reveal animation.
 
 ## Learnings
 

@@ -35,6 +35,7 @@ Polished local MVP complete. Next phase: Android dev build/APK packaging and rea
 - 2026-06-15: Tightened the mobile UI with less padding, softer filled cards, green/red debt chips, reduced instructional copy, and a small right-corner assistant launcher.
 - 2026-06-15: Cleaned assistant sheet by removing default filler text, adding an X close button, and making the handle close on tap/downward pull.
 - 2026-06-15: Removed assistant predefined command chips, removed empty/filler message area, replaced text detail back buttons with compact icon buttons, and removed fake static segment controls.
+- 2026-06-15: Added guided create-group execution for `create a group called california add sai and deepak`: compact progress toast, touch-blocking overlay, automatic Groups navigation, created group detail opening, and post-action summary graph above the input.
 
 ## Learnings
 
@@ -57,6 +58,7 @@ Polished local MVP complete. Next phase: Android dev build/APK packaging and rea
 - Prefer native app density over website spacing: compact headers, short subtitles, filled surfaces, and fewer full-width controls.
 - Assistant should stay compact and utilitarian; avoid filler messages and obvious explanatory copy.
 - Do not add predefined prompt chips unless they are explicitly requested; use placeholder hints instead.
+- Guided assistant execution should shrink to commentary/progress while running and expand to a compact summary after completion.
 
 ## Decisions
 

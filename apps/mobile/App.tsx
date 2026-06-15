@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import { SafeAreaView, StyleSheet, View } from "react-native";
+import { SafeAreaView, StyleSheet, Text, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { FloatingAssistant } from "./src/components/assistant/FloatingAssistant";
 import { BottomNav, type AppTab } from "./src/components/navigation/BottomNav";
@@ -14,6 +14,8 @@ import { theme } from "./src/theme";
 export default function App() {
   const [activeTab, setActiveTab] = useState<AppTab>("home");
   const hydrate = useSplitmaaStore((store) => store.hydrate);
+  const guidedExecution = useSplitmaaStore((store) => store.guidedExecution);
+  const isExecuting = guidedExecution.status === "running";
 
   useEffect(() => {
     void hydrate();
@@ -24,10 +26,19 @@ export default function App() {
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.content}>{renderScreen(activeTab, setActiveTab)}</View>
         <BottomNav activeTab={activeTab} onChange={setActiveTab} />
-        <FloatingAssistant />
+        {isExecuting ? <ExecutionBlocker /> : null}
+        <FloatingAssistant onOpenGroups={() => setActiveTab("groups")} />
       </SafeAreaView>
       <StatusBar style="auto" />
     </GestureHandlerRootView>
+  );
+}
+
+function ExecutionBlocker() {
+  return (
+    <View style={styles.blocker} pointerEvents="auto">
+      <Text style={styles.blockerText}>Working...</Text>
+    </View>
   );
 }
 
@@ -59,5 +70,22 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  blocker: {
+    alignItems: "center",
+    backgroundColor: "rgba(251,247,240,0.72)",
+    bottom: 0,
+    justifyContent: "center",
+    left: 0,
+    position: "absolute",
+    right: 0,
+    top: 0,
+  },
+  blockerText: {
+    color: theme.colors.textSecondary,
+    fontSize: 12,
+    fontWeight: "900",
+    letterSpacing: 0,
+    textTransform: "uppercase",
   },
 });

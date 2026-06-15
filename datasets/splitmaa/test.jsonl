@@ -1,5 +1,6 @@
 {"id":"add_expense_001","input":"Add 8 dollars for milk paid by me using credit card split with Alex","expected":{"function":"ADD_EXPENSE","arguments":{"amountCents":800,"currency":"USD","description":"milk","paymentType":"card","participantNames":["You","Alex"]}}}
 {"id":"add_expense_002","input":"Add 60 dollars for dinner paid by me split with Alex and Priya","expected":{"function":"ADD_EXPENSE","arguments":{"amountCents":6000,"currency":"USD","description":"dinner","participantNames":["You","Alex","Priya"]}}}
 {"id":"create_group_001","input":"Create a group called Goa Trip with Alex and Priya","expected":{"function":"CREATE_GROUP","arguments":{"groupName":"Goa Trip","memberNames":["Alex","Priya"]}}}
+{"id":"create_group_002","input":"create a group called california add sai and deepak","expected":{"function":"CREATE_GROUP","arguments":{"groupName":"california","memberNames":["sai","deepak"]}}}
 {"id":"query_balance_001","input":"How much does Alex owe me?","expected":{"function":"QUERY_BALANCE","arguments":{"personName":"Alex"}}}
 {"id":"unsupported_001","input":"Write me a poem","expected":{"function":"UNSUPPORTED_REQUEST","arguments":{}}}

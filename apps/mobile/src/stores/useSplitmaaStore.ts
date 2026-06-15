@@ -29,6 +29,25 @@ export type AssistantMessage = {
   createdAt: string;
 };
 
+export type GuidedSummaryNode = {
+  id: string;
+  label: string;
+  detail: string;
+  tone: "primary" | "success" | "neutral";
+};
+
+export type GuidedExecution = {
+  status: "idle" | "running" | "complete";
+  progress: number;
+  commentary: string;
+  summaryTitle?: string;
+  summaryNodes: GuidedSummaryNode[];
+};
+
+type GuidedCallbacks = {
+  onOpenGroups?: () => void;
+};
+
 type SplitmaaStore = {
   state: LocalAppState;
   diagnostics: RuntimeDiagnostics;
@@ -40,11 +59,13 @@ type SplitmaaStore = {
   pendingAction?: AppAction;
   executionPlan: ExecutionStep[];
   executionCommentary: string[];
+  guidedExecution: GuidedExecution;
   selectedGroupId?: string;
   selectedContactId?: string;
   hydrate: () => Promise<void>;
   selectGroup: (groupId?: string) => void;
   selectContact: (contactId?: string) => void;
+  runGuidedCommand: (transcript: string, callbacks?: GuidedCallbacks) => Promise<boolean>;
   parseCommand: (transcript: string) => Promise<void>;
   confirmPendingAction: () => Promise<void>;
   cancelPendingAction: () => void;
@@ -68,6 +89,12 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
   assistantMessages: [],
   executionPlan: [],
   executionCommentary: [],
+  guidedExecution: {
+    status: "idle",
+    progress: 0,
+    commentary: "",
+    summaryNodes: [],
+  },
   selectedGroupId: undefined,
   selectedContactId: undefined,
   selectGroup(groupId) {
@@ -75,6 +102,147 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
   },
   selectContact(contactId) {
     set({ selectedContactId: contactId });
+  },
+  async runGuidedCommand(transcript, callbacks) {
+    const cleanTranscript = transcript.trim();
+    if (!cleanTranscript) return false;
+
+    const now = new Date().toISOString();
+    const result = await ruleBasedParser.parse({
+      transcript: cleanTranscript,
+      state: get().state,
+      now,
+    });
+
+    if (result.action.type !== "CREATE_GROUP") {
+      return false;
+    }
+
+    const action = result.action;
+    const executionPlan = createExecutionPlan(action);
+    const diagnostics: RuntimeDiagnostics = {
+      parserName: result.parserName,
+      modelStatus: "not_configured",
+      contextSizeChars: result.contextSizeChars,
+      latencyMs: result.latencyMs,
+      fallbackUsed: result.fallbackUsed,
+      offlineReady: true,
+      updatedAt: now,
+    };
+
+    set({
+      diagnostics,
+      pendingAction: undefined,
+      executionPlan,
+      executionCommentary: [],
+      guidedExecution: {
+        status: "running",
+        progress: 0.08,
+        commentary: "Checking local contacts...",
+        summaryNodes: [],
+      },
+      assistantMessages: [userMessage(cleanTranscript, now)],
+      lastMessage: "Creating group.",
+    });
+
+    await wait(450);
+    set((current) => ({
+      guidedExecution: {
+        ...current.guidedExecution,
+        progress: 0.28,
+        commentary: "Resolving Sai and Deepak...",
+      },
+    }));
+
+    await wait(450);
+    set((current) => ({
+      guidedExecution: {
+        ...current.guidedExecution,
+        progress: 0.52,
+        commentary: `Creating ${action.groupName}...`,
+      },
+    }));
+
+    const committedAt = new Date().toISOString();
+    const applyResult = applyConfirmedAction(get().state, action, committedAt);
+    const createdGroup = applyResult.state.groups.find(
+      (group) => group.name.toLowerCase() === action.groupName.toLowerCase(),
+    );
+    const log: AiActionLog = {
+      id: `log_${committedAt.replace(/[^0-9]/g, "")}`,
+      transcript: action.transcript,
+      parserName: result.parserName,
+      parsedActionType: action.type,
+      validationStatus: "valid",
+      executionStatus: "completed",
+      contextSizeChars: result.contextSizeChars,
+      latencyMs: result.latencyMs,
+      fallbackUsed: result.fallbackUsed,
+      createdAt: committedAt,
+    };
+    const nextState: LocalAppState = {
+      ...applyResult.state,
+      aiActionLogs: [log, ...applyResult.state.aiActionLogs],
+      updatedAt: committedAt,
+    };
+
+    await wait(450);
+    set((current) => ({
+      state: nextState,
+      selectedGroupId: createdGroup?.id,
+      persistenceStatus: "saving",
+      guidedExecution: {
+        ...current.guidedExecution,
+        progress: 0.76,
+        commentary: "Adding members...",
+      },
+    }));
+    await saveLocalAppState(nextState);
+
+    await wait(350);
+    callbacks?.onOpenGroups?.();
+    set((current) => ({
+      persistenceStatus: "ready",
+      executionPlan: current.executionPlan.map((step) => ({ ...step, status: "complete" })),
+      executionCommentary: [
+        "Checked local contacts",
+        `Created ${action.groupName}`,
+        `Added ${action.memberNames.join(", ")}`,
+        "Opened group page",
+      ],
+      guidedExecution: {
+        ...current.guidedExecution,
+        progress: 0.92,
+        commentary: "Opening group...",
+      },
+    }));
+
+    await wait(350);
+    set({
+      guidedExecution: {
+        status: "complete",
+        progress: 1,
+        commentary: "Group ready.",
+        summaryTitle: `${action.groupName} created`,
+        summaryNodes: [
+          {
+            id: "group",
+            label: action.groupName,
+            detail: "Group",
+            tone: "primary",
+          },
+          ...action.memberNames.map((name) => ({
+            id: `member_${name}`,
+            label: name,
+            detail: "Member",
+            tone: "success" as const,
+          })),
+        ],
+      },
+      lastMessage: `${action.groupName} created.`,
+    });
+
+    return true;
   },
   async hydrate() {
     set({ persistenceStatus: "hydrating" });
@@ -224,6 +392,12 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
       pendingAction: undefined,
       executionPlan: [],
       executionCommentary: [],
+      guidedExecution: {
+        status: "idle",
+        progress: 0,
+        commentary: "",
+        summaryNodes: [],
+      },
       persistenceStatus: "saving",
       lastMessage: "Reset local demo data.",
     });
@@ -232,6 +406,10 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
     set({ persistenceStatus: "ready", lastPersistenceSource: "seed" });
   },
 }));
+
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export function selectDashboardSnapshot(state: LocalAppState) {
   const balances = calculateBalances({

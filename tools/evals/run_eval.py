@@ -8,7 +8,7 @@ from pathlib import Path
 def parse_rule(text):
     lower = text.lower()
 
-    group_match = re.search(r"create a group called ([\w\s]+?)(?: with (.+))?$", text, re.I)
+    group_match = re.search(r"create a group called ([\w\s]+?)(?:\s+(?:with|add)\s+(.+))?$", text, re.I)
     if group_match:
         return {
             "function": "CREATE_GROUP",

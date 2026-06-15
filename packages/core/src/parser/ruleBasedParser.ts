@@ -28,7 +28,7 @@ export function parseRule(input: ParserInput): AppAction {
   const lower = transcript.toLowerCase();
   const id = `action_${input.now}`;
 
-  const groupMatch = transcript.match(/create a group called ([\w\s]+?)(?: with (.+))?$/i);
+  const groupMatch = transcript.match(/create a group called ([\w\s]+?)(?:\s+(?:with|add)\s+(.+))?$/i);
   if (groupMatch) {
     return parseAppAction({
       id,

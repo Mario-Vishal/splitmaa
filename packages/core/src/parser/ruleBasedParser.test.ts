@@ -17,4 +17,18 @@ describe("rule based parser", () => {
       expect(action.category).toBe("groceries");
     }
   });
+
+  it("parses create group commands with add syntax", () => {
+    const action = parseRule({
+      transcript: "create a group called california add sai and deepak",
+      state: createInitialLocalAppState(),
+      now: "2026-06-14T00:00:00.000Z",
+    });
+
+    expect(action.type).toBe("CREATE_GROUP");
+    if (action.type === "CREATE_GROUP") {
+      expect(action.groupName).toBe("california");
+      expect(action.memberNames).toEqual(["sai", "deepak"]);
+    }
+  });
 });

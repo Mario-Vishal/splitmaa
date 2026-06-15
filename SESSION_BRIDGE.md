@@ -70,3 +70,4 @@ Local persistence foundation complete. Next phase: floating assistant and confir
 - `8b11246` - `chore: bootstrap splitmaa workspace`
 - `4154bb7` - `docs: record phase zero handoff`
 - `ef945c2` - `docs: record github publish`
+- `5f96c88` - `feat: add local persistence foundation`

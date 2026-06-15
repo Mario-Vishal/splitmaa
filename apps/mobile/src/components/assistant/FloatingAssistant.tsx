@@ -22,18 +22,9 @@ export function FloatingAssistant() {
   const [draft, setDraft] = useState("");
   const messages = useSplitmaaStore((store) => store.assistantMessages);
   const pendingAction = useSplitmaaStore((store) => store.pendingAction);
-  const executionPlan = useSplitmaaStore((store) => store.executionPlan);
   const parseCommand = useSplitmaaStore((store) => store.parseCommand);
   const confirmPendingAction = useSplitmaaStore((store) => store.confirmPendingAction);
   const cancelPendingAction = useSplitmaaStore((store) => store.cancelPendingAction);
-
-  if (!expanded) {
-    return (
-      <Pressable style={styles.collapsed} onPress={() => setExpanded(true)}>
-        <Text style={styles.collapsedText}>Ask Splitmaa</Text>
-      </Pressable>
-    );
-  }
 
   async function submit(text: string) {
     const clean = text.trim();
@@ -42,63 +33,38 @@ export function FloatingAssistant() {
     await parseCommand(clean);
   }
 
+  if (!expanded) {
+    return (
+      <Pressable style={styles.dock} onPress={() => setExpanded(true)}>
+        <View style={styles.spark} />
+        <Text style={styles.dockText}>Ask Splitmaa</Text>
+        <Text style={styles.dockHint}>local</Text>
+      </Pressable>
+    );
+  }
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
-      style={styles.overlay}
+      style={styles.sheetWrap}
     >
-      <View style={styles.panel}>
+      <View style={styles.sheet}>
+        <View style={styles.grabber} />
         <View style={styles.header}>
           <View>
-            <Text style={styles.title}>Splitmaa Assistant</Text>
-            <Text style={styles.subtitle}>Local parser | confirm before mutation</Text>
+            <Text style={styles.title}>Assistant</Text>
+            <Text style={styles.subtitle}>Proposes actions. You confirm.</Text>
           </View>
-          <Pressable style={styles.closeButton} onPress={() => setExpanded(false)}>
-            <Text style={styles.closeText}>Close</Text>
+          <Pressable style={styles.minimize} onPress={() => setExpanded(false)}>
+            <Text style={styles.minimizeText}>Done</Text>
           </Pressable>
         </View>
 
-        <ScrollView style={styles.messages} contentContainerStyle={styles.messagesContent}>
-          {messages.slice(-8).map((message) => (
-            <MessageBubble key={message.id} message={message} />
-          ))}
-
-          {pendingAction ? (
-            <View style={styles.confirmation}>
-              <Text style={styles.confirmTitle}>Confirm action</Text>
-              <Text style={styles.confirmText}>{describeAction(pendingAction)}</Text>
-              <View style={styles.steps}>
-                {executionPlan.map((step) => (
-                  <Text key={step.id} style={styles.step}>
-                    {step.label}
-                  </Text>
-                ))}
-              </View>
-              <View style={styles.confirmActions}>
-                <Pressable style={styles.confirmButton} onPress={() => void confirmPendingAction()}>
-                  <Text style={styles.confirmButtonText}>Confirm</Text>
-                </Pressable>
-                <Pressable style={styles.cancelButton} onPress={cancelPendingAction}>
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
-                </Pressable>
-              </View>
-            </View>
-          ) : null}
-        </ScrollView>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-          {exampleCommands.map((command) => (
-            <Pressable key={command} style={styles.chip} onPress={() => void submit(command)}>
-              <Text style={styles.chipText}>{command}</Text>
-            </Pressable>
-          ))}
-        </ScrollView>
-
-        <View style={styles.inputRow}>
+        <View style={styles.inputShell}>
           <TextInput
             value={draft}
             onChangeText={setDraft}
-            placeholder="Add 8 dollars for milk..."
+            placeholder="Add dinner, ask a balance..."
             placeholderTextColor={theme.colors.textSecondary}
             style={styles.input}
             returnKeyType="send"
@@ -108,34 +74,66 @@ export function FloatingAssistant() {
             <Text style={styles.sendText}>Send</Text>
           </Pressable>
         </View>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+          {exampleCommands.slice(0, 4).map((command) => (
+            <Pressable key={command} style={styles.chip} onPress={() => void submit(command)}>
+              <Text style={styles.chipText}>{command}</Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+
+        {pendingAction ? (
+          <View style={styles.confirmation}>
+            <Text style={styles.confirmEyebrow}>Review before saving</Text>
+            <Text style={styles.confirmTitle}>{actionTitle(pendingAction)}</Text>
+            <Text style={styles.confirmText}>{describeAction(pendingAction)}</Text>
+            <View style={styles.confirmActions}>
+              <Pressable style={styles.confirmButton} onPress={() => void confirmPendingAction()}>
+                <Text style={styles.confirmButtonText}>Confirm</Text>
+              </Pressable>
+              <Pressable style={styles.cancelButton} onPress={cancelPendingAction}>
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </Pressable>
+            </View>
+          </View>
+        ) : (
+          <ScrollView style={styles.messages} contentContainerStyle={styles.messagesContent}>
+            {messages.slice(-4).map((message) => (
+              <MessageLine key={message.id} message={message} />
+            ))}
+          </ScrollView>
+        )}
       </View>
     </KeyboardAvoidingView>
   );
 }
 
-function MessageBubble({ message }: { message: AssistantMessage }) {
-  const isUser = message.role === "user";
+function MessageLine({ message }: { message: AssistantMessage }) {
   return (
-    <View style={[styles.bubble, isUser ? styles.userBubble : styles.assistantBubble]}>
-      <Text style={[styles.bubbleText, isUser ? styles.userText : styles.assistantText]}>
-        {message.text}
-      </Text>
+    <View style={styles.messageLine}>
+      <Text style={styles.messageRole}>{message.role === "user" ? "You" : "Splitmaa"}</Text>
+      <Text style={styles.messageText}>{message.text}</Text>
     </View>
   );
+}
+
+function actionTitle(action: AppAction): string {
+  return action.type.toLowerCase().replaceAll("_", " ");
 }
 
 function describeAction(action: AppAction): string {
   switch (action.type) {
     case "ADD_EXPENSE":
-      return `Add ${action.description} for ${formatMoney(action.amountCents, action.currency)} paid by ${action.paidByName}, split equally with ${action.participantNames.join(", ")}.`;
+      return `${action.description} | ${formatMoney(action.amountCents, action.currency)} | paid by ${action.paidByName} | split with ${action.participantNames.join(", ")}`;
     case "CREATE_GROUP":
-      return `Create ${action.groupName} with ${action.memberNames.join(", ")}.`;
+      return `${action.groupName} with ${action.memberNames.join(", ")}`;
     case "CREATE_CONTACT":
-      return `Create contact ${action.displayName}.`;
+      return action.displayName;
     case "SETTLE_UP":
-      return `Record ${action.fromName} paying ${action.toName} ${formatMoney(action.amountCents, action.currency)}.`;
+      return `${action.fromName} pays ${action.toName} ${formatMoney(action.amountCents, action.currency)}`;
     case "QUERY_BALANCE":
-      return "Answer a balance question from local data.";
+      return "Answer from local balances.";
     case "CLARIFICATION_REQUIRED":
       return action.question;
     case "UNSUPPORTED_REQUEST":
@@ -144,120 +142,172 @@ function describeAction(action: AppAction): string {
 }
 
 const styles = StyleSheet.create({
-  collapsed: {
+  dock: {
     alignItems: "center",
     backgroundColor: theme.colors.textPrimary,
     borderRadius: theme.radii.pill,
-    bottom: 74,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
+    bottom: 78,
+    flexDirection: "row",
+    gap: theme.spacing.sm,
+    left: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
     position: "absolute",
     right: theme.spacing.lg,
     ...theme.shadows.card,
   },
-  collapsedText: {
+  spark: {
+    backgroundColor: theme.colors.accent,
+    borderRadius: 999,
+    height: 10,
+    width: 10,
+  },
+  dockText: {
     color: theme.colors.surface,
-    fontSize: 14,
+    flex: 1,
+    fontSize: 15,
     fontWeight: "900",
   },
-  overlay: {
-    bottom: 68,
-    left: theme.spacing.sm,
-    position: "absolute",
-    right: theme.spacing.sm,
+  dockHint: {
+    color: "rgba(255,255,255,0.62)",
+    fontSize: 12,
+    fontWeight: "800",
   },
-  panel: {
+  sheetWrap: {
+    bottom: 64,
+    left: 0,
+    position: "absolute",
+    right: 0,
+  },
+  sheet: {
     backgroundColor: theme.colors.surface,
     borderColor: theme.colors.border,
-    borderRadius: theme.radii.lg,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
     borderWidth: 1,
-    maxHeight: 620,
-    padding: theme.spacing.md,
+    gap: theme.spacing.md,
+    maxHeight: 470,
+    padding: theme.spacing.lg,
     ...theme.shadows.card,
+  },
+  grabber: {
+    alignSelf: "center",
+    backgroundColor: theme.colors.border,
+    borderRadius: theme.radii.pill,
+    height: 4,
+    width: 42,
   },
   header: {
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: theme.spacing.sm,
   },
   title: {
     color: theme.colors.textPrimary,
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: "900",
   },
   subtitle: {
     color: theme.colors.textSecondary,
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: "700",
   },
-  closeButton: {
+  minimize: {
     backgroundColor: theme.colors.surfaceMuted,
     borderRadius: theme.radii.pill,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
   },
-  closeText: {
+  minimizeText: {
+    color: theme.colors.textPrimary,
+    fontSize: 13,
+    fontWeight: "900",
+  },
+  inputShell: {
+    alignItems: "center",
+    backgroundColor: theme.colors.background,
+    borderColor: theme.colors.border,
+    borderRadius: 18,
+    borderWidth: 1,
+    flexDirection: "row",
+    padding: 6,
+  },
+  input: {
+    color: theme.colors.textPrimary,
+    flex: 1,
+    fontSize: 15,
+    minHeight: 42,
+    paddingHorizontal: theme.spacing.md,
+  },
+  sendButton: {
+    backgroundColor: theme.colors.textPrimary,
+    borderRadius: 14,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+  },
+  sendText: {
+    color: theme.colors.surface,
+    fontWeight: "900",
+  },
+  chips: {
+    gap: theme.spacing.sm,
+  },
+  chip: {
+    backgroundColor: theme.colors.surfaceMuted,
+    borderRadius: theme.radii.pill,
+    maxWidth: 230,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+  },
+  chipText: {
     color: theme.colors.textPrimary,
     fontSize: 12,
     fontWeight: "800",
   },
   messages: {
-    maxHeight: 265,
+    maxHeight: 118,
   },
   messagesContent: {
     gap: theme.spacing.sm,
-    paddingVertical: theme.spacing.sm,
   },
-  bubble: {
-    borderRadius: theme.radii.md,
-    maxWidth: "88%",
-    padding: theme.spacing.md,
+  messageLine: {
+    gap: 2,
   },
-  userBubble: {
-    alignSelf: "flex-end",
-    backgroundColor: theme.colors.accent,
+  messageRole: {
+    color: theme.colors.textSecondary,
+    fontSize: 11,
+    fontWeight: "900",
+    textTransform: "uppercase",
   },
-  assistantBubble: {
-    alignSelf: "flex-start",
-    backgroundColor: theme.colors.surfaceMuted,
-  },
-  bubbleText: {
+  messageText: {
+    color: theme.colors.textPrimary,
     fontSize: 14,
     lineHeight: 20,
-  },
-  userText: {
-    color: theme.colors.surface,
-    fontWeight: "700",
-  },
-  assistantText: {
-    color: theme.colors.textPrimary,
   },
   confirmation: {
     backgroundColor: theme.colors.background,
     borderColor: theme.colors.border,
-    borderRadius: theme.radii.md,
+    borderRadius: 18,
     borderWidth: 1,
     gap: theme.spacing.sm,
     padding: theme.spacing.md,
   },
+  confirmEyebrow: {
+    color: theme.colors.accent,
+    fontSize: 11,
+    fontWeight: "900",
+    textTransform: "uppercase",
+  },
   confirmTitle: {
     color: theme.colors.textPrimary,
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "900",
+    textTransform: "capitalize",
   },
   confirmText: {
     color: theme.colors.textSecondary,
     fontSize: 14,
     lineHeight: 20,
-  },
-  steps: {
-    gap: theme.spacing.xs,
-  },
-  step: {
-    color: theme.colors.textSecondary,
-    fontSize: 12,
-    fontWeight: "700",
   },
   confirmActions: {
     flexDirection: "row",
@@ -266,7 +316,7 @@ const styles = StyleSheet.create({
   confirmButton: {
     alignItems: "center",
     backgroundColor: theme.colors.accent,
-    borderRadius: theme.radii.md,
+    borderRadius: 14,
     flex: 1,
     padding: theme.spacing.md,
   },
@@ -276,57 +326,15 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     alignItems: "center",
+    backgroundColor: theme.colors.surface,
     borderColor: theme.colors.border,
-    borderRadius: theme.radii.md,
+    borderRadius: 14,
     borderWidth: 1,
     flex: 1,
     padding: theme.spacing.md,
   },
   cancelButtonText: {
     color: theme.colors.textPrimary,
-    fontWeight: "900",
-  },
-  chips: {
-    gap: theme.spacing.sm,
-    paddingVertical: theme.spacing.sm,
-  },
-  chip: {
-    backgroundColor: theme.colors.accentSoft,
-    borderRadius: theme.radii.pill,
-    maxWidth: 260,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-  },
-  chipText: {
-    color: theme.colors.textPrimary,
-    fontSize: 12,
-    fontWeight: "800",
-  },
-  inputRow: {
-    flexDirection: "row",
-    gap: theme.spacing.sm,
-  },
-  input: {
-    backgroundColor: theme.colors.background,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radii.md,
-    borderWidth: 1,
-    color: theme.colors.textPrimary,
-    flex: 1,
-    fontSize: 14,
-    minHeight: 44,
-    paddingHorizontal: theme.spacing.md,
-  },
-  sendButton: {
-    alignItems: "center",
-    backgroundColor: theme.colors.textPrimary,
-    borderRadius: theme.radii.md,
-    justifyContent: "center",
-    minWidth: 64,
-    paddingHorizontal: theme.spacing.md,
-  },
-  sendText: {
-    color: theme.colors.surface,
     fontWeight: "900",
   },
 });

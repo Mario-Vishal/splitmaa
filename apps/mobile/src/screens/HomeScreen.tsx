@@ -1,106 +1,175 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { formatMoney } from "@splitmaa/core";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ContactCard, GroupCard } from "../components/ui/EntityCards";
 import { ScreenCard } from "../components/ui/ScreenCard";
 import { ScreenShell } from "../components/ui/ScreenShell";
 import { selectDashboardSnapshot, useSplitmaaStore } from "../stores/useSplitmaaStore";
 import { theme } from "../theme";
 
-export function HomeScreen() {
+export function HomeScreen({
+  onOpenGroups,
+  onOpenContacts,
+}: {
+  onOpenGroups: () => void;
+  onOpenContacts: () => void;
+}) {
   const state = useSplitmaaStore((store) => store.state);
-  const hydrated = useSplitmaaStore((store) => store.hydrated);
-  const persistenceStatus = useSplitmaaStore((store) => store.persistenceStatus);
-  const lastPersistenceSource = useSplitmaaStore((store) => store.lastPersistenceSource);
-  const lastMessage = useSplitmaaStore((store) => store.lastMessage);
-  const resetLocalState = useSplitmaaStore((store) => store.resetLocalState);
+  const selectGroup = useSplitmaaStore((store) => store.selectGroup);
+  const selectContact = useSplitmaaStore((store) => store.selectContact);
   const dashboard = selectDashboardSnapshot(state);
-  const topBalanceName = dashboard.topBalance
-    ? state.contacts.find((contact) => contact.id === dashboard.topBalance?.contactId)?.displayName
-    : undefined;
+  const contactsById = new Map(state.contacts.map((contact) => [contact.id, contact]));
 
   return (
     <ScreenShell
-      title="Local actions, confirmed first."
-      subtitle="Use the floating assistant to turn commands into validated local expense actions."
+      title="Hello, Mario"
+      subtitle="Here is the clean local view of what people owe, what you owe, and what changed recently."
     >
-      <View style={styles.grid}>
-        <MetricCard label="Expenses" value={String(dashboard.expenseCount)} />
-        <MetricCard label="Contacts" value={String(dashboard.contactCount)} />
-        <MetricCard label="Groups" value={String(dashboard.groupCount)} />
-        <MetricCard label="Total logged" value={dashboard.totalExpenses} />
+      <View style={styles.summaryCard}>
+        <Text style={styles.summaryLabel}>You are owed</Text>
+        <Text style={styles.summaryAmount}>{dashboard.youAreOwed}</Text>
+        <View style={styles.summaryDivider} />
+        <View style={styles.summaryRow}>
+          <View>
+            <Text style={styles.miniLabel}>You owe</Text>
+            <Text style={styles.miniAmountDanger}>{dashboard.youOwe}</Text>
+          </View>
+          <View>
+            <Text style={styles.miniLabel}>Total logged</Text>
+            <Text style={styles.miniAmount}>{dashboard.totalExpenses}</Text>
+          </View>
+        </View>
       </View>
 
-      <ScreenCard title="Local persistence">
-        <Text style={styles.cardText}>
-          Status: {hydrated ? persistenceStatus : "hydrating"} | Source: {lastPersistenceSource ?? "pending"}
-        </Text>
-        <Text style={styles.cardText}>{lastMessage ?? "Loading local Splitmaa state."}</Text>
-      </ScreenCard>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Groups</Text>
+        <Pressable onPress={onOpenGroups}>
+          <Text style={styles.link}>View all</Text>
+        </Pressable>
+      </View>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalCards}>
+        {state.groups.map((group) => (
+          <View key={group.id} style={styles.wideCard}>
+            <GroupCard
+              group={group}
+              expenses={state.expenses.filter((expense) => expense.groupId === group.id)}
+              onPress={() => {
+                selectGroup(group.id);
+                onOpenGroups();
+              }}
+            />
+          </View>
+        ))}
+      </ScrollView>
 
-      <ScreenCard title="Balance snapshot">
-        <Text style={styles.cardText}>
-          {topBalanceName && dashboard.topBalance
-            ? `${topBalanceName}: ${formatMoney(dashboard.topBalance.amountCents, dashboard.topBalance.currency)}`
-            : "No open balances."}
-        </Text>
-      </ScreenCard>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>People</Text>
+        <Pressable onPress={onOpenContacts}>
+          <Text style={styles.link}>View all</Text>
+        </Pressable>
+      </View>
+      <View style={styles.stack}>
+        {state.contacts
+          .filter((contact) => contact.id !== state.currentUserContactId)
+          .slice(0, 3)
+          .map((contact) => {
+            const balance = dashboard.balances.find((item) => item.contactId === contact.id);
+            return (
+              <ContactCard
+                key={contact.id}
+                contact={contact}
+                amountCents={balance?.amountCents ?? 0}
+                onPress={() => {
+                  selectContact(contact.id);
+                  onOpenContacts();
+                }}
+              />
+            );
+          })}
+      </View>
 
-      <Pressable style={styles.secondaryButton} onPress={() => void resetLocalState()}>
-        <Text style={styles.secondaryButtonText}>Reset local demo data</Text>
-      </Pressable>
+      <ScreenCard title="Recent activity" subtitle="Confirmed assistant actions are persisted locally.">
+        {state.aiActionLogs.length ? (
+          state.aiActionLogs.slice(0, 3).map((log) => (
+            <Text key={log.id} style={styles.activity}>
+              {log.parsedActionType} | {log.executionStatus}
+            </Text>
+          ))
+        ) : (
+          <Text style={styles.activity}>No confirmed assistant actions yet.</Text>
+        )}
+      </ScreenCard>
     </ScreenShell>
   );
 }
 
-function MetricCard({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={styles.metricCard}>
-      <Text style={styles.metricValue}>{value}</Text>
-      <Text style={styles.metricLabel}>{label}</Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: theme.spacing.sm,
+  summaryCard: {
+    backgroundColor: theme.colors.textPrimary,
+    borderRadius: 24,
+    gap: theme.spacing.md,
+    padding: theme.spacing.lg,
+    ...theme.shadows.card,
   },
-  metricCard: {
-    backgroundColor: theme.colors.surface,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radii.md,
-    borderWidth: 1,
-    gap: theme.spacing.xs,
-    minWidth: "47%",
-    padding: theme.spacing.md,
-  },
-  metricValue: {
-    color: theme.colors.textPrimary,
-    fontSize: 22,
-    fontWeight: "900",
-  },
-  metricLabel: {
-    color: theme.colors.textSecondary,
-    fontSize: 13,
+  summaryLabel: {
+    color: "rgba(255,255,255,0.72)",
+    fontSize: 14,
     fontWeight: "800",
   },
-  cardText: {
+  summaryAmount: {
+    color: theme.colors.surface,
+    fontSize: 42,
+    fontWeight: "900",
+  },
+  summaryDivider: {
+    backgroundColor: "rgba(255,255,255,0.14)",
+    height: 1,
+  },
+  summaryRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  miniLabel: {
+    color: "rgba(255,255,255,0.62)",
+    fontSize: 12,
+    fontWeight: "800",
+  },
+  miniAmount: {
+    color: theme.colors.surface,
+    fontSize: 18,
+    fontWeight: "900",
+  },
+  miniAmountDanger: {
+    color: "#FFB8A6",
+    fontSize: 18,
+    fontWeight: "900",
+  },
+  sectionHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  sectionTitle: {
+    color: theme.colors.textPrimary,
+    fontSize: 20,
+    fontWeight: "900",
+  },
+  link: {
+    color: theme.colors.accent,
+    fontSize: 14,
+    fontWeight: "900",
+  },
+  horizontalCards: {
+    gap: theme.spacing.md,
+    paddingRight: theme.spacing.lg,
+  },
+  wideCard: {
+    width: 310,
+  },
+  stack: {
+    gap: theme.spacing.sm,
+  },
+  activity: {
     color: theme.colors.textSecondary,
     fontSize: 14,
     lineHeight: 21,
-  },
-  secondaryButton: {
-    alignItems: "center",
-    backgroundColor: theme.colors.surface,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radii.md,
-    borderWidth: 1,
-    padding: theme.spacing.md,
-  },
-  secondaryButtonText: {
-    color: theme.colors.textPrimary,
-    fontSize: 15,
-    fontWeight: "800",
   },
 });

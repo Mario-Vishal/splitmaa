@@ -22,7 +22,7 @@ export default function App() {
   return (
     <GestureHandlerRootView style={styles.root}>
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.content}>{renderScreen(activeTab)}</View>
+        <View style={styles.content}>{renderScreen(activeTab, setActiveTab)}</View>
         <BottomNav activeTab={activeTab} onChange={setActiveTab} />
         <FloatingAssistant />
       </SafeAreaView>
@@ -31,7 +31,7 @@ export default function App() {
   );
 }
 
-function renderScreen(activeTab: AppTab) {
+function renderScreen(activeTab: AppTab, setActiveTab: (tab: AppTab) => void) {
   switch (activeTab) {
     case "groups":
       return <GroupsScreen />;
@@ -40,7 +40,12 @@ function renderScreen(activeTab: AppTab) {
     case "diagnostics":
       return <DiagnosticsScreen />;
     case "home":
-      return <HomeScreen />;
+      return (
+        <HomeScreen
+          onOpenGroups={() => setActiveTab("groups")}
+          onOpenContacts={() => setActiveTab("contacts")}
+        />
+      );
   }
 }
 

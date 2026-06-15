@@ -40,7 +40,11 @@ type SplitmaaStore = {
   pendingAction?: AppAction;
   executionPlan: ExecutionStep[];
   executionCommentary: string[];
+  selectedGroupId?: string;
+  selectedContactId?: string;
   hydrate: () => Promise<void>;
+  selectGroup: (groupId?: string) => void;
+  selectContact: (contactId?: string) => void;
   parseCommand: (transcript: string) => Promise<void>;
   confirmPendingAction: () => Promise<void>;
   cancelPendingAction: () => void;
@@ -66,6 +70,14 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
   ],
   executionPlan: [],
   executionCommentary: [],
+  selectedGroupId: undefined,
+  selectedContactId: undefined,
+  selectGroup(groupId) {
+    set({ selectedGroupId: groupId });
+  },
+  selectContact(contactId) {
+    set({ selectedContactId: contactId });
+  },
   async hydrate() {
     set({ persistenceStatus: "hydrating" });
     try {
@@ -231,12 +243,22 @@ export function selectDashboardSnapshot(state: LocalAppState) {
     currency: "USD",
   });
   const totalExpenseCents = state.expenses.reduce((sum, expense) => sum + expense.amountCents, 0);
+  const youAreOwedCents = balances
+    .filter((balance) => balance.amountCents > 0)
+    .reduce((sum, balance) => sum + balance.amountCents, 0);
+  const youOweCents = balances
+    .filter((balance) => balance.amountCents < 0)
+    .reduce((sum, balance) => sum + Math.abs(balance.amountCents), 0);
 
   return {
     contactCount: state.contacts.length,
     groupCount: state.groups.length,
     expenseCount: state.expenses.length,
     totalExpenses: formatMoney(totalExpenseCents, "USD"),
+    youAreOwed: formatMoney(youAreOwedCents, "USD"),
+    youOwe: formatMoney(youOweCents, "USD"),
+    youAreOwedCents,
+    youOweCents,
     topBalance: balances[0],
     balances,
   };

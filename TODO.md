@@ -2,16 +2,14 @@
 
 ## Current Phase
 
-- [x] Bottom navigation.
-- [x] Home screen.
-- [x] Groups screen.
-- [x] Contacts screen.
-- [x] Diagnostics screen.
-- [x] Floating assistant.
-- [x] Confirmation cards.
-- [x] Confirmed action persistence.
-- [x] Smoke eval runner.
-- [x] FunctionGemma runner boundary placeholder.
+- [x] Splitwise/Notion-inspired Home redesign.
+- [x] Top owed/owing summary.
+- [x] Group cards on Home.
+- [x] Contact cards on Home.
+- [x] Group detail page.
+- [x] Contact detail page.
+- [x] Compact bottom-sheet assistant.
+- [x] Horizontal pill-style tab rail.
 
 ## Completed
 
@@ -20,6 +18,7 @@
 - [x] Published GitHub repository: https://github.com/Mario-Vishal/splitmaa
 - [x] Verified Expo web export with local persistence wiring.
 - [x] Built local MVP assistant workflow.
+- [x] Polished local MVP UI around Splitwise + Notion direction.
 
 ## Next Up
 

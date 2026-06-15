@@ -9,8 +9,8 @@
 - [x] Create source-of-truth session bridge.
 - [x] Install dependencies.
 - [x] Run typecheck.
-- [ ] Initialize root git repository.
-- [ ] Create GitHub repository and push initial commit.
+- [x] Initialize root git repository.
+- [ ] Create GitHub repository and push initial commits.
 
 ## Completed
 

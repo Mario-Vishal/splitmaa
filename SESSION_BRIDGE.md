@@ -22,6 +22,8 @@ Phase 0 - Repo Setup.
 - 2026-06-14: Installed workspace dependencies with `pnpm.cmd install`.
 - 2026-06-14: Added Expo web preview packages through `expo install`.
 - 2026-06-14: Verified `pnpm.cmd typecheck` and `pnpm.cmd test`.
+- 2026-06-14: Initialized root Git repository on `main`.
+- 2026-06-14: Created initial commit `8b11246` (`chore: bootstrap splitmaa workspace`).
 
 ## Learnings
 
@@ -46,7 +48,6 @@ Phase 0 - Repo Setup.
 ## Next Session Checklist
 
 - Initialize root git repository.
-- Commit Phase 0 bootstrap.
 - Re-authenticate GitHub CLI with `gh auth login -h github.com`.
 - Create `splitmaa` GitHub repo and push.
 
@@ -56,4 +57,4 @@ Phase 0 - Repo Setup.
 
 ## Commit Log
 
-- Pending initial commit.
+- `8b11246` - `chore: bootstrap splitmaa workspace`

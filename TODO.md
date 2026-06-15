@@ -2,12 +2,11 @@
 
 ## Current Phase
 
-- [x] Compact right-corner assistant launcher.
-- [x] Reduced screen padding and card height.
-- [x] Removed obvious instruction copy from screens.
-- [x] Added softer filled cards with subtle borders.
-- [x] Added green/red tinted debt chips.
-- [x] Tightened compact bottom-sheet assistant.
+- [x] FunctionGemma-callable tool definitions.
+- [x] Model tool-call argument validation.
+- [x] Conversion from model tool calls to validated app actions.
+- [ ] FunctionGemma parser adapter that consumes runner tool calls.
+- [ ] Native Android FunctionGemma runner implementation.
 
 ## Completed
 
@@ -18,11 +17,13 @@
 - [x] Built local MVP assistant workflow.
 - [x] Polished local MVP UI around Splitwise + Notion direction.
 - [x] Improved native mobile density and finance color treatment.
+- [x] Added guided create-group execution animation.
 
 ## Next Up
 
-- [ ] Android development build / APK.
+- [ ] FunctionGemma parser adapter wired to tool calls.
 - [ ] Real FunctionGemma native inference.
+- [ ] Android development build / APK.
 - [ ] Full 300-example smoke eval dataset.
 
 ## AI Runtime
@@ -31,6 +32,8 @@
 - [x] FakeParser.
 - [x] RuleBasedParser.
 - [x] FunctionGemmaParser placeholder.
+- [x] FunctionGemma tool registry.
+- [ ] Runner-backed FunctionGemmaParser.
 
 ## Eval Pipeline
 
@@ -49,6 +52,7 @@
 - [x] Android bridge plan.
 - [x] iOS bridge plan.
 - [x] TypeScript native runner boundary.
+- [x] Tool-aware runner input/output types.
 
 ## Floating Assistant
 
@@ -61,7 +65,8 @@
 
 - [x] Execution step model.
 - [x] Commentary after confirmation.
-- [ ] Entity highlight strategy.
+- [x] Entity highlight strategy for create-group demo.
+- [ ] Slower, richer "magic" animation timing pass.
 
 ## Ground Truth Queries
 

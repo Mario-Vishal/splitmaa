@@ -9,6 +9,9 @@
     "test": "node -e \"console.log('No functiongemma runner tests yet')\"",
     "lint": "node -e \"console.log('No functiongemma runner lint configured yet')\""
   },
+  "dependencies": {
+    "@splitmaa/core": "workspace:*"
+  },
   "devDependencies": {
     "typescript": "~6.0.3"
   }

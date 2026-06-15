@@ -12,3 +12,4 @@ export * from "./parser/ruleBasedParser";
 export * from "./parser/functionGemmaParser";
 export * from "./runtime/diagnostics";
 export * from "./state/applyAction";
+export * from "./tools/modelTools";

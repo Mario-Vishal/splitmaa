@@ -11,7 +11,7 @@ This file is the source of truth for continuing Splitmaa across Codex sessions. 
 
 ## Current Phase
 
-Polished local MVP complete. Next phase: Android dev build/APK packaging and real native FunctionGemma integration planning.
+Polished local MVP complete. Current phase: FunctionGemma-callable tool contracts, then native Android runner integration. Do not grow the rule-based parser except as a thin demo fallback.
 
 ## Latest Completion Log
 
@@ -37,6 +37,8 @@ Polished local MVP complete. Next phase: Android dev build/APK packaging and rea
 - 2026-06-15: Removed assistant predefined command chips, removed empty/filler message area, replaced text detail back buttons with compact icon buttons, and removed fake static segment controls.
 - 2026-06-15: Added guided create-group execution for `create a group called california add sai and deepak`: compact progress toast, touch-blocking overlay, automatic Groups navigation, created group detail opening, and post-action summary graph above the input.
 - 2026-06-15: Refined guided execution with dynamic member commentary and a one-shot group detail reveal animation.
+- 2026-06-15: Added FunctionGemma-callable tool contracts in `@splitmaa/core`: tool definitions, Zod argument validation, and conversion from model tool calls into validated app actions.
+- 2026-06-15: Updated the FunctionGemma runner boundary to accept tool definitions and optionally return typed tool calls.
 
 ## Learnings
 
@@ -60,6 +62,8 @@ Polished local MVP complete. Next phase: Android dev build/APK packaging and rea
 - Assistant should stay compact and utilitarian; avoid filler messages and obvious explanatory copy.
 - Do not add predefined prompt chips unless they are explicitly requested; use placeholder hints instead.
 - Guided assistant execution should shrink to commentary/progress while running and expand to a compact summary after completion.
+- Do not over-invest in the rule-based parser. FunctionGemma is responsible for language understanding; TypeScript owns tool definitions, validation, deterministic execution, and auditability.
+- Build the FunctionGemma tool surface before APK packaging so the native runner has stable functions to call.
 
 ## Decisions
 
@@ -70,8 +74,9 @@ Polished local MVP complete. Next phase: Android dev build/APK packaging and rea
 
 ## Next Session Checklist
 
-- Build Android development build/APK path.
+- Expand FunctionGemma tool execution around the existing core actions, not the rule-based parser.
 - Replace placeholder FunctionGemma runner with Android Kotlin implementation when a model artifact/runtime path is available.
+- Build Android development build/APK path after the model/tool boundary is stable enough to showcase.
 - Grow smoke evals from 5 examples to 300 examples.
 - Keep updating `SESSION_BRIDGE.md`, `TODO.md`, and `README.md` after meaningful progress.
 

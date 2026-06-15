@@ -1,12 +1,17 @@
+import type { ModelToolCall, ModelToolDefinition } from "@splitmaa/core";
+
 export type FunctionGemmaRunnerStatus = "not_configured" | "loading" | "ready" | "failed";
 
 export type FunctionGemmaInferenceInput = {
   prompt: string;
   maxTokens: number;
+  tools?: ModelToolDefinition[];
 };
 
 export type FunctionGemmaInferenceResult = {
   text: string;
+  toolCall?: ModelToolCall;
+  rawToolCall?: unknown;
   latencyMs: number;
   status: FunctionGemmaRunnerStatus;
 };

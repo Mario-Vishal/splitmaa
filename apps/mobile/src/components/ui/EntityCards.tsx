@@ -6,16 +6,18 @@ export function GroupCard({
   group,
   expenses,
   onPress,
+  highlighted,
 }: {
   group: Group;
   expenses: Expense[];
   onPress: () => void;
+  highlighted?: boolean;
 }) {
   const total = expenses.reduce((sum, expense) => sum + expense.amountCents, 0);
   const latest = expenses[0];
 
   return (
-    <Pressable style={styles.card} onPress={onPress}>
+    <Pressable style={[styles.card, highlighted && styles.highlightedCard]} onPress={onPress}>
       <View style={styles.iconBlock}>
         <Text style={styles.iconText}>{group.name.slice(0, 1).toUpperCase()}</Text>
       </View>
@@ -36,16 +38,18 @@ export function ContactCard({
   contact,
   amountCents,
   onPress,
+  highlighted,
 }: {
   contact: Contact;
   amountCents: number;
   onPress: () => void;
+  highlighted?: boolean;
 }) {
   const status =
     amountCents > 0 ? "owes you" : amountCents < 0 ? "you owe" : "settled up";
 
   return (
-    <Pressable style={styles.card} onPress={onPress}>
+    <Pressable style={[styles.card, highlighted && styles.highlightedCard]} onPress={onPress}>
       <View style={[styles.iconBlock, styles.contactIcon]}>
         <Text style={styles.iconText}>{contact.displayName.slice(0, 1).toUpperCase()}</Text>
       </View>
@@ -74,6 +78,10 @@ const styles = StyleSheet.create({
     minHeight: 64,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
+  },
+  highlightedCard: {
+    borderColor: theme.colors.accent,
+    borderWidth: 2,
   },
   iconBlock: {
     alignItems: "center",

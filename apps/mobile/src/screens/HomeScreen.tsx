@@ -18,6 +18,7 @@ export function HomeScreen({
   const state = useSplitmaaStore((store) => store.state);
   const selectGroup = useSplitmaaStore((store) => store.selectGroup);
   const selectContact = useSplitmaaStore((store) => store.selectContact);
+  const highlightedRecordId = useSplitmaaStore((store) => store.highlightedRecordId);
   const dashboard = selectDashboardSnapshot(state);
 
   return (
@@ -58,6 +59,7 @@ export function HomeScreen({
                 selectGroup(group.id);
                 onOpenGroups();
               }}
+              highlighted={highlightedRecordId === group.id}
             />
           </View>
         ))}
@@ -84,6 +86,7 @@ export function HomeScreen({
                   selectContact(contact.id);
                   onOpenContacts();
                 }}
+                highlighted={highlightedRecordId === contact.id}
               />
             );
           })}

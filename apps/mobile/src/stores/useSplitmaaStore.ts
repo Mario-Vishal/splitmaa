@@ -1,5 +1,6 @@
 import {
   applyConfirmedAction,
+  answerLocalQuery,
   calculateBalances,
   createExecutionPlan,
   createFunctionGemmaParser,
@@ -10,6 +11,7 @@ import {
   type AppAction,
   type ExecutionStep,
   type LocalAppState,
+  type NavigableRecord,
   type ParserResult,
   type RuntimeDiagnostics,
 } from "@splitmaa/core";
@@ -29,6 +31,7 @@ export type AssistantMessage = {
   role: "user" | "assistant";
   text: string;
   createdAt: string;
+  records?: NavigableRecord[];
 };
 
 export type GuidedSummaryNode = {
@@ -58,6 +61,9 @@ type SplitmaaStore = {
   lastPersistenceSource?: PersistenceLoadResult["source"];
   lastMessage?: string;
   assistantMessages: AssistantMessage[];
+  navigationTarget?: NavigableRecord;
+  highlightedRecordId?: string;
+  lastSearchResults: NavigableRecord[];
   pendingAction?: AppAction;
   executionPlan: ExecutionStep[];
   executionCommentary: string[];
@@ -67,6 +73,7 @@ type SplitmaaStore = {
   hydrate: () => Promise<void>;
   selectGroup: (groupId?: string) => void;
   selectContact: (contactId?: string) => void;
+  consumeNavigationTarget: () => void;
   runGuidedCommand: (transcript: string, callbacks?: GuidedCallbacks) => Promise<boolean>;
   parseCommand: (transcript: string) => Promise<void>;
   confirmPendingAction: () => Promise<void>;
@@ -98,6 +105,7 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
   hydrated: false,
   persistenceStatus: "idle",
   assistantMessages: [],
+  lastSearchResults: [],
   executionPlan: [],
   executionCommentary: [],
   guidedExecution: {
@@ -109,10 +117,13 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
   selectedGroupId: undefined,
   selectedContactId: undefined,
   selectGroup(groupId) {
-    set({ selectedGroupId: groupId });
+    set({ selectedGroupId: groupId, highlightedRecordId: groupId });
   },
   selectContact(contactId) {
-    set({ selectedContactId: contactId });
+    set({ selectedContactId: contactId, highlightedRecordId: contactId });
+  },
+  consumeNavigationTarget() {
+    set({ navigationTarget: undefined });
   },
   async runGuidedCommand(transcript, callbacks) {
     const cleanTranscript = transcript.trim();
@@ -287,16 +298,36 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
     const executionPlan = createExecutionPlan(action);
     const diagnostics = diagnosticsFromParserResult(result, now);
 
-    if (action.type === "QUERY_BALANCE") {
+    if (
+      action.type === "QUERY_BALANCE" ||
+      action.type === "QUERY_FINANCIAL_SUMMARY" ||
+      action.type === "SEARCH_RECORDS" ||
+      action.type === "OPEN_RECORD" ||
+      action.type === "SHOW_SEARCH_RESULTS"
+    ) {
+      const queryAnswer =
+        action.type === "SHOW_SEARCH_RESULTS"
+          ? {
+              answer: get().lastSearchResults.length
+                ? `Showing ${get().lastSearchResults.length} saved search results.`
+                : "No saved search results yet.",
+              records: get().lastSearchResults,
+            }
+          : answerLocalQuery(currentSafeState(), action);
+      const navigationTarget =
+        action.type === "OPEN_RECORD" || queryAnswer.records.length === 1 ? queryAnswer.records[0] : undefined;
       set((current) => ({
         diagnostics,
         pendingAction: undefined,
         executionPlan,
         assistantMessages: [
           ...current.assistantMessages,
-          assistantMessage(answerBalance(current.state, action), now),
+          assistantMessage(queryAnswer.answer, now, queryAnswer.records),
         ],
-        lastMessage: "Answered from local data.",
+        lastSearchResults: action.type === "SEARCH_RECORDS" ? queryAnswer.records : current.lastSearchResults,
+        navigationTarget,
+        highlightedRecordId: navigationTarget?.highlightId ?? navigationTarget?.id,
+        lastMessage: navigationTarget ? `Opening ${navigationTarget.title}.` : "Answered from local data.",
       }));
       return;
     }
@@ -389,6 +420,9 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
       pendingAction: undefined,
       executionPlan: [],
       executionCommentary: [],
+      navigationTarget: undefined,
+      highlightedRecordId: undefined,
+      lastSearchResults: [],
       guidedExecution: {
         status: "idle",
         progress: 0,
@@ -418,6 +452,10 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
     }));
   },
 }));
+
+function currentSafeState(): LocalAppState {
+  return useSplitmaaStore.getState().state;
+}
 
 function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -485,12 +523,17 @@ function userMessage(text: string, createdAt = new Date().toISOString()): Assist
   };
 }
 
-function assistantMessage(text: string, createdAt = new Date().toISOString()): AssistantMessage {
+function assistantMessage(
+  text: string,
+  createdAt = new Date().toISOString(),
+  records?: NavigableRecord[],
+): AssistantMessage {
   return {
     id: `assistant_${createdAt}_${text}`,
     role: "assistant",
     text,
     createdAt,
+    records,
   };
 }
 

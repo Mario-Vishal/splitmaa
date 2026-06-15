@@ -10,6 +10,7 @@ import { theme } from "../theme";
 export function ContactsScreen() {
   const state = useSplitmaaStore((store) => store.state);
   const selectedContactId = useSplitmaaStore((store) => store.selectedContactId);
+  const highlightedRecordId = useSplitmaaStore((store) => store.highlightedRecordId);
   const selectContact = useSplitmaaStore((store) => store.selectContact);
   const dashboard = selectDashboardSnapshot(state);
   const selectedContact = state.contacts.find((contact) => contact.id === selectedContactId);
@@ -46,7 +47,10 @@ export function ContactsScreen() {
         <ScreenCard title="Shared expenses">
           {sharedExpenses.length ? (
             sharedExpenses.map((expense) => (
-              <View key={expense.id} style={styles.expenseRow}>
+              <View
+                key={expense.id}
+                style={[styles.expenseRow, highlightedRecordId === expense.id && styles.highlightedRow]}
+              >
                 <Text style={styles.expenseTitle}>{expense.description}</Text>
                 <Text style={styles.expenseAmount}>{formatMoney(expense.amountCents, expense.currency)}</Text>
               </View>
@@ -75,6 +79,7 @@ export function ContactsScreen() {
                 contact={contact}
                 amountCents={balance?.amountCents ?? 0}
                 onPress={() => selectContact(contact.id)}
+                highlighted={highlightedRecordId === contact.id}
               />
             );
           })}
@@ -119,6 +124,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
+  },
+  highlightedRow: {
+    borderColor: theme.colors.accent,
+    borderWidth: 2,
   },
   expenseTitle: {
     color: theme.colors.textPrimary,

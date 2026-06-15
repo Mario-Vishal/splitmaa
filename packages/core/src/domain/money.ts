@@ -3,8 +3,6 @@ import type { CurrencyCode, ExpenseSplit } from "./types";
 const currencyDecimals: Record<CurrencyCode, number> = {
   USD: 2,
   INR: 2,
-  EUR: 2,
-  GBP: 2,
 };
 
 export function toCents(amount: string | number): number {

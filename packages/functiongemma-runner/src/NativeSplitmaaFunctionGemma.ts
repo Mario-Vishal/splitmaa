@@ -9,6 +9,11 @@ export type NativeSplitmaaFunctionGemmaState = {
 
 export type NativeSplitmaaFunctionGemmaInferResult = {
   text: string;
+  toolCall?: {
+    name: string;
+    arguments: Record<string, unknown>;
+  };
+  rawToolCall?: unknown;
   latencyMs: number;
   status: "not_configured" | "loading" | "ready" | "failed";
   error?: string;
@@ -22,7 +27,7 @@ export type NativeSplitmaaFunctionGemmaModule = {
     maxTokens?: number;
     maxTopK?: number;
   }): Promise<NativeSplitmaaFunctionGemmaState>;
-  infer(input: { prompt: string }): Promise<NativeSplitmaaFunctionGemmaInferResult>;
+  infer(input: { prompt: string; tools?: unknown[] }): Promise<NativeSplitmaaFunctionGemmaInferResult>;
   reset(): Promise<NativeSplitmaaFunctionGemmaState>;
 };
 

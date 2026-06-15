@@ -11,6 +11,7 @@ import { theme } from "../theme";
 export function GroupsScreen() {
   const state = useSplitmaaStore((store) => store.state);
   const selectedGroupId = useSplitmaaStore((store) => store.selectedGroupId);
+  const highlightedRecordId = useSplitmaaStore((store) => store.highlightedRecordId);
   const selectGroup = useSplitmaaStore((store) => store.selectGroup);
   const selectedGroup = state.groups.find((group) => group.id === selectedGroupId);
   const reveal = useRef(new Animated.Value(1)).current;
@@ -79,7 +80,10 @@ export function GroupsScreen() {
 
         <ScreenCard title="Expense feed">
           {expenses.map((expense) => (
-            <View key={expense.id} style={styles.expenseRow}>
+            <View
+              key={expense.id}
+              style={[styles.expenseRow, highlightedRecordId === expense.id && styles.highlightedRow]}
+            >
               <View>
                 <Text style={styles.expenseTitle}>{expense.description}</Text>
                 <Text style={styles.expenseMeta}>{expense.category} | {expense.paymentType}</Text>
@@ -104,6 +108,7 @@ export function GroupsScreen() {
             group={group}
             expenses={state.expenses.filter((expense) => expense.groupId === group.id)}
             onPress={() => selectGroup(group.id)}
+            highlighted={highlightedRecordId === group.id}
           />
         ))}
       </View>
@@ -183,6 +188,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
+  },
+  highlightedRow: {
+    borderColor: theme.colors.accent,
+    borderWidth: 2,
   },
   expenseTitle: {
     color: theme.colors.textPrimary,

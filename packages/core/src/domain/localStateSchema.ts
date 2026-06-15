@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { LocalAppState } from "./types";
 
-const currencySchema = z.enum(["USD", "INR", "EUR", "GBP"]);
+const currencySchema = z.enum(["USD", "INR"]);
 const paymentTypeSchema = z.enum(["cash", "card", "upi", "venmo", "unknown"]);
 const categorySchema = z.enum([
   "food",

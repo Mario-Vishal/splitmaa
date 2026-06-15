@@ -22,6 +22,10 @@ export function applyConfirmedAction(
     case "SETTLE_UP":
       return settleUp(state, action, now);
     case "QUERY_BALANCE":
+    case "QUERY_FINANCIAL_SUMMARY":
+    case "SEARCH_RECORDS":
+    case "OPEN_RECORD":
+    case "SHOW_SEARCH_RESULTS":
     case "CLARIFICATION_REQUIRED":
     case "UNSUPPORTED_REQUEST":
       return {
@@ -118,7 +122,7 @@ function addExpense(
     splitWithContactIds,
     splits: splitEqually(action.amountCents, splitWithContactIds),
     source: "assistant",
-    expenseDate: now,
+    expenseDate: action.expenseDate ?? now,
     createdAt: now,
     updatedAt: now,
   };
@@ -148,7 +152,7 @@ function settleUp(
     amountCents: action.amountCents,
     currency: action.currency,
     paymentType: action.paymentType,
-    createdAt: now,
+    createdAt: action.settlementDate ?? now,
   };
 
   return {

@@ -1,4 +1,4 @@
-export type CurrencyCode = "USD" | "INR" | "EUR" | "GBP";
+export type CurrencyCode = "USD" | "INR";
 
 export type PaymentType = "cash" | "card" | "upi" | "venmo" | "unknown";
 

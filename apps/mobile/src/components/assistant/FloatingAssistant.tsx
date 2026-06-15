@@ -4,12 +4,14 @@ import {
   Keyboard,
   PanResponder,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
+  useWindowDimensions,
   View,
 } from "react-native";
-import { formatMoney, type AppAction } from "@splitmaa/core";
+import { formatMoney, type AppAction, type NavigableRecord } from "@splitmaa/core";
 import {
   useSplitmaaStore,
   type AssistantMessage,
@@ -21,6 +23,7 @@ export function FloatingAssistant({ onOpenGroups }: { onOpenGroups: () => void }
   const [expanded, setExpanded] = useState(false);
   const [draft, setDraft] = useState("");
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const { height: screenHeight } = useWindowDimensions();
   const messages = useSplitmaaStore((store) => store.assistantMessages);
   const pendingAction = useSplitmaaStore((store) => store.pendingAction);
   const guidedExecution = useSplitmaaStore((store) => store.guidedExecution);
@@ -85,11 +88,13 @@ export function FloatingAssistant({ onOpenGroups }: { onOpenGroups: () => void }
     );
   }
 
-  const latestMessage = messages[messages.length - 1];
+  const bottomOffset = keyboardHeight ? keyboardHeight + 10 : 78;
+  const availableHeight = Math.max(360, screenHeight - bottomOffset - 18);
+  const sheetHeight = Math.min(keyboardHeight ? 430 : 560, availableHeight);
 
   return (
-    <View style={[styles.sheetWrap, { bottom: keyboardHeight ? keyboardHeight + 10 : 78 }]}>
-      <View style={styles.sheet}>
+    <View style={[styles.sheetWrap, { bottom: bottomOffset }]}>
+      <View style={[styles.sheet, { height: sheetHeight }]}>
         <View style={styles.sheetTop} {...panResponder.panHandlers}>
           <Pressable
             accessibilityRole="button"
@@ -113,17 +118,29 @@ export function FloatingAssistant({ onOpenGroups }: { onOpenGroups: () => void }
           </View>
         </View>
 
-        {pendingAction ? (
-          <ActionCard
-            action={pendingAction}
-            onConfirm={() => void confirmPendingAction()}
-            onCancel={cancelPendingAction}
-          />
-        ) : guidedExecution.status === "complete" ? (
-          <SummaryGraph title={guidedExecution.summaryTitle ?? "Done"} nodes={guidedExecution.summaryNodes} />
-        ) : latestMessage ? (
-          <MessageLine message={latestMessage} />
-        ) : null}
+        <ScrollView
+          style={styles.chatScroll}
+          contentContainerStyle={styles.chatContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          {messages.length ? (
+            messages.map((message) => <MessageLine key={message.id} message={message} />)
+          ) : (
+            <EmptyChat />
+          )}
+
+          {pendingAction ? (
+            <ActionCard
+              action={pendingAction}
+              onConfirm={() => void confirmPendingAction()}
+              onCancel={cancelPendingAction}
+            />
+          ) : null}
+
+          {guidedExecution.status === "complete" ? (
+            <SummaryGraph title={guidedExecution.summaryTitle ?? "Done"} nodes={guidedExecution.summaryNodes} />
+          ) : null}
+        </ScrollView>
 
         <View style={styles.inputShell}>
           <TextInput
@@ -140,6 +157,15 @@ export function FloatingAssistant({ onOpenGroups }: { onOpenGroups: () => void }
           </Pressable>
         </View>
       </View>
+    </View>
+  );
+}
+
+function EmptyChat() {
+  return (
+    <View style={styles.emptyChat}>
+      <Text style={styles.emptyTitle}>Ask from here</Text>
+      <Text style={styles.emptyText}>Responses, tool calls, and action reviews will stay in this thread.</Text>
     </View>
   );
 }
@@ -222,10 +248,35 @@ function SummaryGraph({ title, nodes }: { title: string; nodes: GuidedSummaryNod
 }
 
 function MessageLine({ message }: { message: AssistantMessage }) {
+  const isUser = message.role === "user";
   return (
-    <View style={styles.messageLine}>
-      <Text style={styles.messageRole}>{message.role === "user" ? "You" : "Splitmaa"}</Text>
+    <View style={[styles.messageLine, isUser ? styles.userMessage : styles.assistantMessage]}>
+      <Text style={[styles.messageRole, isUser && styles.userMessageRole]}>{isUser ? "You" : "Splitmaa"}</Text>
       <Text style={styles.messageText}>{message.text}</Text>
+      {!isUser && message.records?.length ? (
+        <View style={styles.resultStack}>
+          {message.records.slice(0, 4).map((record) => (
+            <ResultRow key={`${message.id}_${record.entityType}_${record.id}`} record={record} />
+          ))}
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+function ResultRow({ record }: { record: NavigableRecord }) {
+  return (
+    <View style={styles.resultRow}>
+      <View style={styles.resultDot} />
+      <View style={styles.resultBody}>
+        <Text style={styles.resultTitle} numberOfLines={1}>{record.title}</Text>
+        <Text style={styles.resultMeta} numberOfLines={1}>
+          {record.entityType} | {record.subtitle}
+        </Text>
+      </View>
+      {record.amountCents !== undefined && record.currency ? (
+        <Text style={styles.resultAmount}>{formatMoney(record.amountCents, record.currency)}</Text>
+      ) : null}
     </View>
   );
 }
@@ -246,6 +297,14 @@ function describeAction(action: AppAction): string {
       return `${action.fromName} pays ${action.toName} ${formatMoney(action.amountCents, action.currency)}`;
     case "QUERY_BALANCE":
       return "Answer from local balances.";
+    case "QUERY_FINANCIAL_SUMMARY":
+      return `Summary: ${action.summaryType}`;
+    case "SEARCH_RECORDS":
+      return `Search "${action.query}" in ${action.entityTypes.join(", ")}`;
+    case "OPEN_RECORD":
+      return `Open ${action.entityType}`;
+    case "SHOW_SEARCH_RESULTS":
+      return `Show results ${action.resultSetId}`;
     case "CLARIFICATION_REQUIRED":
       return action.question;
     case "UNSUPPORTED_REQUEST":
@@ -353,6 +412,29 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     padding: 6,
   },
+  chatScroll: {
+    flex: 1,
+  },
+  chatContent: {
+    gap: theme.spacing.sm,
+    paddingBottom: theme.spacing.xs,
+  },
+  emptyChat: {
+    backgroundColor: theme.colors.surfaceMuted,
+    borderRadius: 18,
+    gap: theme.spacing.xs,
+    padding: theme.spacing.md,
+  },
+  emptyTitle: {
+    color: theme.colors.textPrimary,
+    fontSize: 15,
+    fontWeight: "900",
+  },
+  emptyText: {
+    color: theme.colors.textSecondary,
+    fontSize: 13,
+    lineHeight: 18,
+  },
   input: {
     color: theme.colors.textPrimary,
     flex: 1,
@@ -424,10 +506,20 @@ const styles = StyleSheet.create({
     fontWeight: "900",
   },
   messageLine: {
+    alignSelf: "flex-start",
     backgroundColor: theme.colors.surfaceMuted,
-    borderRadius: 14,
+    borderRadius: 16,
     gap: 2,
+    maxWidth: "88%",
     padding: theme.spacing.sm,
+  },
+  userMessage: {
+    alignSelf: "flex-end",
+    backgroundColor: theme.colors.accentSoft,
+  },
+  assistantMessage: {
+    borderColor: theme.colors.border,
+    borderWidth: 1,
   },
   messageRole: {
     color: theme.colors.textSecondary,
@@ -435,10 +527,49 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     textTransform: "uppercase",
   },
+  userMessageRole: {
+    color: theme.colors.textPrimary,
+  },
   messageText: {
     color: theme.colors.textPrimary,
     fontSize: 14,
     lineHeight: 20,
+  },
+  resultStack: {
+    gap: 6,
+    paddingTop: theme.spacing.xs,
+  },
+  resultRow: {
+    alignItems: "center",
+    backgroundColor: theme.colors.surface,
+    borderRadius: 12,
+    flexDirection: "row",
+    gap: 8,
+    padding: 8,
+  },
+  resultDot: {
+    backgroundColor: theme.colors.accent,
+    borderRadius: 999,
+    height: 8,
+    width: 8,
+  },
+  resultBody: {
+    flex: 1,
+  },
+  resultTitle: {
+    color: theme.colors.textPrimary,
+    fontSize: 12,
+    fontWeight: "900",
+  },
+  resultMeta: {
+    color: theme.colors.textSecondary,
+    fontSize: 11,
+    fontWeight: "700",
+  },
+  resultAmount: {
+    color: theme.colors.success,
+    fontSize: 12,
+    fontWeight: "900",
   },
   toast: {
     alignItems: "center",

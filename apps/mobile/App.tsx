@@ -26,8 +26,11 @@ export default function App() {
   const guidedExecution = useSplitmaaStore((store) => store.guidedExecution);
   const selectedGroupId = useSplitmaaStore((store) => store.selectedGroupId);
   const selectedContactId = useSplitmaaStore((store) => store.selectedContactId);
+  const navigationTarget = useSplitmaaStore((store) => store.navigationTarget);
   const selectGroup = useSplitmaaStore((store) => store.selectGroup);
   const selectContact = useSplitmaaStore((store) => store.selectContact);
+  const consumeNavigationTarget = useSplitmaaStore((store) => store.consumeNavigationTarget);
+  const state = useSplitmaaStore((store) => store.state);
   const isExecuting = guidedExecution.status === "running";
 
   useEffect(() => {
@@ -61,6 +64,36 @@ export default function App() {
 
     return () => subscription.remove();
   }, [accountOpen, activeTab, selectContact, selectGroup, selectedContactId, selectedGroupId]);
+
+  useEffect(() => {
+    if (!navigationTarget) return;
+
+    if (navigationTarget.entityType === "contact") {
+      selectContact(navigationTarget.id);
+      setActiveTab("contacts");
+    }
+
+    if (navigationTarget.entityType === "group") {
+      selectGroup(navigationTarget.id);
+      setActiveTab("groups");
+    }
+
+    if (navigationTarget.entityType === "expense") {
+      const expense = state.expenses.find((item) => item.id === navigationTarget.id);
+      if (expense?.groupId) {
+        selectGroup(expense.groupId);
+        setActiveTab("groups");
+      } else {
+        setActiveTab("home");
+      }
+    }
+
+    if (navigationTarget.entityType === "settlement" || navigationTarget.entityType === "activity_log") {
+      setActiveTab("diagnostics");
+    }
+
+    consumeNavigationTarget();
+  }, [consumeNavigationTarget, navigationTarget, selectContact, selectGroup, state.expenses]);
 
   return (
     <View style={styles.root}>

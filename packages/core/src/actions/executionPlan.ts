@@ -10,10 +10,16 @@ export type ExecutionStep = {
 };
 
 export function createExecutionPlan(action: AppAction): ExecutionStep[] {
-  if (action.type === "QUERY_BALANCE") {
+  if (
+    action.type === "QUERY_BALANCE" ||
+    action.type === "QUERY_FINANCIAL_SUMMARY" ||
+    action.type === "SEARCH_RECORDS" ||
+    action.type === "OPEN_RECORD" ||
+    action.type === "SHOW_SEARCH_RESULTS"
+  ) {
     return [
-      step("validate", "Validate balance question"),
-      step("resolve_context", "Read balances from local data"),
+      step("validate", "Validate local query"),
+      step("resolve_context", "Read trusted local data"),
       step("answer", "Show grounded answer"),
     ];
   }

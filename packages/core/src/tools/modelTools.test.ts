@@ -9,6 +9,12 @@ describe("model tools", () => {
       "add_expense",
       "settle_up",
       "query_balance",
+      "query_financial_summary",
+      "search_records",
+      "open_record",
+      "show_search_results",
+      "clarification_required",
+      "unsupported_request",
     ]);
     expect(modelToolDefinitions.find((tool) => tool.name === "query_balance")?.mutatesState).toBe(false);
   });
@@ -46,6 +52,17 @@ describe("model tools", () => {
           paidByName: "You",
           participantNames: ["Sai"],
           splitType: "equal",
+        },
+      }),
+    ).toThrow();
+  });
+
+  it("rejects unsupported v1 currencies", () => {
+    expect(() =>
+      parseModelToolCall({
+        name: "query_balance",
+        arguments: {
+          currency: "EUR",
         },
       }),
     ).toThrow();

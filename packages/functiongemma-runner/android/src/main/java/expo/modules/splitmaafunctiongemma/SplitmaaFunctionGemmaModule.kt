@@ -1,13 +1,25 @@
 package expo.modules.splitmaafunctiongemma
 
 import android.os.SystemClock
-import com.google.mediapipe.tasks.genai.llminference.LlmInference
+import android.util.Log
+import com.google.ai.edge.litertlm.Backend
+import com.google.ai.edge.litertlm.Content
+import com.google.ai.edge.litertlm.Contents
+import com.google.ai.edge.litertlm.ConversationConfig
+import com.google.ai.edge.litertlm.Engine
+import com.google.ai.edge.litertlm.EngineConfig
+import com.google.ai.edge.litertlm.Message
+import com.google.ai.edge.litertlm.OpenApiTool
+import com.google.ai.edge.litertlm.ToolProvider
+import com.google.ai.edge.litertlm.tool
+import com.google.gson.Gson
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import java.io.File
 
 class SplitmaaFunctionGemmaModule : Module() {
-  private var llmInference: LlmInference? = null
+  private val gson = Gson()
+  private var engine: Engine? = null
   private var currentModelPath: String? = null
   private var currentMaxTokens: Int = DEFAULT_MAX_TOKENS
   private var status: String = "not_configured"
@@ -41,7 +53,6 @@ class SplitmaaFunctionGemmaModule : Module() {
     val nextModelPath = stringValue(options["modelPath"])
       ?: throw IllegalArgumentException("modelPath is required")
     val nextMaxTokens = intValue(options["maxTokens"], DEFAULT_MAX_TOKENS)
-    val maxTopK = intValue(options["maxTopK"], DEFAULT_MAX_TOP_K)
     val modelFile = File(nextModelPath)
 
     if (!modelFile.exists()) {
@@ -51,7 +62,7 @@ class SplitmaaFunctionGemmaModule : Module() {
     }
 
     if (
-      llmInference != null &&
+      engine != null &&
       currentModelPath == nextModelPath &&
       currentMaxTokens == nextMaxTokens &&
       status == "ready"
@@ -66,13 +77,13 @@ class SplitmaaFunctionGemmaModule : Module() {
     try {
       val context = appContext.reactContext
         ?: throw IllegalStateException("React context is not available")
-      val taskOptions = LlmInference.LlmInferenceOptions.builder()
-        .setModelPath(nextModelPath)
-        .setMaxTokens(nextMaxTokens)
-        .setMaxTopK(maxTopK)
-        .build()
+      val engineConfig = EngineConfig(
+        modelPath = nextModelPath,
+        backend = Backend.CPU(),
+        cacheDir = context.cacheDir.absolutePath,
+      )
 
-      llmInference = LlmInference.createFromOptions(context, taskOptions)
+      engine = Engine(engineConfig).also { it.initialize() }
       currentModelPath = nextModelPath
       currentMaxTokens = nextMaxTokens
       status = "ready"
@@ -88,7 +99,8 @@ class SplitmaaFunctionGemmaModule : Module() {
   private fun infer(input: Map<String, Any?>): Map<String, Any?> {
     val prompt = stringValue(input["prompt"])
       ?: throw IllegalArgumentException("prompt is required")
-    val model = llmInference
+    val toolProviders = toolProviders(input["tools"])
+    val model = engine
 
     if (status != "ready" || model == null) {
       return mapOf(
@@ -102,15 +114,64 @@ class SplitmaaFunctionGemmaModule : Module() {
     val startMs = SystemClock.elapsedRealtime()
 
     return try {
-      val text = model.generateResponse(prompt)
-      mapOf(
+      logJson(
+        "infer_start",
+        mapOf(
+          "promptChars" to prompt.length,
+          "toolCount" to toolProviders.size,
+          "modelPath" to currentModelPath,
+        ),
+      )
+      val conversationConfig = ConversationConfig(
+        systemInstruction = Contents.of(
+          "You are Splitmaa's on-device function-calling model. Choose exactly one registered tool when the user request maps to a Splitmaa action. Do not invent tool names.",
+        ),
+        tools = toolProviders,
+        automaticToolCalling = false,
+      )
+      val response = model.createConversation(conversationConfig).use { conversation ->
+        conversation.sendMessage(prompt)
+      }
+      val toolCall = response.toolCalls.firstOrNull()
+      val text = responseText(response)
+      val latencyMs = SystemClock.elapsedRealtime() - startMs
+      logJson(
+        "infer_result",
+        mapOf(
+          "latencyMs" to latencyMs,
+          "text" to text,
+          "toolCalls" to response.toolCalls.map { call ->
+            mapOf(
+              "name" to call.name,
+              "arguments" to call.arguments,
+            )
+          },
+          "message" to response.toString(),
+        ),
+      )
+      val payload = mutableMapOf<String, Any?>(
         "text" to text,
-        "latencyMs" to (SystemClock.elapsedRealtime() - startMs),
+        "latencyMs" to latencyMs,
         "status" to "ready",
       )
+      if (toolCall != null) {
+        payload["toolCall"] = mapOf(
+          "name" to toolCall.name,
+          "arguments" to toolCall.arguments,
+        )
+      }
+      payload
     } catch (error: Throwable) {
       status = "failed"
       lastError = error.message ?: error.javaClass.simpleName
+      logJson(
+        "infer_error",
+        mapOf(
+          "latencyMs" to (SystemClock.elapsedRealtime() - startMs),
+          "errorClass" to error.javaClass.name,
+          "message" to lastError,
+        ),
+      )
       mapOf(
         "text" to "",
         "latencyMs" to (SystemClock.elapsedRealtime() - startMs),
@@ -131,9 +192,9 @@ class SplitmaaFunctionGemmaModule : Module() {
 
   private fun closeCurrent() {
     try {
-      llmInference?.close()
+      engine?.close()
     } finally {
-      llmInference = null
+      engine = null
     }
   }
 
@@ -160,8 +221,70 @@ class SplitmaaFunctionGemmaModule : Module() {
     }
   }
 
+  @Suppress("UNCHECKED_CAST")
+  private fun toolProviders(value: Any?): List<ToolProvider> {
+    val tools = value as? List<Map<String, Any?>> ?: return emptyList()
+    return tools.mapNotNull { definition ->
+      val name = stringValue(definition["name"]) ?: return@mapNotNull null
+      val description = stringValue(definition["description"]) ?: return@mapNotNull null
+      val parameters = definition["parameters"] ?: return@mapNotNull null
+      tool(SplitmaaOpenApiTool(name, description, parameters))
+    }
+  }
+
+  private fun responseText(message: Message): String {
+    val toolCall = message.toolCalls.firstOrNull()
+    if (toolCall != null) {
+      return gson.toJson(
+        mapOf(
+          "name" to toolCall.name,
+          "arguments" to toolCall.arguments,
+        ),
+      )
+    }
+
+    return message.contents.contents
+      .filterIsInstance<Content.Text>()
+      .joinToString(separator = "") { it.text }
+      .ifBlank { message.toString() }
+  }
+
+  private fun logJson(event: String, payload: Map<String, Any?>) {
+    val json = gson.toJson(
+      mapOf(
+        "tag" to LOG_TAG,
+        "event" to event,
+        "payload" to payload,
+      ),
+    )
+    json.chunked(LOG_CHUNK_SIZE).forEachIndexed { index, chunk ->
+      Log.i(LOG_TAG, "chunk=$index $chunk")
+    }
+  }
+
+  private inner class SplitmaaOpenApiTool(
+    private val name: String,
+    private val description: String,
+    private val parameters: Any,
+  ) : OpenApiTool {
+    override fun getToolDescriptionJsonString(): String {
+      return gson.toJson(
+        mapOf(
+          "name" to name,
+          "description" to description,
+          "parameters" to parameters,
+        ),
+      )
+    }
+
+    override fun execute(paramsJsonString: String): String {
+      return """{"accepted":true}"""
+    }
+  }
+
   companion object {
+    private const val LOG_TAG = "SplitmaaFGemma"
+    private const val LOG_CHUNK_SIZE = 3500
     private const val DEFAULT_MAX_TOKENS = 256
-    private const val DEFAULT_MAX_TOP_K = 64
   }
 }

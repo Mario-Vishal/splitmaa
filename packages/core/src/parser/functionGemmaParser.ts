@@ -129,7 +129,7 @@ function unsupportedResult(
     type: "UNSUPPORTED_REQUEST",
     reason:
       status === "ready"
-        ? "FunctionGemma did not return a valid Splitmaa tool call."
+        ? unsupportedReadyReason(raw)
         : "FunctionGemma native runner is not ready in this build.",
   });
 
@@ -145,11 +145,30 @@ function unsupportedResult(
   };
 }
 
+function unsupportedReadyReason(raw: unknown): string {
+  const modelText = extractRawModelText(raw);
+  if (!modelText) return "FunctionGemma did not return a valid Splitmaa tool call.";
+
+  return `FunctionGemma did not return a valid Splitmaa tool call. It returned: ${modelText}`;
+}
+
+function extractRawModelText(raw: unknown): string | undefined {
+  const text =
+    typeof raw === "object" && raw && "text" in raw && typeof raw.text === "string"
+      ? raw.text
+      : typeof raw === "string"
+        ? raw
+        : undefined;
+  const clean = text?.replace(/\s+/g, " ").trim();
+  if (!clean) return undefined;
+  return clean.length > 360 ? `${clean.slice(0, 357)}...` : clean;
+}
+
 function createFunctionGemmaPrompt(input: ParserInput): string {
   return JSON.stringify({
     role: "splitmaa_function_calling_parser",
     instruction:
-      "Return exactly one tool call matching the provided tools. Do not mutate state. Ask for clarification only by choosing no tool call.",
+      "Return exactly one tool call matching the provided tools. The app validates and executes tools. Use clarification_required for missing information and unsupported_request for out-of-scope requests.",
     transcript: input.transcript,
     context: compactStateContext(input.state),
   });

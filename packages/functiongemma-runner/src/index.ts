@@ -22,7 +22,7 @@ export type NativeFunctionGemmaRunnerOptions = {
   maxTopK?: number;
 };
 
-export const DEFAULT_ANDROID_MODEL_PATH = "/data/local/tmp/llm/splitmaa_functiongemma.task";
+export const DEFAULT_ANDROID_MODEL_PATH = "/data/local/tmp/llm/mobile_actions_q8_ekv1024.litertlm";
 
 export function createNativeFunctionGemmaRunner(options: NativeFunctionGemmaRunnerOptions): FunctionGemmaRunner {
   let configured = false;
@@ -83,11 +83,13 @@ export function createNativeFunctionGemmaRunner(options: NativeFunctionGemmaRunn
       }
 
       const result = await nativeModule.infer({
-        prompt: createToolCallingPrompt(input),
+        prompt: input.prompt,
+        tools: input.tools.map(serializeToolForPrompt),
       });
 
       return {
         text: result.text,
+        rawToolCall: result.toolCall ?? result.rawToolCall,
         latencyMs: result.latencyMs,
         status: result.status,
         error: result.error,
@@ -116,18 +118,6 @@ export function createUnavailableFunctionGemmaRunner(): FunctionGemmaRunner {
       };
     },
   };
-}
-
-function createToolCallingPrompt(input: FunctionGemmaRunnerInput): string {
-  return [
-    "You are Splitmaa's on-device function-calling model.",
-    "Return exactly one JSON object and no markdown.",
-    'The JSON shape must be: {"name":"tool_name","arguments":{...}}.',
-    "Choose only from these tools:",
-    JSON.stringify(input.tools.map(serializeToolForPrompt)),
-    "User/context payload:",
-    input.prompt,
-  ].join("\n");
 }
 
 function serializeToolForPrompt(tool: ModelToolDefinition) {

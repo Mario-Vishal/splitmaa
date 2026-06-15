@@ -37,8 +37,7 @@ export function FloatingAssistant() {
     return (
       <Pressable style={styles.dock} onPress={() => setExpanded(true)}>
         <View style={styles.spark} />
-        <Text style={styles.dockText}>Ask Splitmaa</Text>
-        <Text style={styles.dockHint}>local</Text>
+        <Text style={styles.dockText}>Ask</Text>
       </Pressable>
     );
   }
@@ -52,8 +51,8 @@ export function FloatingAssistant() {
         <View style={styles.grabber} />
         <View style={styles.header}>
           <View>
-            <Text style={styles.title}>Assistant</Text>
-            <Text style={styles.subtitle}>Proposes actions. You confirm.</Text>
+            <Text style={styles.title}>Splitmaa</Text>
+            <Text style={styles.subtitle}>Local command layer</Text>
           </View>
           <Pressable style={styles.minimize} onPress={() => setExpanded(false)}>
             <Text style={styles.minimizeText}>Done</Text>
@@ -149,7 +148,6 @@ const styles = StyleSheet.create({
     bottom: 78,
     flexDirection: "row",
     gap: theme.spacing.sm,
-    left: theme.spacing.lg,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
     position: "absolute",
@@ -164,14 +162,8 @@ const styles = StyleSheet.create({
   },
   dockText: {
     color: theme.colors.surface,
-    flex: 1,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "900",
-  },
-  dockHint: {
-    color: "rgba(255,255,255,0.62)",
-    fontSize: 12,
-    fontWeight: "800",
   },
   sheetWrap: {
     bottom: 64,
@@ -185,9 +177,9 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     borderWidth: 1,
-    gap: theme.spacing.md,
-    maxHeight: 470,
-    padding: theme.spacing.lg,
+    gap: theme.spacing.sm,
+    maxHeight: 420,
+    padding: theme.spacing.md,
     ...theme.shadows.card,
   },
   grabber: {
@@ -204,7 +196,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: theme.colors.textPrimary,
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "900",
   },
   subtitle: {
@@ -265,7 +257,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   messages: {
-    maxHeight: 118,
+    maxHeight: 96,
   },
   messagesContent: {
     gap: theme.spacing.sm,
@@ -290,7 +282,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1,
     gap: theme.spacing.sm,
-    padding: theme.spacing.md,
+    padding: theme.spacing.sm,
   },
   confirmEyebrow: {
     color: theme.colors.accent,

@@ -16,12 +16,11 @@ export function HomeScreen({
   const selectGroup = useSplitmaaStore((store) => store.selectGroup);
   const selectContact = useSplitmaaStore((store) => store.selectContact);
   const dashboard = selectDashboardSnapshot(state);
-  const contactsById = new Map(state.contacts.map((contact) => [contact.id, contact]));
 
   return (
     <ScreenShell
       title="Hello, Mario"
-      subtitle="Here is the clean local view of what people owe, what you owe, and what changed recently."
+      subtitle="Balances, groups, and contacts"
     >
       <View style={styles.summaryCard}>
         <Text style={styles.summaryLabel}>You are owed</Text>
@@ -61,7 +60,7 @@ export function HomeScreen({
       </ScrollView>
 
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>People</Text>
+        <Text style={styles.sectionTitle}>Contacts</Text>
         <Pressable onPress={onOpenContacts}>
           <Text style={styles.link}>View all</Text>
         </Pressable>
@@ -86,7 +85,7 @@ export function HomeScreen({
           })}
       </View>
 
-      <ScreenCard title="Recent activity" subtitle="Confirmed assistant actions are persisted locally.">
+      <ScreenCard title="Recent activity">
         {state.aiActionLogs.length ? (
           state.aiActionLogs.slice(0, 3).map((log) => (
             <Text key={log.id} style={styles.activity}>
@@ -105,18 +104,18 @@ const styles = StyleSheet.create({
   summaryCard: {
     backgroundColor: theme.colors.textPrimary,
     borderRadius: 24,
-    gap: theme.spacing.md,
-    padding: theme.spacing.lg,
+    gap: theme.spacing.sm,
+    padding: theme.spacing.md,
     ...theme.shadows.card,
   },
   summaryLabel: {
     color: "rgba(255,255,255,0.72)",
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "800",
   },
   summaryAmount: {
     color: theme.colors.surface,
-    fontSize: 42,
+    fontSize: 36,
     fontWeight: "900",
   },
   summaryDivider: {
@@ -149,7 +148,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: theme.colors.textPrimary,
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "900",
   },
   link: {
@@ -158,14 +157,14 @@ const styles = StyleSheet.create({
     fontWeight: "900",
   },
   horizontalCards: {
-    gap: theme.spacing.md,
+    gap: theme.spacing.sm,
     paddingRight: theme.spacing.lg,
   },
   wideCard: {
-    width: 310,
+    width: 292,
   },
   stack: {
-    gap: theme.spacing.sm,
+    gap: 7,
   },
   activity: {
     color: theme.colors.textSecondary,

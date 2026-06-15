@@ -20,7 +20,7 @@ export function ContactsScreen() {
     );
 
     return (
-      <ScreenShell title={selectedContact.displayName} subtitle="Contact detail, balance, shared expenses, and profile fields.">
+      <ScreenShell title={selectedContact.displayName} subtitle="Balance and shared expenses">
         <Pressable style={styles.backButton} onPress={() => selectContact(undefined)}>
           <Text style={styles.backText}>Back to contacts</Text>
         </Pressable>
@@ -60,7 +60,7 @@ export function ContactsScreen() {
   return (
     <ScreenShell
       title="Contacts"
-      subtitle="Tap a person to inspect the balance and shared local expense history."
+      subtitle="People and balances"
     >
       <View style={styles.segment}>
         <Text style={styles.segmentActive}>All people</Text>
@@ -102,9 +102,9 @@ const styles = StyleSheet.create({
   },
   hero: {
     backgroundColor: theme.colors.textPrimary,
-    borderRadius: 24,
+    borderRadius: 22,
     gap: theme.spacing.xs,
-    padding: theme.spacing.lg,
+    padding: theme.spacing.md,
   },
   heroLabel: {
     color: "rgba(255,255,255,0.7)",
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   },
   heroAmount: {
     color: theme.colors.surface,
-    fontSize: 38,
+    fontSize: 34,
     fontWeight: "900",
   },
   heroMeta: {
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   stack: {
-    gap: theme.spacing.md,
+    gap: 8,
   },
   row: {
     color: theme.colors.textSecondary,
@@ -156,10 +156,11 @@ const styles = StyleSheet.create({
   },
   expenseRow: {
     alignItems: "center",
-    borderBottomColor: theme.colors.border,
-    borderBottomWidth: 1,
+    backgroundColor: theme.colors.surfaceMuted,
+    borderRadius: theme.radii.md,
     flexDirection: "row",
     justifyContent: "space-between",
+    paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
   },
   expenseTitle: {

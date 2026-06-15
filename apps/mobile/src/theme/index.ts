@@ -15,14 +15,14 @@ export const theme = {
   spacing: {
     xs: 4,
     sm: 8,
-    md: 16,
-    lg: 24,
-    xl: 32,
+    md: 12,
+    lg: 18,
+    xl: 26,
   },
   radii: {
     sm: 6,
-    md: 8,
-    lg: 16,
+    md: 12,
+    lg: 20,
     pill: 999,
   },
   typography: {
@@ -34,10 +34,10 @@ export const theme = {
   shadows: {
     card: {
       shadowColor: "#1F1F1F",
-      shadowOpacity: 0.08,
-      shadowRadius: 12,
-      shadowOffset: { width: 0, height: 6 },
-      elevation: 2,
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 3 },
+      elevation: 1,
     },
   },
 } as const;

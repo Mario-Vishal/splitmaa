@@ -20,7 +20,7 @@ export function GroupsScreen() {
       .filter(Boolean);
 
     return (
-      <ScreenShell title={selectedGroup.name} subtitle="Group detail, members, balances, and expense feed.">
+      <ScreenShell title={selectedGroup.name} subtitle="Members and expenses">
         <Pressable style={styles.backButton} onPress={() => selectGroup(undefined)}>
           <Text style={styles.backText}>Back to groups</Text>
         </Pressable>
@@ -58,7 +58,7 @@ export function GroupsScreen() {
   return (
     <ScreenShell
       title="Groups"
-      subtitle="Swipe through the app tabs below, then tap a group to inspect its local expense feed."
+      subtitle="Expense spaces"
     >
       <View style={styles.segment}>
         <Text style={styles.segmentActive}>All groups</Text>
@@ -95,9 +95,9 @@ const styles = StyleSheet.create({
   },
   hero: {
     backgroundColor: theme.colors.textPrimary,
-    borderRadius: 24,
+    borderRadius: 22,
     gap: theme.spacing.xs,
-    padding: theme.spacing.lg,
+    padding: theme.spacing.md,
   },
   heroLabel: {
     color: "rgba(255,255,255,0.7)",
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   },
   heroAmount: {
     color: theme.colors.surface,
-    fontSize: 38,
+    fontSize: 34,
     fontWeight: "900",
   },
   heroMeta: {
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   stack: {
-    gap: theme.spacing.md,
+    gap: 8,
   },
   chipWrap: {
     flexDirection: "row",
@@ -159,10 +159,11 @@ const styles = StyleSheet.create({
   },
   expenseRow: {
     alignItems: "center",
-    borderBottomColor: theme.colors.border,
-    borderBottomWidth: 1,
+    backgroundColor: theme.colors.surfaceMuted,
+    borderRadius: theme.radii.md,
     flexDirection: "row",
     justifyContent: "space-between",
+    paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
   },
   expenseTitle: {

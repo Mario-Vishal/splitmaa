@@ -2,14 +2,12 @@
 
 ## Current Phase
 
-- [x] Splitwise/Notion-inspired Home redesign.
-- [x] Top owed/owing summary.
-- [x] Group cards on Home.
-- [x] Contact cards on Home.
-- [x] Group detail page.
-- [x] Contact detail page.
-- [x] Compact bottom-sheet assistant.
-- [x] Horizontal pill-style tab rail.
+- [x] Compact right-corner assistant launcher.
+- [x] Reduced screen padding and card height.
+- [x] Removed obvious instruction copy from screens.
+- [x] Added softer filled cards with subtle borders.
+- [x] Added green/red tinted debt chips.
+- [x] Tightened compact bottom-sheet assistant.
 
 ## Completed
 
@@ -19,6 +17,7 @@
 - [x] Verified Expo web export with local persistence wiring.
 - [x] Built local MVP assistant workflow.
 - [x] Polished local MVP UI around Splitwise + Notion direction.
+- [x] Improved native mobile density and finance color treatment.
 
 ## Next Up
 

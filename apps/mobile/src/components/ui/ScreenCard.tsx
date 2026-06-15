@@ -18,22 +18,21 @@ export function ScreenCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: theme.colors.surface,
-    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surfaceRaised,
+    borderColor: "rgba(31,31,31,0.05)",
     borderRadius: theme.radii.md,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     gap: theme.spacing.sm,
     padding: theme.spacing.md,
-    ...theme.shadows.card,
   },
   title: {
     color: theme.colors.textPrimary,
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: "800",
   },
   subtitle: {
     color: theme.colors.textSecondary,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13,
+    lineHeight: 18,
   },
 });

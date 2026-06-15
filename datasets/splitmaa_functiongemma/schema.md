@@ -16,6 +16,18 @@ Rules:
 - Read/search/navigation tools should return the intended tool call, not a natural-language answer.
 - Grounded answer examples use trusted app-provided result payloads in `arguments`.
 
+Tool categories:
+
+- `mutate`: `create_group`, `create_contact`, `add_expense`, `settle_up`, `draft_expense_plan`
+- `read`: `query_balance`, `query_financial_summary`
+- `search`: `search_records`
+- `navigate`: `open_record`
+- `display`: `show_search_results`
+- `UI clarification`: `clarification_required`
+- `reject`: `unsupported_request`
+
+Navigation/display tools are intentional UI tools, not only database tools. `open_record` should represent a request to switch to the right app surface and highlight an entity. `show_search_results` should represent displaying an existing result set. `clarification_required` can represent text input, full-name/email input, or duplicate-contact selection.
+
 Supported tool names:
 
 - `create_group`

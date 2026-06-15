@@ -45,6 +45,22 @@ show_search_results
 clarification_required
 unsupported_request
 
+Tool categories:
+- mutate: create_group, create_contact, add_expense, settle_up, draft_expense_plan
+- read: query_balance, query_financial_summary
+- search: search_records
+- navigate: open_record
+- display: show_search_results
+- UI clarification: clarification_required
+- reject: unsupported_request
+
+Important behavior:
+- search_records means "find/list/search matching records" and returns result cards.
+- open_record means "navigate/open/go to/show the page or exact item" and should cause UI navigation/highlight.
+- show_search_results means "show a previous result set again" and should display saved result cards.
+- clarification_required can ask for missing text input, contact full name/email, or a duplicate-contact selection UI.
+- The model should choose intent/tool only. The app performs database lookup, UI navigation, confirmation, split math, and persistence.
+
 Use realistic mobile assistant phrasing.
 Include clean commands, casual commands, mild typos, missing punctuation, speech-to-text style phrasing, and correction phrases.
 Do not invent tools.
@@ -278,6 +294,9 @@ Tool shape:
 
 Rules:
 - Use this when the user asks to find, search, list, or locate records.
+- This is a database read/search tool, not navigation.
+- If the user says "open", "go to", "take me to", or "jump to", use open_record instead.
+- If the user says "show those results again" or references an existing result set, use show_search_results instead.
 - Use entityTypes based on what they are searching.
 - Use personName/groupName filters when present.
 - Use ids like search_records_batch02_001.
@@ -307,6 +326,9 @@ Tool shape:
 
 Rules:
 - Use this when the user asks to open, go to, jump to, navigate to, or show a specific record page.
+- This is a UI navigation/highlight tool, not just a database read.
+- The app will use recordId or searchQuery to find the entity, switch tabs/screens, and highlight the matched item.
+- Prefer open_record over search_records when the user wants to land on a page/item rather than inspect a list.
 - Use searchQuery when the exact id is not known.
 - Do not invent recordId unless the input explicitly contains one.
 - Use ids like open_record_batch02_001.
@@ -336,6 +358,8 @@ Tool shape:
 
 Rules:
 - Use this only when the user refers to an existing result set by id, such as "those results", "the previous results", or a visible resultSetId.
+- This is a UI display tool for an already known result set.
+- It should not run a fresh database search.
 - If no resultSetId is explicit or inferable from the user phrasing, use search_records instead.
 - Use ids like show_results_batch02_001.
 
@@ -366,6 +390,8 @@ Rules:
 - Use this when required details are missing or ambiguous.
 - Use this when duplicate contacts need user selection.
 - Use this when the user names a person who is missing and the app needs full name/email from UI before continuing.
+- This is a UI workflow tool. It can ask for text fields, full-name/email fields, or a duplicate-contact picker.
+- Use missingFields values that tell the app what UI is needed: groupName, amountCents, paidByName, participantNames, contactDetails, contactDisambiguation, targetRecord.
 - Do not invent emails, full names, group names, amounts, payers, or participants.
 - Use ids like clarification_batch02_001.
 
@@ -380,6 +406,41 @@ Few-shot examples to follow:
 {"id":"clarification_example_008","input":"add group expense for car","expected":{"name":"clarification_required","arguments":{"question":"Which group, how much was car, and who paid?","missingFields":["groupName","amountCents","paidByName"]}}}
 {"id":"clarification_example_009","input":"add milk split with him","expected":{"name":"clarification_required","arguments":{"question":"Who does 'him' refer to, how much was milk, and who paid?","missingFields":["participantNames","amountCents","paidByName"]}}}
 {"id":"clarification_example_010","input":"make it INR","expected":{"name":"clarification_required","arguments":{"question":"Which pending expense or group should I update to INR?","missingFields":["targetRecord"]}}}
+
+Return JSONL only.
+```
+
+## UI Workflow Boundary Batch
+
+```text
+Generate 50 JSONL examples that specifically distinguish search, navigation, result display, and UI clarification.
+
+Distribution:
+- 15 search_records
+- 15 open_record
+- 10 show_search_results
+- 10 clarification_required
+
+Rules:
+- Use search_records only for find/search/list intent.
+- Use open_record only for open/go to/jump to/navigate/show exact item intent.
+- Use show_search_results only for an existing prior result set.
+- Use clarification_required for missing required fields, duplicate-contact choice, or missing contact details.
+- Include typos and casual mobile phrasing.
+- Do not use mutation tools in this batch.
+- Use ids like ui_boundary_batch02_001.
+
+Few-shot examples to follow:
+{"id":"ui_boundary_example_001","input":"find milk expenses with Aravind","expected":{"name":"search_records","arguments":{"query":"milk","entityTypes":["expense"],"personName":"Aravind","limit":10}}}
+{"id":"ui_boundary_example_002","input":"open the milk expense with Aravind","expected":{"name":"open_record","arguments":{"entityType":"expense","searchQuery":"milk"}}}
+{"id":"ui_boundary_example_003","input":"go to Goa Trip","expected":{"name":"open_record","arguments":{"entityType":"group","searchQuery":"Goa Trip"}}}
+{"id":"ui_boundary_example_004","input":"list Goa Trip expenses","expected":{"name":"search_records","arguments":{"query":"Goa Trip","entityTypes":["expense"],"groupName":"Goa Trip","limit":10}}}
+{"id":"ui_boundary_example_005","input":"show previous search results again","expected":{"name":"show_search_results","arguments":{"resultSetId":"previous_results"}}}
+{"id":"ui_boundary_example_006","input":"show those results and highlight expense_milk","expected":{"name":"show_search_results","arguments":{"resultSetId":"previous_results","highlightRecordId":"expense_milk"}}}
+{"id":"ui_boundary_example_007","input":"use Abhishek but there are two Abhisheks","expected":{"name":"clarification_required","arguments":{"question":"Which Abhishek should I use?","missingFields":["contactDisambiguation"]}}}
+{"id":"ui_boundary_example_008","input":"add Koushik but I need to enter his full name and email","expected":{"name":"clarification_required","arguments":{"question":"Please enter Koushik's full name and email address.","missingFields":["contactDetails"]}}}
+{"id":"ui_boundary_example_009","input":"jump to record expense_dinner","expected":{"name":"open_record","arguments":{"entityType":"expense","recordId":"expense_dinner","highlightRecordId":"expense_dinner"}}}
+{"id":"ui_boundary_example_010","input":"search contacts named Sai","expected":{"name":"search_records","arguments":{"query":"Sai","entityTypes":["contact"],"limit":10}}}
 
 Return JSONL only.
 ```

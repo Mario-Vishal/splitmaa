@@ -405,11 +405,13 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
   async refreshModelStatus() {
     const now = new Date().toISOString();
     const modelStatus = await functionGemmaRunner.getStatus();
+    const modelError = await functionGemmaRunner.getLastError?.();
     set((current) => ({
       diagnostics: {
         ...current.diagnostics,
         parserName: "function_gemma",
         modelStatus,
+        modelError,
         offlineReady: modelStatus === "ready",
         updatedAt: now,
       },
@@ -498,6 +500,7 @@ function diagnosticsFromParserResult(result: ParserResult, updatedAt: string): R
   return {
     parserName: result.parserName,
     modelStatus,
+    modelError: result.modelError,
     contextSizeChars: result.contextSizeChars,
     latencyMs: result.latencyMs,
     fallbackUsed: result.fallbackUsed,

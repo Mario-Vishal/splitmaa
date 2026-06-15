@@ -23,10 +23,12 @@ export type FunctionGemmaRunnerResult = {
   rawToolCall?: unknown;
   latencyMs: number;
   status: FunctionGemmaRunnerStatus;
+  error?: string;
 };
 
 export type FunctionGemmaToolRunner = {
   getStatus(): Promise<FunctionGemmaRunnerStatus>;
+  getLastError?(): Promise<string | undefined>;
   infer(input: FunctionGemmaRunnerInput): Promise<FunctionGemmaRunnerResult>;
 };
 
@@ -42,10 +44,12 @@ export function createFunctionGemmaParser(options: FunctionGemmaParserOptions): 
       const status = await options.runner.getStatus();
 
       if (status !== "ready") {
-        return unsupportedResult(input, status, 0, JSON.stringify(input.state).length, {
+        const modelError = await options.runner.getLastError?.();
+        return unsupportedResult(input, status, 0, JSON.stringify(input.state).length, modelError, {
           text: "",
           latencyMs: 0,
           status,
+          error: modelError,
         });
       }
 
@@ -59,7 +63,8 @@ export function createFunctionGemmaParser(options: FunctionGemmaParserOptions): 
 
       const toolCall = extractToolCall(result);
       if (!toolCall) {
-        return unsupportedResult(input, result.status, result.latencyMs, contextSizeChars, result);
+        const modelError = result.error ?? (await options.runner.getLastError?.());
+        return unsupportedResult(input, result.status, result.latencyMs, contextSizeChars, modelError, result);
       }
 
       try {
@@ -76,9 +81,11 @@ export function createFunctionGemmaParser(options: FunctionGemmaParserOptions): 
           contextSizeChars,
           fallbackUsed: false,
           modelStatus: result.status,
+          modelError: result.error,
         };
       } catch {
-        return unsupportedResult(input, result.status, result.latencyMs, contextSizeChars, result);
+        const modelError = result.error ?? (await options.runner.getLastError?.());
+        return unsupportedResult(input, result.status, result.latencyMs, contextSizeChars, modelError, result);
       }
     },
   };
@@ -112,6 +119,7 @@ function unsupportedResult(
   status: FunctionGemmaRunnerStatus,
   latencyMs: number,
   contextSizeChars: number,
+  modelError: string | undefined,
   raw: unknown,
 ): ParserResult {
   const action = parseAppAction({
@@ -128,11 +136,12 @@ function unsupportedResult(
   return {
     parserName: "function_gemma",
     action,
-    rawOutput: JSON.stringify({ status, raw }),
+    rawOutput: JSON.stringify({ status, modelError, raw }),
     latencyMs,
     contextSizeChars,
     fallbackUsed: false,
     modelStatus: status,
+    modelError,
   };
 }
 
@@ -167,6 +176,9 @@ function createUnavailableFunctionGemmaRunner(): FunctionGemmaToolRunner {
   return {
     async getStatus() {
       return "not_configured";
+    },
+    async getLastError() {
+      return "FunctionGemma native runner is not configured in this build.";
     },
     async infer() {
       return {

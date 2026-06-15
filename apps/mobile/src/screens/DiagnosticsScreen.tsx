@@ -19,6 +19,7 @@ export function DiagnosticsScreen() {
       <ScreenCard title="Runtime">
         <Text style={styles.row}>Parser: {diagnostics.parserName}</Text>
         <Text style={styles.row}>Model status: {diagnostics.modelStatus}</Text>
+        {diagnostics.modelError ? <Text style={styles.errorRow}>Error: {diagnostics.modelError}</Text> : null}
         <Text style={styles.row}>Context: {diagnostics.contextSizeChars} chars</Text>
         <Text style={styles.row}>Latency: {diagnostics.latencyMs} ms</Text>
         <Text style={styles.row}>Offline ready: {diagnostics.offlineReady ? "yes" : "no"}</Text>
@@ -75,6 +76,11 @@ export function DiagnosticsScreen() {
 const styles = StyleSheet.create({
   row: {
     color: theme.colors.textSecondary,
+    fontSize: 14,
+    lineHeight: 21,
+  },
+  errorRow: {
+    color: theme.colors.danger,
     fontSize: 14,
     lineHeight: 21,
   },

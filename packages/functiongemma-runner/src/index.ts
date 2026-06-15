@@ -27,11 +27,13 @@ export const DEFAULT_ANDROID_MODEL_PATH = "/data/local/tmp/llm/splitmaa_function
 export function createNativeFunctionGemmaRunner(options: NativeFunctionGemmaRunnerOptions): FunctionGemmaRunner {
   let configured = false;
   let lastStatus: FunctionGemmaRunnerStatus = "not_configured";
+  let lastError: string | undefined;
 
   async function ensureConfigured(): Promise<FunctionGemmaRunnerStatus> {
     const nativeModule = getNativeSplitmaaFunctionGemmaModule();
     if (!nativeModule) {
       lastStatus = "not_configured";
+      lastError = "SplitmaaFunctionGemma native module is not available in this build.";
       return lastStatus;
     }
 
@@ -46,12 +48,18 @@ export function createNativeFunctionGemmaRunner(options: NativeFunctionGemmaRunn
     });
     configured = state.status === "ready";
     lastStatus = state.status;
+    lastError = state.lastError;
     return lastStatus;
   }
 
   return {
     async getStatus() {
       return ensureConfigured();
+    },
+    async getLastError() {
+      const nativeModule = getNativeSplitmaaFunctionGemmaModule();
+      if (!nativeModule) return lastError;
+      return (await nativeModule.getLastError()) ?? lastError;
     },
     async infer(input) {
       const status = await ensureConfigured();
@@ -60,6 +68,7 @@ export function createNativeFunctionGemmaRunner(options: NativeFunctionGemmaRunn
           text: "",
           latencyMs: 0,
           status,
+          error: lastError,
         };
       }
 
@@ -69,6 +78,7 @@ export function createNativeFunctionGemmaRunner(options: NativeFunctionGemmaRunn
           text: "",
           latencyMs: 0,
           status: "not_configured",
+          error: "SplitmaaFunctionGemma native module is not available in this build.",
         };
       }
 
@@ -80,6 +90,7 @@ export function createNativeFunctionGemmaRunner(options: NativeFunctionGemmaRunn
         text: result.text,
         latencyMs: result.latencyMs,
         status: result.status,
+        error: result.error,
       };
     },
   };
@@ -90,6 +101,9 @@ export function createUnavailableFunctionGemmaRunner(): FunctionGemmaRunner {
     async getStatus() {
       return "not_configured";
     },
+    async getLastError() {
+      return "FunctionGemma native runner is not configured in this build.";
+    },
     async infer() {
       return {
         text: JSON.stringify({
@@ -98,6 +112,7 @@ export function createUnavailableFunctionGemmaRunner(): FunctionGemmaRunner {
         }),
         latencyMs: 0,
         status: "not_configured",
+        error: "FunctionGemma native runner is not configured in this build.",
       };
     },
   };

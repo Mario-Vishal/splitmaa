@@ -71,6 +71,7 @@ export function AccountPanel({
         <Section title="AI runtime">
           <Row label="Parser" value={diagnostics.parserName} />
           <Row label="Model" value={diagnostics.modelStatus} />
+          {diagnostics.modelError ? <Row label="Error" value={diagnostics.modelError} /> : null}
         </Section>
 
         <View style={styles.actions}>

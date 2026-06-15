@@ -4,6 +4,7 @@ export type { ModelLifecycleStatus } from "../parser/types";
 export type RuntimeDiagnostics = {
   parserName: ParserName;
   modelStatus: ModelLifecycleStatus;
+  modelError?: string;
   contextSizeChars: number;
   latencyMs: number;
   fallbackUsed: boolean;

@@ -18,6 +18,7 @@ export type ParserResult = {
   contextSizeChars: number;
   fallbackUsed: boolean;
   modelStatus?: ModelLifecycleStatus;
+  modelError?: string;
 };
 
 export type CommandParser = {

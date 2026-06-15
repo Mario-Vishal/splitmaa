@@ -74,3 +74,4 @@ Local MVP complete. Next phase: Android dev build/APK packaging and real native 
 - `4154bb7` - `docs: record phase zero handoff`
 - `ef945c2` - `docs: record github publish`
 - `5f96c88` - `feat: add local persistence foundation`
+- `4f04d05` - `feat: complete local mvp workflow`

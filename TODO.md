@@ -2,33 +2,33 @@
 
 ## Current Phase
 
-- [x] Inspect empty workspace.
-- [x] Create Expo mobile scaffold.
-- [x] Create pnpm workspace.
-- [x] Create root project docs.
-- [x] Create source-of-truth session bridge.
-- [x] Install dependencies.
-- [x] Run typecheck.
-- [x] Initialize root git repository.
-- [x] Create GitHub repository and push initial commits.
+- [x] Theme tokens.
+- [x] Logo and wordmark components.
+- [x] Animation constants.
+- [x] Money helpers and balance logic.
+- [x] Action schemas and execution plans.
+- [x] Parser interface and rule-based fallback.
+- [x] AsyncStorage local persistence.
+- [x] Zustand store hydration and save/reset actions.
 
 ## Completed
 
 - [x] Captured project framing: edge-device LLM system, mobile reference client.
 - [x] Documented model-as-action-proposer safety rule.
 - [x] Published GitHub repository: https://github.com/Mario-Vishal/splitmaa
+- [x] Verified Expo web export with local persistence wiring.
 
 ## Next Up
 
-- [ ] Phase 1 theme tokens.
-- [ ] Logo and wordmark components.
-- [ ] Animation foundation.
+- [ ] Floating assistant UI.
+- [ ] Confirmation cards.
+- [ ] Guided execution commentary bar.
 
 ## AI Runtime
 
-- [ ] Parser interface.
+- [x] Parser interface.
 - [ ] FakeParser.
-- [ ] RuleBasedParser.
+- [x] RuleBasedParser.
 - [ ] FunctionGemmaParser placeholder.
 
 ## Eval Pipeline
@@ -64,7 +64,8 @@
 
 ## Ground Truth Queries
 
-- [ ] Local repositories.
+- [x] AsyncStorage local state snapshot.
+- [x] Validated local state load/save.
 - [ ] Query services.
 - [ ] Audit logs.
 

@@ -40,6 +40,6 @@ React Native and Expo provide the mobile showcase surface. TypeScript owns UI, a
 ## Current Limitations
 
 - No real FunctionGemma mobile inference yet.
-- No parser runtime yet.
-- No local persistence yet.
+- Rule-based parser exists only as a narrow fallback.
+- AsyncStorage local persistence exists for MVP snapshots, but repository/query services are not complete.
 - No eval runner yet.

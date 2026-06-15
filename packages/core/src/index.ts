@@ -1,5 +1,12 @@
-export const splitmaaProject = {
-  name: "Splitmaa",
-  meaning: "Split + Gemma",
-  safetyRule: "The model proposes actions; validated app code executes them after confirmation.",
-} as const;
+export * from "./project";
+export * from "./domain/types";
+export * from "./domain/money";
+export * from "./domain/balances";
+export * from "./domain/seed";
+export * from "./domain/localStateSchema";
+export * from "./actions/schemas";
+export * from "./actions/executionPlan";
+export * from "./parser/types";
+export * from "./parser/ruleBasedParser";
+export * from "./runtime/diagnostics";
+export * from "./state/applyAction";

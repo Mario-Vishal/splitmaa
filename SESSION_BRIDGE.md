@@ -11,7 +11,7 @@ This file is the source of truth for continuing Splitmaa across Codex sessions. 
 
 ## Current Phase
 
-Phase 0 - Repo Setup.
+Local persistence foundation complete. Next phase: floating assistant and confirmation-card workflow.
 
 ## Latest Completion Log
 
@@ -25,6 +25,10 @@ Phase 0 - Repo Setup.
 - 2026-06-14: Initialized root Git repository on `main`.
 - 2026-06-14: Created initial commit `8b11246` (`chore: bootstrap splitmaa workspace`).
 - 2026-06-14: Created and pushed GitHub repo: https://github.com/Mario-Vishal/splitmaa
+- 2026-06-15: Added theme/branding foundation with SVG logo and wordmark.
+- 2026-06-15: Added core money helpers, balance logic, action schemas, execution plans, parser contracts, diagnostics, and deterministic action application.
+- 2026-06-15: Added AsyncStorage local persistence with snapshot validation and Zustand store hydration.
+- 2026-06-15: Verified `pnpm.cmd typecheck`, `pnpm.cmd test`, and Expo web export.
 
 ## Learnings
 
@@ -32,12 +36,16 @@ Phase 0 - Repo Setup.
 - `gh auth status` reported an invalid saved token, but `gh repo create` still succeeded for `Mario-Vishal`.
 - Expo's current scaffold selected SDK `~56.0.11`, React `19.2.3`, and React Native `0.85.3`.
 - Expo web preview for this SDK also needs `react-dom`, `react-native-web`, and `@expo/metro-runtime`.
+- Expo native additions are pinned through `expo install`: AsyncStorage, SVG, Reanimated, and Gesture Handler.
+- `@react-native/metro-config` needed a direct `0.85.3` pin to satisfy React Native peer dependencies.
 
 ## Tradeoffs
 
 - Start with a small, honest Expo reference client instead of trying to complete native model integration during setup.
 - Keep FunctionGemma execution documented as future work until a real native runner exists.
 - Use a root-level `SESSION_BRIDGE.md` instead of burying handoff notes in docs so future sessions load project state quickly.
+- Use AsyncStorage for MVP local persistence rather than SQLite or Supabase so the app remains easy to preview.
+- Persist validated `LocalAppState` snapshots first; add repositories/query services once the assistant workflow is ready.
 
 ## Decisions
 
@@ -48,8 +56,9 @@ Phase 0 - Repo Setup.
 
 ## Next Session Checklist
 
-- Initialize root git repository.
-- Begin Phase 1: theme, branding, and animation foundation.
+- Build floating assistant UI with typed chat messages.
+- Add confirmation cards that call `applyConfirmedAction` only after user approval.
+- Add audit logs for parsed/proposed/confirmed actions.
 - Keep updating `SESSION_BRIDGE.md`, `TODO.md`, and `README.md` after meaningful progress.
 
 ## Blockers
@@ -60,3 +69,4 @@ Phase 0 - Repo Setup.
 
 - `8b11246` - `chore: bootstrap splitmaa workspace`
 - `4154bb7` - `docs: record phase zero handoff`
+- `ef945c2` - `docs: record github publish`

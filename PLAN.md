@@ -16,17 +16,18 @@ The local model is never allowed to directly mutate app state.
 
 ## Current Status
 
-Phase 0 is being bootstrapped from an empty workspace.
+The project now has a bootstrapped monorepo, Expo reference client, theme/branding foundation, pure core money/action/parser contracts, deterministic action application, and AsyncStorage-backed local persistence.
 
 ## Phase Plan
 
-1. Repo setup and source-of-truth docs.
-2. Theme, branding, and animation foundation.
-3. Core money, contacts, and insight logic.
-4. Action system with Zod validation.
-5. Edge runtime contracts and diagnostics.
-6. Local parsers and FunctionGemma boundary.
-7. Floating assistant UI.
+1. Repo setup and source-of-truth docs. Complete.
+2. Theme, branding, and animation foundation. Initial foundation complete.
+3. Core money, contacts, and insight logic. Initial money/balance layer complete.
+4. Action system with Zod validation. Initial action layer complete.
+5. Edge runtime contracts and diagnostics. Initial diagnostics contracts complete.
+6. Local parsers and FunctionGemma boundary. Rule-based fallback complete; FunctionGemma boundary still pending.
+7. Local persistence. AsyncStorage MVP complete.
+8. Floating assistant UI.
 8. Confirmation and guided execution.
 9. Core screens.
 10. Eval dataset and runner.
@@ -54,6 +55,7 @@ On Windows PowerShell, use `pnpm.cmd` if needed.
 ```bash
 pnpm typecheck
 pnpm test
+pnpm --filter mobile exec expo export --platform web --clear
 ```
 
 ## Deployment Instructions

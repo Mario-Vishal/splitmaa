@@ -8,10 +8,10 @@ The project is framed as an AI system first: a small local function-calling mode
 
 ## Current Status
 
-Phase 0 is complete.
+Local persistence foundation is complete.
 
-- Real: pnpm monorepo scaffold, Expo mobile reference client, project plan, TODO tracker, session bridge.
-- Mocked or not built yet: local FunctionGemma inference, parser runtime, action schemas, validation pipeline, guided execution, eval runner, fine-tuning, native model bridges.
+- Real: pnpm monorepo scaffold, Expo mobile reference client, theme/branding foundation, pure money helpers, action schemas, rule-based parser fallback, deterministic action application, AsyncStorage local persistence, project plan, TODO tracker, session bridge.
+- Mocked or not built yet: real local FunctionGemma inference, floating assistant, confirmation cards, guided execution animations, eval runner, fine-tuning, native model bridges.
 
 GitHub: https://github.com/Mario-Vishal/splitmaa
 
@@ -72,4 +72,4 @@ TODO.md            Phase tracker
 
 ## Roadmap
 
-The full roadmap is tracked in [PLAN.md](./PLAN.md) and [TODO.md](./TODO.md). The next major phase is theme, branding, and animation foundation.
+The full roadmap is tracked in [PLAN.md](./PLAN.md) and [TODO.md](./TODO.md). The next major phase is the floating assistant and confirmation-card workflow.

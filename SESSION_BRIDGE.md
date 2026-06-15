@@ -77,3 +77,4 @@ Polished local MVP complete. Next phase: Android dev build/APK packaging and rea
 - `ef945c2` - `docs: record github publish`
 - `5f96c88` - `feat: add local persistence foundation`
 - `4f04d05` - `feat: complete local mvp workflow`
+- `f14399f` - `feat: polish mobile expense workflow`

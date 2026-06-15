@@ -33,6 +33,7 @@ Polished local MVP complete. Next phase: Android dev build/APK packaging and rea
 - 2026-06-15: Added smoke eval dataset/runner and FunctionGemma runner boundary package.
 - 2026-06-15: Redesigned UI in a Splitwise/Notion direction with top owed/owing summary, Home group/contact cards, detail pages, horizontal pill tabs, and compact bottom-sheet assistant.
 - 2026-06-15: Tightened the mobile UI with less padding, softer filled cards, green/red debt chips, reduced instructional copy, and a small right-corner assistant launcher.
+- 2026-06-15: Cleaned assistant sheet by removing default filler text, adding an X close button, and making the handle close on tap/downward pull.
 
 ## Learnings
 
@@ -53,6 +54,7 @@ Polished local MVP complete. Next phase: Android dev build/APK packaging and rea
 - Keep the MVP local and honest: FunctionGemma native inference is represented by a placeholder boundary until real Kotlin/Swift runner work is done.
 - Prioritize a calm finance UI: fewer visible chat messages, stronger debt summary, tappable cards, and detail views over a generic chatbot layout.
 - Prefer native app density over website spacing: compact headers, short subtitles, filled surfaces, and fewer full-width controls.
+- Assistant should stay compact and utilitarian; avoid filler messages and obvious explanatory copy.
 
 ## Decisions
 

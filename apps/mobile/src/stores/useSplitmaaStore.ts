@@ -65,9 +65,7 @@ export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({
   diagnostics: createInitialDiagnostics(),
   hydrated: false,
   persistenceStatus: "idle",
-  assistantMessages: [
-    assistantMessage("Splitmaa is ready. Try adding an expense or asking about a balance."),
-  ],
+  assistantMessages: [],
   executionPlan: [],
   executionCommentary: [],
   selectedGroupId: undefined,

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   KeyboardAvoidingView,
+  PanResponder,
   Platform,
   Pressable,
   ScrollView,
@@ -25,6 +26,14 @@ export function FloatingAssistant() {
   const parseCommand = useSplitmaaStore((store) => store.parseCommand);
   const confirmPendingAction = useSplitmaaStore((store) => store.confirmPendingAction);
   const cancelPendingAction = useSplitmaaStore((store) => store.cancelPendingAction);
+  const panResponder = PanResponder.create({
+    onMoveShouldSetPanResponder: (_, gestureState) => Math.abs(gestureState.dy) > 8,
+    onPanResponderRelease: (_, gestureState) => {
+      if (gestureState.dy > 42) {
+        setExpanded(false);
+      }
+    },
+  });
 
   async function submit(text: string) {
     const clean = text.trim();
@@ -48,14 +57,27 @@ export function FloatingAssistant() {
       style={styles.sheetWrap}
     >
       <View style={styles.sheet}>
-        <View style={styles.grabber} />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Close assistant"
+          onPress={() => setExpanded(false)}
+          style={styles.grabberHit}
+          {...panResponder.panHandlers}
+        >
+          <View style={styles.grabber} />
+        </Pressable>
         <View style={styles.header}>
           <View>
             <Text style={styles.title}>Splitmaa</Text>
             <Text style={styles.subtitle}>Local command layer</Text>
           </View>
-          <Pressable style={styles.minimize} onPress={() => setExpanded(false)}>
-            <Text style={styles.minimizeText}>Done</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Close assistant"
+            style={styles.closeIcon}
+            onPress={() => setExpanded(false)}
+          >
+            <Text style={styles.closeIconText}>×</Text>
           </Pressable>
         </View>
 
@@ -187,7 +209,12 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.border,
     borderRadius: theme.radii.pill,
     height: 4,
-    width: 42,
+    width: 44,
+  },
+  grabberHit: {
+    alignSelf: "stretch",
+    paddingBottom: theme.spacing.xs,
+    paddingTop: 2,
   },
   header: {
     alignItems: "center",
@@ -204,16 +231,19 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "700",
   },
-  minimize: {
+  closeIcon: {
+    alignItems: "center",
     backgroundColor: theme.colors.surfaceMuted,
-    borderRadius: theme.radii.pill,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
+    borderRadius: 16,
+    height: 32,
+    justifyContent: "center",
+    width: 32,
   },
-  minimizeText: {
+  closeIconText: {
     color: theme.colors.textPrimary,
-    fontSize: 13,
+    fontSize: 22,
     fontWeight: "900",
+    lineHeight: 24,
   },
   inputShell: {
     alignItems: "center",

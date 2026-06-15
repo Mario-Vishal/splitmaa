@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { formatMoney } from "@splitmaa/core";
 import { ContactCard } from "../components/ui/EntityCards";
+import { IconBackButton } from "../components/ui/IconBackButton";
 import { ScreenCard } from "../components/ui/ScreenCard";
 import { ScreenShell } from "../components/ui/ScreenShell";
 import { selectDashboardSnapshot, useSplitmaaStore } from "../stores/useSplitmaaStore";
@@ -21,9 +22,7 @@ export function ContactsScreen() {
 
     return (
       <ScreenShell title={selectedContact.displayName} subtitle="Balance and shared expenses">
-        <Pressable style={styles.backButton} onPress={() => selectContact(undefined)}>
-          <Text style={styles.backText}>Back to contacts</Text>
-        </Pressable>
+        <IconBackButton onPress={() => selectContact(undefined)} />
         <View style={styles.hero}>
           <Text style={styles.heroLabel}>
             {balance && balance.amountCents < 0 ? "You owe" : "Owes you"}
@@ -62,11 +61,6 @@ export function ContactsScreen() {
       title="Contacts"
       subtitle="People and balances"
     >
-      <View style={styles.segment}>
-        <Text style={styles.segmentActive}>All people</Text>
-        <Text style={styles.segmentText}>Owe you</Text>
-        <Text style={styles.segmentText}>You owe</Text>
-      </View>
       <View style={styles.stack}>
         {state.contacts
           .filter((contact) => contact.id !== state.currentUserContactId)
@@ -87,19 +81,6 @@ export function ContactsScreen() {
 }
 
 const styles = StyleSheet.create({
-  backButton: {
-    alignSelf: "flex-start",
-    backgroundColor: theme.colors.surface,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radii.pill,
-    borderWidth: 1,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-  },
-  backText: {
-    color: theme.colors.textPrimary,
-    fontWeight: "900",
-  },
   hero: {
     backgroundColor: theme.colors.textPrimary,
     borderRadius: 22,
@@ -118,33 +99,6 @@ const styles = StyleSheet.create({
   heroMeta: {
     color: "rgba(255,255,255,0.74)",
     fontSize: 14,
-  },
-  segment: {
-    backgroundColor: theme.colors.surface,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radii.pill,
-    borderWidth: 1,
-    flexDirection: "row",
-    padding: 4,
-  },
-  segmentActive: {
-    backgroundColor: theme.colors.textPrimary,
-    borderRadius: theme.radii.pill,
-    color: theme.colors.surface,
-    flex: 1,
-    fontSize: 13,
-    fontWeight: "900",
-    overflow: "hidden",
-    paddingVertical: theme.spacing.sm,
-    textAlign: "center",
-  },
-  segmentText: {
-    color: theme.colors.textSecondary,
-    flex: 1,
-    fontSize: 13,
-    fontWeight: "800",
-    paddingVertical: theme.spacing.sm,
-    textAlign: "center",
   },
   stack: {
     gap: 8,

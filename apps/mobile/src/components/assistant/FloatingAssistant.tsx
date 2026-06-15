@@ -11,11 +11,7 @@ import {
   View,
 } from "react-native";
 import { formatMoney, type AppAction } from "@splitmaa/core";
-import {
-  exampleCommands,
-  useSplitmaaStore,
-  type AssistantMessage,
-} from "../../stores/useSplitmaaStore";
+import { useSplitmaaStore, type AssistantMessage } from "../../stores/useSplitmaaStore";
 import { theme } from "../../theme";
 
 export function FloatingAssistant() {
@@ -69,7 +65,6 @@ export function FloatingAssistant() {
         <View style={styles.header}>
           <View>
             <Text style={styles.title}>Splitmaa</Text>
-            <Text style={styles.subtitle}>Local command layer</Text>
           </View>
           <Pressable
             accessibilityRole="button"
@@ -77,7 +72,7 @@ export function FloatingAssistant() {
             style={styles.closeIcon}
             onPress={() => setExpanded(false)}
           >
-            <Text style={styles.closeIconText}>×</Text>
+            <Text style={styles.closeIconText}>X</Text>
           </Pressable>
         </View>
 
@@ -96,14 +91,6 @@ export function FloatingAssistant() {
           </Pressable>
         </View>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-          {exampleCommands.slice(0, 4).map((command) => (
-            <Pressable key={command} style={styles.chip} onPress={() => void submit(command)}>
-              <Text style={styles.chipText}>{command}</Text>
-            </Pressable>
-          ))}
-        </ScrollView>
-
         {pendingAction ? (
           <View style={styles.confirmation}>
             <Text style={styles.confirmEyebrow}>Review before saving</Text>
@@ -119,11 +106,13 @@ export function FloatingAssistant() {
             </View>
           </View>
         ) : (
-          <ScrollView style={styles.messages} contentContainerStyle={styles.messagesContent}>
-            {messages.slice(-4).map((message) => (
-              <MessageLine key={message.id} message={message} />
-            ))}
-          </ScrollView>
+          messages.length > 0 ? (
+            <ScrollView style={styles.messages} contentContainerStyle={styles.messagesContent}>
+              {messages.slice(-2).map((message) => (
+                <MessageLine key={message.id} message={message} />
+              ))}
+            </ScrollView>
+          ) : null
         )}
       </View>
     </KeyboardAvoidingView>
@@ -226,11 +215,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "900",
   },
-  subtitle: {
-    color: theme.colors.textSecondary,
-    fontSize: 13,
-    fontWeight: "700",
-  },
   closeIcon: {
     alignItems: "center",
     backgroundColor: theme.colors.surfaceMuted,
@@ -271,23 +255,8 @@ const styles = StyleSheet.create({
     color: theme.colors.surface,
     fontWeight: "900",
   },
-  chips: {
-    gap: theme.spacing.sm,
-  },
-  chip: {
-    backgroundColor: theme.colors.surfaceMuted,
-    borderRadius: theme.radii.pill,
-    maxWidth: 230,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-  },
-  chipText: {
-    color: theme.colors.textPrimary,
-    fontSize: 12,
-    fontWeight: "800",
-  },
   messages: {
-    maxHeight: 96,
+    maxHeight: 70,
   },
   messagesContent: {
     gap: theme.spacing.sm,

@@ -34,6 +34,7 @@ Polished local MVP complete. Next phase: Android dev build/APK packaging and rea
 - 2026-06-15: Redesigned UI in a Splitwise/Notion direction with top owed/owing summary, Home group/contact cards, detail pages, horizontal pill tabs, and compact bottom-sheet assistant.
 - 2026-06-15: Tightened the mobile UI with less padding, softer filled cards, green/red debt chips, reduced instructional copy, and a small right-corner assistant launcher.
 - 2026-06-15: Cleaned assistant sheet by removing default filler text, adding an X close button, and making the handle close on tap/downward pull.
+- 2026-06-15: Removed assistant predefined command chips, removed empty/filler message area, replaced text detail back buttons with compact icon buttons, and removed fake static segment controls.
 
 ## Learnings
 
@@ -55,6 +56,7 @@ Polished local MVP complete. Next phase: Android dev build/APK packaging and rea
 - Prioritize a calm finance UI: fewer visible chat messages, stronger debt summary, tappable cards, and detail views over a generic chatbot layout.
 - Prefer native app density over website spacing: compact headers, short subtitles, filled surfaces, and fewer full-width controls.
 - Assistant should stay compact and utilitarian; avoid filler messages and obvious explanatory copy.
+- Do not add predefined prompt chips unless they are explicitly requested; use placeholder hints instead.
 
 ## Decisions
 

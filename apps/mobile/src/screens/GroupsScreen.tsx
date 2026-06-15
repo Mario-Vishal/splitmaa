@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { formatMoney } from "@splitmaa/core";
 import { GroupCard } from "../components/ui/EntityCards";
+import { IconBackButton } from "../components/ui/IconBackButton";
 import { ScreenCard } from "../components/ui/ScreenCard";
 import { ScreenShell } from "../components/ui/ScreenShell";
 import { useSplitmaaStore } from "../stores/useSplitmaaStore";
@@ -21,9 +22,7 @@ export function GroupsScreen() {
 
     return (
       <ScreenShell title={selectedGroup.name} subtitle="Members and expenses">
-        <Pressable style={styles.backButton} onPress={() => selectGroup(undefined)}>
-          <Text style={styles.backText}>Back to groups</Text>
-        </Pressable>
+        <IconBackButton onPress={() => selectGroup(undefined)} />
         <View style={styles.hero}>
           <Text style={styles.heroLabel}>Group total</Text>
           <Text style={styles.heroAmount}>{formatMoney(total, selectedGroup.defaultCurrency)}</Text>
@@ -60,11 +59,6 @@ export function GroupsScreen() {
       title="Groups"
       subtitle="Expense spaces"
     >
-      <View style={styles.segment}>
-        <Text style={styles.segmentActive}>All groups</Text>
-        <Text style={styles.segmentText}>Recent</Text>
-        <Text style={styles.segmentText}>Balances</Text>
-      </View>
       <View style={styles.stack}>
         {state.groups.map((group) => (
           <GroupCard
@@ -80,19 +74,6 @@ export function GroupsScreen() {
 }
 
 const styles = StyleSheet.create({
-  backButton: {
-    alignSelf: "flex-start",
-    backgroundColor: theme.colors.surface,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radii.pill,
-    borderWidth: 1,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-  },
-  backText: {
-    color: theme.colors.textPrimary,
-    fontWeight: "900",
-  },
   hero: {
     backgroundColor: theme.colors.textPrimary,
     borderRadius: 22,
@@ -112,33 +93,6 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.74)",
     fontSize: 14,
     lineHeight: 20,
-  },
-  segment: {
-    backgroundColor: theme.colors.surface,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radii.pill,
-    borderWidth: 1,
-    flexDirection: "row",
-    padding: 4,
-  },
-  segmentActive: {
-    backgroundColor: theme.colors.textPrimary,
-    borderRadius: theme.radii.pill,
-    color: theme.colors.surface,
-    flex: 1,
-    fontSize: 13,
-    fontWeight: "900",
-    overflow: "hidden",
-    paddingVertical: theme.spacing.sm,
-    textAlign: "center",
-  },
-  segmentText: {
-    color: theme.colors.textSecondary,
-    flex: 1,
-    fontSize: 13,
-    fontWeight: "800",
-    paddingVertical: theme.spacing.sm,
-    textAlign: "center",
   },
   stack: {
     gap: 8,

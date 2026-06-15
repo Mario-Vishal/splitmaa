@@ -13,7 +13,7 @@ export function DiagnosticsScreen() {
   return (
     <ScreenShell
       title="Diagnostics"
-      subtitle="The demo exposes parser mode, model status, context size, latency, action logs, and execution steps."
+      subtitle="Parser, context, and logs"
     >
       <ScreenCard title="Runtime">
         <Text style={styles.row}>Parser: {diagnostics.parserName}</Text>

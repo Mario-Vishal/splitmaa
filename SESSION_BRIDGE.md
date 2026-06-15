@@ -11,7 +11,7 @@ This file is the source of truth for continuing Splitmaa across Codex sessions. 
 
 ## Current Phase
 
-Polished local MVP complete. Current phase: native Android FunctionGemma real-device testing. Runtime assistant commands must not fall back to the rule-based parser.
+Polished local MVP complete. Current phase: FunctionGemma real-device inference testing. Runtime assistant commands must not fall back to the rule-based parser.
 
 ## Latest Completion Log
 
@@ -44,6 +44,10 @@ Polished local MVP complete. Current phase: native Android FunctionGemma real-de
 - 2026-06-15: Implemented the Android native FunctionGemma runner as an Expo module using MediaPipe GenAI `LlmInference` with `com.google.mediapipe:tasks-genai:0.10.27`.
 - 2026-06-15: Wired mobile to `createNativeFunctionGemmaRunner()` with model path `/data/local/tmp/llm/splitmaa_functiongemma.task`; missing native module/model now returns unsupported instead of falling back.
 - 2026-06-15: Removed runtime fallback to the rule-based parser from the FunctionGemma adapter and mobile store.
+- 2026-06-14: Installed/configured local Temurin JDK 17 under `.local-tools/jdk17` and verified Android SDK/platform-tools.
+- 2026-06-14: Fixed native Android packaging by moving MediaPipe OpenCL `uses-native-library` declarations under the module manifest `<application>`.
+- 2026-06-14: Switched PNPM to hoisted node linking for Windows Android native builds, removing unused Reanimated and Gesture Handler dependencies that were triggering avoidable CMake work.
+- 2026-06-14: Verified `pnpm.cmd typecheck`, `pnpm.cmd test`, `pnpm.cmd eval:smoke`, and `gradlew.bat :app:assembleDebug`; debug APK produced at `apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk`.
 
 ## Learnings
 
@@ -51,11 +55,13 @@ Polished local MVP complete. Current phase: native Android FunctionGemma real-de
 - `gh auth status` reported an invalid saved token, but `gh repo create` still succeeded for `Mario-Vishal`.
 - Expo's current scaffold selected SDK `~56.0.11`, React `19.2.3`, and React Native `0.85.3`.
 - Expo web preview for this SDK also needs `react-dom`, `react-native-web`, and `@expo/metro-runtime`.
-- Expo native additions are pinned through `expo install`: AsyncStorage, SVG, Reanimated, and Gesture Handler.
+- Expo native additions are pinned through `expo install`: AsyncStorage and SVG.
 - `@react-native/metro-config` needed a direct `0.85.3` pin to satisfy React Native peer dependencies.
 - Expo autolinking detects `@splitmaa/functiongemma-runner` and `expo.modules.splitmaafunctiongemma.SplitmaaFunctionGemmaModule`.
-- Local Android Gradle compile is currently blocked because Java/JDK is not installed or `JAVA_HOME` is not set in this shell.
-- `adb` is not installed or not on PATH in this shell, so model push/device checks cannot run here.
+- React Native 0.85 native builds on Windows hit CMake path limits with PNPM's isolated `.pnpm/...` layout. Use hoisted PNPM linking for this repo.
+- Expo prebuild rewrites app `android`/`ios` scripts to native run commands; restore the Expo Go scripts after prebuild when needed.
+- Local Gradle build uses `.local-tools/jdk17/jdk-17.0.19+10`; Android Studio's JDK 21 caused a Gradle/toolchain compatibility error in this repo.
+- `adb` is available from the Android SDK, but no Android device was connected during the latest check.
 
 ## Tradeoffs
 
@@ -72,6 +78,8 @@ Polished local MVP complete. Current phase: native Android FunctionGemma real-de
 - Guided assistant execution should shrink to commentary/progress while running and expand to a compact summary after completion.
 - Do not use the rule-based parser as runtime fallback. FunctionGemma is responsible for language understanding; TypeScript owns tool definitions, validation, deterministic execution, and auditability.
 - Build the FunctionGemma tool surface before APK packaging so the native runner has stable functions to call.
+- Use `node-linker=hoisted` for this Windows workspace so Android CMake sees short `node_modules/<package>` paths.
+- Remove unused native UI libraries when they are not powering the current app; Reanimated and Gesture Handler added native build cost without active usage.
 
 ## Decisions
 
@@ -82,7 +90,7 @@ Polished local MVP complete. Current phase: native Android FunctionGemma real-de
 
 ## Next Session Checklist
 
-- Build Android development build/APK that includes `@splitmaa/functiongemma-runner`.
+- Install/run the Android debug APK that includes `@splitmaa/functiongemma-runner` on a physical Android device.
 - Push a MediaPipe-compatible `.task` model to `/data/local/tmp/llm/splitmaa_functiongemma.task`.
 - Test the command path on a physical Android device and inspect diagnostics/model readiness behavior.
 - Grow smoke evals from 5 examples to 300 examples.
@@ -90,9 +98,8 @@ Polished local MVP complete. Current phase: native Android FunctionGemma real-de
 
 ## Blockers
 
-- Android native compile requires Java/JDK on PATH (`JAVA_HOME`). `gradlew :app:assembleDebug` failed before Gradle execution because Java was missing.
-- Android device commands require `adb` on PATH. `adb devices` failed because `adb` is not installed or not configured.
-- Real inference also requires a compatible MediaPipe `.task` model at `/data/local/tmp/llm/splitmaa_functiongemma.task`.
+- No Android device is currently visible to `adb devices`.
+- No compatible `.task` model file exists in the repo yet. Real inference requires a MediaPipe `.task` model at `/data/local/tmp/llm/splitmaa_functiongemma.task`.
 
 ## Commit Log
 
@@ -103,3 +110,4 @@ Polished local MVP complete. Current phase: native Android FunctionGemma real-de
 - `4f04d05` - `feat: complete local mvp workflow`
 - `f14399f` - `feat: polish mobile expense workflow`
 - `bd7e627` - `style: tighten native mobile polish`
+- Latest - `fix: enable android native debug build`

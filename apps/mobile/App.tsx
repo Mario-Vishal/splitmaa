@@ -1,7 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { SafeAreaView, StyleSheet, Text, View } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { FloatingAssistant } from "./src/components/assistant/FloatingAssistant";
 import { BottomNav, type AppTab } from "./src/components/navigation/BottomNav";
 import { ContactsScreen } from "./src/screens/ContactsScreen";
@@ -22,7 +21,7 @@ export default function App() {
   }, [hydrate]);
 
   return (
-    <GestureHandlerRootView style={styles.root}>
+    <View style={styles.root}>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.content}>{renderScreen(activeTab, setActiveTab)}</View>
         <BottomNav activeTab={activeTab} onChange={setActiveTab} />
@@ -30,7 +29,7 @@ export default function App() {
         <FloatingAssistant onOpenGroups={() => setActiveTab("groups")} />
       </SafeAreaView>
       <StatusBar style="auto" />
-    </GestureHandlerRootView>
+    </View>
   );
 }
 

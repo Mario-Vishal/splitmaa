@@ -8,10 +8,10 @@
 - [x] FunctionGemma parser adapter that consumes runner tool calls.
 - [x] Mobile assistant routed through FunctionGemma parser adapter with no runtime fallback.
 - [x] Native Android FunctionGemma runner implementation.
-- [ ] Android dev build with native module.
+- [x] Android dev build with native module.
 - [ ] Real device run with `.task` model at `/data/local/tmp/llm/splitmaa_functiongemma.task`.
-- [ ] Configure local JDK/JAVA_HOME for Android Gradle builds.
-- [ ] Configure Android platform tools/adb on PATH.
+- [x] Configure local JDK/JAVA_HOME for Android Gradle builds.
+- [x] Configure Android platform tools/adb on PATH.
 
 ## Completed
 
@@ -26,7 +26,7 @@
 
 ## Next Up
 
-- [ ] Android development build / APK.
+- [x] Android development build / APK.
 - [ ] Real FunctionGemma native inference on device with model artifact.
 - [ ] Full 300-example smoke eval dataset.
 
@@ -83,15 +83,15 @@
 
 ## Packaging
 
-- [ ] Android debug build notes.
+- [x] Android debug build notes.
 - [ ] EAS preview build notes.
 - [ ] iOS limitation notes.
 
 ## Known Risks
 
 - [ ] Full local FunctionGemma inference is not verified on device yet.
-- [ ] Java/JDK is missing in the current shell, so Android Gradle compile is not verified yet.
-- [ ] adb is missing in the current shell, so device/model push is not verified yet.
+- [x] Java/JDK is configured for Android Gradle compile.
+- [x] adb is installed/configured; latest `adb devices` showed no connected device.
 - [x] Expo/native package compatibility checked with `pnpm.cmd typecheck`.
 - [x] GitHub repository was created and pushed.
 

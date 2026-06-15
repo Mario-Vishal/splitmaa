@@ -12,8 +12,6 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.85.3",
-    "react-native-gesture-handler": "~2.31.2",
-    "react-native-reanimated": "4.3.1",
     "react-native-svg": "15.15.4",
     "react-native-web": "^0.21.2",
     "zustand": "^5.0.14"
@@ -24,13 +22,13 @@
     "typescript": "~6.0.3"
   },
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "android:native": "expo run:android",
-    "ios": "expo start --ios",
-    "ios:native": "expo run:ios",
-    "web": "expo start --web",
-    "typecheck": "tsc --noEmit",
+    "start": "node ../../node_modules/expo/bin/cli start",
+    "android": "node ../../node_modules/expo/bin/cli start --android",
+    "android:native": "node ../../node_modules/expo/bin/cli run:android",
+    "ios": "node ../../node_modules/expo/bin/cli start --ios",
+    "ios:native": "node ../../node_modules/expo/bin/cli run:ios",
+    "web": "node ../../node_modules/expo/bin/cli start --web",
+    "typecheck": "node ../../node_modules/typescript/bin/tsc --noEmit",
     "test": "node -e \"console.log('No mobile tests yet')\"",
     "lint": "node -e \"console.log('No mobile lint configured yet')\""
   },

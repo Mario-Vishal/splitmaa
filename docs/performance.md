@@ -6,7 +6,7 @@ Current diagnostics track:
 - model lifecycle status
 - context size in characters
 - parser latency
-- fallback usage
+- model readiness failures
 - offline readiness
 
 Future benchmarks should track:

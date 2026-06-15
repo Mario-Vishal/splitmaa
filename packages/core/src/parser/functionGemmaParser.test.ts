@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import { createInitialLocalAppState } from "../domain/seed";
 import { modelToolDefinitions } from "../tools/modelTools";
 import { createFunctionGemmaParser, type FunctionGemmaToolRunner } from "./functionGemmaParser";
-import { ruleBasedParser } from "./ruleBasedParser";
 
 describe("functionGemmaParser", () => {
   it("passes Splitmaa tools to the runner and returns a validated app action", async () => {
@@ -78,7 +77,7 @@ describe("functionGemmaParser", () => {
     }
   });
 
-  it("uses the thin fallback parser when the runner is not ready", async () => {
+  it("does not fall back when the runner is not ready", async () => {
     const runner: FunctionGemmaToolRunner = {
       async getStatus() {
         return "not_configured";
@@ -88,15 +87,15 @@ describe("functionGemmaParser", () => {
       },
     };
 
-    const parser = createFunctionGemmaParser({ runner, fallbackParser: ruleBasedParser });
+    const parser = createFunctionGemmaParser({ runner });
     const result = await parser.parse({
       transcript: "create a group called california add sai and deepak",
       state: createInitialLocalAppState(),
       now: "2026-06-14T00:00:00.000Z",
     });
 
-    expect(result.fallbackUsed).toBe(true);
-    expect(result.action.type).toBe("CREATE_GROUP");
+    expect(result.fallbackUsed).toBe(false);
+    expect(result.action.type).toBe("UNSUPPORTED_REQUEST");
   });
 
   it("rejects invalid runner output without falling back after inference", async () => {
@@ -123,7 +122,7 @@ describe("functionGemmaParser", () => {
       },
     };
 
-    const parser = createFunctionGemmaParser({ runner, fallbackParser: ruleBasedParser });
+    const parser = createFunctionGemmaParser({ runner });
     const result = await parser.parse({
       transcript: "add impossible dinner",
       state: createInitialLocalAppState(),

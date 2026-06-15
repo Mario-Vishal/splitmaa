@@ -14,7 +14,7 @@ AI tools can accelerate mobile UI scaffolding. The engineering work is deciding 
 
 ## Local LLMs Need Architecture Around Them
 
-Small edge models need compact context, fixed schemas, deterministic validation, fallback behavior, and diagnostics.
+Small edge models need compact context, fixed schemas, deterministic validation, explicit failure behavior, and diagnostics.
 
 ## Floating Assistant UX
 

@@ -25,7 +25,7 @@ The project now has a bootstrapped monorepo, Expo reference client, bottom navig
 3. Core money, contacts, and insight logic. Initial money/balance layer complete.
 4. Action system with Zod validation. Initial action layer complete.
 5. Edge runtime contracts and diagnostics. Initial diagnostics contracts complete.
-6. Local parsers and FunctionGemma boundary. Rule-based fallback complete; FunctionGemma tool contract and runner-backed parser adapter complete.
+6. FunctionGemma boundary. Tool contract and runner-backed parser adapter complete; rule-based parser is test/eval-only.
 7. Local persistence. AsyncStorage MVP complete.
 8. Floating assistant UI. Complete for local MVP.
 9. Confirmation and guided execution. Confirmation complete; advanced animations pending.

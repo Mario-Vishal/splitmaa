@@ -14,6 +14,6 @@ The current local MVP has:
 - parser diagnostics
 - an eval scaffold
 
-I used AI coding tools to move quickly on the interface. The part I am focused on owning is the AI system underneath it: context budgeting, constrained function calls, validation, fallback behavior, evals, native inference boundaries, and safe execution.
+I used AI coding tools to move quickly on the interface. The part I am focused on owning is the AI system underneath it: context budgeting, constrained function calls, validation, explicit failure behavior, evals, native inference boundaries, and safe execution.
 
 AI-assisted implementation, human-owned architecture.

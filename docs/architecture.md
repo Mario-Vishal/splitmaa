@@ -7,7 +7,7 @@ The mobile app is the reference client for a local command runtime:
 ```text
 User text / voice transcript
 -> compact product context
--> local parser or FunctionGemma boundary
+-> FunctionGemma native runner
 -> structured function call or query intent
 -> schema validation
 -> context resolution
@@ -35,12 +35,12 @@ Every mutation must pass through:
 
 ## Mobile Reference Client
 
-React Native and Expo provide the mobile showcase surface. TypeScript owns UI, action schemas, validation, diagnostics, and orchestration. Native Android/iOS code will own real model loading and inference when implemented.
+React Native and Expo provide the mobile showcase surface. TypeScript owns UI, action schemas, validation, diagnostics, and orchestration. Native Android code owns real model loading and inference for the current Android path.
 
 ## Current Limitations
 
-- No real FunctionGemma mobile inference yet.
-- Rule-based parser exists only as a narrow fallback.
+- Real FunctionGemma mobile inference is implemented but not yet verified on device with a compatible `.task` model.
+- Rule-based parser exists only for isolated tests/evals, not runtime fallback.
 - AsyncStorage local persistence exists for MVP snapshots.
 - Smoke eval runner exists; full eval dataset is not complete.
-- FunctionGemma runner package exists as an unavailable placeholder, not real inference.
+- FunctionGemma runner package includes an Android MediaPipe native module; iOS is not implemented.

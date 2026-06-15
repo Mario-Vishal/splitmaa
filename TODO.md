@@ -6,11 +6,12 @@
 - [x] Model tool-call argument validation.
 - [x] Conversion from model tool calls to validated app actions.
 - [x] FunctionGemma parser adapter that consumes runner tool calls.
-- [x] Mobile assistant routed through FunctionGemma parser adapter.
+- [x] Mobile assistant routed through FunctionGemma parser adapter with no runtime fallback.
 - [x] Native Android FunctionGemma runner implementation.
 - [ ] Android dev build with native module.
 - [ ] Real device run with `.task` model at `/data/local/tmp/llm/splitmaa_functiongemma.task`.
 - [ ] Configure local JDK/JAVA_HOME for Android Gradle builds.
+- [ ] Configure Android platform tools/adb on PATH.
 
 ## Completed
 
@@ -57,7 +58,7 @@
 - [x] TypeScript native runner boundary.
 - [x] Tool-aware runner input/output types.
 - [x] Android MediaPipe native module.
-- [x] Mobile wiring to native runner with fallback.
+- [x] Mobile wiring to native runner without fallback.
 
 ## Floating Assistant
 
@@ -90,6 +91,7 @@
 
 - [ ] Full local FunctionGemma inference is not verified on device yet.
 - [ ] Java/JDK is missing in the current shell, so Android Gradle compile is not verified yet.
+- [ ] adb is missing in the current shell, so device/model push is not verified yet.
 - [x] Expo/native package compatibility checked with `pnpm.cmd typecheck`.
 - [x] GitHub repository was created and pushed.
 

@@ -6,7 +6,6 @@ import {
   createInitialDiagnostics,
   createInitialLocalAppState,
   formatMoney,
-  ruleBasedParser,
   type AiActionLog,
   type AppAction,
   type ExecutionStep,
@@ -87,7 +86,6 @@ const assistantParser = createFunctionGemmaParser({
   runner: createNativeFunctionGemmaRunner({
     modelPath: DEFAULT_ANDROID_MODEL_PATH,
   }),
-  fallbackParser: ruleBasedParser,
 });
 
 export const useSplitmaaStore = create<SplitmaaStore>((set, get) => ({

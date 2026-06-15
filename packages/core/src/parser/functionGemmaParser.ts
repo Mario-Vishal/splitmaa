@@ -32,7 +32,6 @@ export type FunctionGemmaToolRunner = {
 
 export type FunctionGemmaParserOptions = {
   runner: FunctionGemmaToolRunner;
-  fallbackParser?: CommandParser;
   maxTokens?: number;
 };
 
@@ -43,7 +42,11 @@ export function createFunctionGemmaParser(options: FunctionGemmaParserOptions): 
       const status = await options.runner.getStatus();
 
       if (status !== "ready") {
-        return parseWithFallbackOrUnsupported(input, options.fallbackParser, status);
+        return unsupportedResult(input, status, 0, JSON.stringify(input.state).length, {
+          text: "",
+          latencyMs: 0,
+          status,
+        });
       }
 
       const contextSizeChars = JSON.stringify(input.state).length;
@@ -103,28 +106,6 @@ function safeParseToolCall(value: unknown): ModelToolCall | undefined {
   }
 }
 
-async function parseWithFallbackOrUnsupported(
-  input: ParserInput,
-  fallbackParser: CommandParser | undefined,
-  status: FunctionGemmaRunnerStatus,
-): Promise<ParserResult> {
-  if (!fallbackParser) {
-    return unsupportedResult(input, status, 0, JSON.stringify(input.state).length, { text: "", latencyMs: 0, status });
-  }
-
-  const fallbackResult = await fallbackParser.parse(input);
-  return {
-    ...fallbackResult,
-    parserName: "function_gemma",
-    rawOutput: JSON.stringify({
-      status,
-      fallbackParser: fallbackParser.name,
-      fallbackRawOutput: fallbackResult.rawOutput,
-    }),
-    fallbackUsed: true,
-  };
-}
-
 function unsupportedResult(
   input: ParserInput,
   status: FunctionGemmaRunnerStatus,
@@ -149,7 +130,7 @@ function unsupportedResult(
     rawOutput: JSON.stringify({ status, raw }),
     latencyMs,
     contextSizeChars,
-    fallbackUsed: status !== "ready",
+    fallbackUsed: false,
   };
 }
 

@@ -11,7 +11,7 @@ This file is the source of truth for continuing Splitmaa across Codex sessions. 
 
 ## Current Phase
 
-Polished local MVP complete. Current phase: native Android FunctionGemma real-device testing. Do not grow the rule-based parser except as a thin demo fallback.
+Polished local MVP complete. Current phase: native Android FunctionGemma real-device testing. Runtime assistant commands must not fall back to the rule-based parser.
 
 ## Latest Completion Log
 
@@ -39,10 +39,11 @@ Polished local MVP complete. Current phase: native Android FunctionGemma real-de
 - 2026-06-15: Refined guided execution with dynamic member commentary and a one-shot group detail reveal animation.
 - 2026-06-15: Added FunctionGemma-callable tool contracts in `@splitmaa/core`: tool definitions, Zod argument validation, and conversion from model tool calls into validated app actions.
 - 2026-06-15: Updated the FunctionGemma runner boundary to accept tool definitions and optionally return typed tool calls.
-- 2026-06-15: Wired `functionGemmaParser` to call a tool-aware runner, validate typed/raw tool calls, convert them into app actions, and fall back to the thin rule-based parser only when the runner is not ready.
-- 2026-06-15: Routed the mobile assistant store through the FunctionGemma parser adapter using the unavailable runner placeholder plus fallback, so the app path now matches the future native runner boundary.
+- 2026-06-15: Wired `functionGemmaParser` to call a tool-aware runner, validate typed/raw tool calls, and convert them into app actions.
+- 2026-06-15: Routed the mobile assistant store through the FunctionGemma parser adapter.
 - 2026-06-15: Implemented the Android native FunctionGemma runner as an Expo module using MediaPipe GenAI `LlmInference` with `com.google.mediapipe:tasks-genai:0.10.27`.
-- 2026-06-15: Wired mobile to `createNativeFunctionGemmaRunner()` with model path `/data/local/tmp/llm/splitmaa_functiongemma.task`; Expo Go/failure cases still fall back to the rule-based parser.
+- 2026-06-15: Wired mobile to `createNativeFunctionGemmaRunner()` with model path `/data/local/tmp/llm/splitmaa_functiongemma.task`; missing native module/model now returns unsupported instead of falling back.
+- 2026-06-15: Removed runtime fallback to the rule-based parser from the FunctionGemma adapter and mobile store.
 
 ## Learnings
 
@@ -54,6 +55,7 @@ Polished local MVP complete. Current phase: native Android FunctionGemma real-de
 - `@react-native/metro-config` needed a direct `0.85.3` pin to satisfy React Native peer dependencies.
 - Expo autolinking detects `@splitmaa/functiongemma-runner` and `expo.modules.splitmaafunctiongemma.SplitmaaFunctionGemmaModule`.
 - Local Android Gradle compile is currently blocked because Java/JDK is not installed or `JAVA_HOME` is not set in this shell.
+- `adb` is not installed or not on PATH in this shell, so model push/device checks cannot run here.
 
 ## Tradeoffs
 
@@ -68,7 +70,7 @@ Polished local MVP complete. Current phase: native Android FunctionGemma real-de
 - Assistant should stay compact and utilitarian; avoid filler messages and obvious explanatory copy.
 - Do not add predefined prompt chips unless they are explicitly requested; use placeholder hints instead.
 - Guided assistant execution should shrink to commentary/progress while running and expand to a compact summary after completion.
-- Do not over-invest in the rule-based parser. FunctionGemma is responsible for language understanding; TypeScript owns tool definitions, validation, deterministic execution, and auditability.
+- Do not use the rule-based parser as runtime fallback. FunctionGemma is responsible for language understanding; TypeScript owns tool definitions, validation, deterministic execution, and auditability.
 - Build the FunctionGemma tool surface before APK packaging so the native runner has stable functions to call.
 
 ## Decisions
@@ -82,13 +84,14 @@ Polished local MVP complete. Current phase: native Android FunctionGemma real-de
 
 - Build Android development build/APK that includes `@splitmaa/functiongemma-runner`.
 - Push a MediaPipe-compatible `.task` model to `/data/local/tmp/llm/splitmaa_functiongemma.task`.
-- Test the command path on a physical Android device and inspect diagnostics/fallback behavior.
+- Test the command path on a physical Android device and inspect diagnostics/model readiness behavior.
 - Grow smoke evals from 5 examples to 300 examples.
 - Keep updating `SESSION_BRIDGE.md`, `TODO.md`, and `README.md` after meaningful progress.
 
 ## Blockers
 
 - Android native compile requires Java/JDK on PATH (`JAVA_HOME`). `gradlew :app:assembleDebug` failed before Gradle execution because Java was missing.
+- Android device commands require `adb` on PATH. `adb devices` failed because `adb` is not installed or not configured.
 - Real inference also requires a compatible MediaPipe `.task` model at `/data/local/tmp/llm/splitmaa_functiongemma.task`.
 
 ## Commit Log

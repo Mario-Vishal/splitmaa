@@ -13,9 +13,9 @@ pnpm mobile:web
 
 Expo Go may reject the project if its installed client does not support the app's current Expo SDK.
 
-Expo Go also cannot run the native FunctionGemma runner. Use Expo Go only for UI/fallback testing.
+Expo Go also cannot run the native FunctionGemma runner. Use Expo Go only for UI testing; assistant commands that require the model will not execute there.
 
-For UI fallback testing:
+For UI testing:
 
 ```bash
 pnpm mobile:start
@@ -34,7 +34,12 @@ adb push path/to/model.task /data/local/tmp/llm/splitmaa_functiongemma.task
 
 The app's native runner loads `/data/local/tmp/llm/splitmaa_functiongemma.task`.
 
-Local machine requirement: Android builds need a JDK/`JAVA_HOME`. The current Codex shell could generate `apps/mobile/android` and verify Expo autolinking, but Gradle could not compile because Java was not on PATH.
+Local machine requirements:
+
+- Android builds need a JDK/`JAVA_HOME`.
+- Device/model commands need Android platform tools/`adb` on PATH.
+
+The current Codex shell could generate `apps/mobile/android` and verify Expo autolinking, but Gradle could not compile because Java was not on PATH. `adb devices` also failed because `adb` was not on PATH.
 
 ## iOS
 

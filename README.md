@@ -10,7 +10,7 @@ The project is framed as an AI system first: a small local function-calling mode
 
 Local MVP is complete.
 
-- Real: pnpm monorepo scaffold, Expo mobile reference client, Splitwise/Notion-inspired Home, Groups, Contacts, and Diagnostics screens, group/contact detail views, compact bottom-sheet assistant, confirmation cards, FunctionGemma parser adapter with rule-based fallback, FunctionGemma-callable tool contracts, Android MediaPipe native runner module, action schemas, deterministic action application, AsyncStorage local persistence, audit logs, smoke eval runner, guided create-group execution animation, project plan, TODO tracker, session bridge.
+- Real: pnpm monorepo scaffold, Expo mobile reference client, Splitwise/Notion-inspired Home, Groups, Contacts, and Diagnostics screens, group/contact detail views, compact bottom-sheet assistant, confirmation cards, FunctionGemma-only parser adapter, FunctionGemma-callable tool contracts, Android MediaPipe native runner module, action schemas, deterministic action application, AsyncStorage local persistence, audit logs, smoke eval runner, guided create-group execution animation, project plan, TODO tracker, session bridge.
 - Mocked or not built yet: bundled/downloaded model artifact, verified real-device FunctionGemma inference run, full eval dataset, fine-tuned model, Android APK/dev build packaging, Supabase sync.
 
 GitHub: https://github.com/Mario-Vishal/splitmaa
@@ -54,7 +54,7 @@ pnpm.cmd mobile:web
 ```text
 User text or voice transcript
 -> compact product context
--> FunctionGemma or thin fallback parser
+-> FunctionGemma native runner
 -> structured tool call
 -> schema validation
 -> context resolution and ground-truth lookup

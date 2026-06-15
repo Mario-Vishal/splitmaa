@@ -80,3 +80,4 @@ Polished local MVP complete. Next phase: Android dev build/APK packaging and rea
 - `5f96c88` - `feat: add local persistence foundation`
 - `4f04d05` - `feat: complete local mvp workflow`
 - `f14399f` - `feat: polish mobile expense workflow`
+- `bd7e627` - `style: tighten native mobile polish`

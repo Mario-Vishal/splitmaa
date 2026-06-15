@@ -8,6 +8,7 @@
     "@splitmaa/core": "workspace:*",
     "@splitmaa/functiongemma-runner": "workspace:*",
     "expo": "~56.0.11",
+    "expo-sqlite": "~56.0.5",
     "expo-status-bar": "~56.0.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",

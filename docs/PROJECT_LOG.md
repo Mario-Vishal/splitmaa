@@ -23,6 +23,7 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Added durable SQLite `workflow_state` and `workflow_audit_logs` tables for pending workflows, guarded commits, and future audit traces.
 - Rewrote FunctionGemma dataset schema, prompts, seed examples, validator, and converter around the single workflow-intent function.
 - Added a validated realistic reference JSONL file with 70 examples covering the final `extract_workflow_intent` architecture across entity, expense, multi-step, lookup/navigation, financial, clarification-response, and unsupported/adversarial scenarios.
+- Split realistic reference examples into per-workflow JSONL files under `datasets/splitmaa_functiongemma/reference_by_type/` so separate ChatGPT chats can generate focused batches without mixed examples.
 
 ### Learnings
 

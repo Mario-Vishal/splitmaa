@@ -75,6 +75,13 @@ Validated realistic reference examples live at:
 
 ```text
 datasets/splitmaa_functiongemma/reference_realistic_examples.jsonl
+datasets/splitmaa_functiongemma/reference_by_type/entity_mutation_examples.jsonl
+datasets/splitmaa_functiongemma/reference_by_type/expense_mutation_examples.jsonl
+datasets/splitmaa_functiongemma/reference_by_type/multi_step_examples.jsonl
+datasets/splitmaa_functiongemma/reference_by_type/record_lookup_examples.jsonl
+datasets/splitmaa_functiongemma/reference_by_type/financial_answer_examples.jsonl
+datasets/splitmaa_functiongemma/reference_by_type/clarification_response_examples.jsonl
+datasets/splitmaa_functiongemma/reference_by_type/unsupported_examples.jsonl
 ```
 
-Use that file as the few-shot source when generating new ChatGPT batches. It intentionally uses only the final single top-level tool name, `extract_workflow_intent`.
+Use the per-type files as the few-shot source when generating new ChatGPT batches in separate chats. They intentionally use only the final single top-level tool name, `extract_workflow_intent`.

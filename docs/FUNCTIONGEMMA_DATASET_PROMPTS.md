@@ -120,13 +120,19 @@ extract_workflow_intent
 
 ## Realistic Reference Examples
 
-Use the reference file as your primary few-shot material when generating batches:
+Use the per-type reference files as your primary few-shot material when generating batches. Each file is meant for a separate ChatGPT chat:
 
 ```powershell
-Get-Content datasets\splitmaa_functiongemma\reference_realistic_examples.jsonl
+Get-Content datasets\splitmaa_functiongemma\reference_by_type\entity_mutation_examples.jsonl
+Get-Content datasets\splitmaa_functiongemma\reference_by_type\expense_mutation_examples.jsonl
+Get-Content datasets\splitmaa_functiongemma\reference_by_type\multi_step_examples.jsonl
+Get-Content datasets\splitmaa_functiongemma\reference_by_type\record_lookup_examples.jsonl
+Get-Content datasets\splitmaa_functiongemma\reference_by_type\financial_answer_examples.jsonl
+Get-Content datasets\splitmaa_functiongemma\reference_by_type\clarification_response_examples.jsonl
+Get-Content datasets\splitmaa_functiongemma\reference_by_type\unsupported_examples.jsonl
 ```
 
-When asking ChatGPT to generate a batch, paste the Master Prompt, then paste 10-20 relevant lines from `reference_realistic_examples.jsonl` for that workflow type. Do not paste old examples with tool names like `create_group`, `add_expense`, `search_records`, or `draft_expense_plan` at the top level. Those are retired. The only top-level tool name is `extract_workflow_intent`.
+When asking ChatGPT to generate a batch, paste the Master Prompt, then paste the full matching per-type file. Do not paste mixed examples into a focused chat unless you are intentionally generating a boundary/adversarial batch. Do not paste old examples with tool names like `create_group`, `add_expense`, `search_records`, or `draft_expense_plan` at the top level. Those are retired. The only top-level tool name is `extract_workflow_intent`.
 
 The model must learn this distinction:
 
@@ -158,6 +164,9 @@ For each batch, paste the Master Prompt, the Few-Shot Examples, and one of these
 
 ```text
 Generate 50 JSONL examples for entity_mutation.
+Use these validated examples as few-shot references first:
+datasets/splitmaa_functiongemma/reference_by_type/entity_mutation_examples.jsonl
+
 Distribution:
 - 20 create_contact
 - 20 create_group
@@ -172,6 +181,9 @@ Return JSONL only.
 
 ```text
 Generate 50 JSONL examples for expense_mutation.
+Use these validated examples as few-shot references first:
+datasets/splitmaa_functiongemma/reference_by_type/expense_mutation_examples.jsonl
+
 Distribution:
 - 30 add_expense
 - 10 settle_up
@@ -188,6 +200,9 @@ Return JSONL only.
 
 ```text
 Generate 50 JSONL examples for multi_step.
+Use these validated examples as few-shot references first:
+datasets/splitmaa_functiongemma/reference_by_type/multi_step_examples.jsonl
+
 Every example must have 2-5 operations.
 Include group creation plus expense, add member plus expense, multiple expenses, contact creation plus group creation, and corrections.
 Keep operations semantic; do not include DB lookup or UI display chains.
@@ -199,6 +214,9 @@ Return JSONL only.
 
 ```text
 Generate 50 JSONL examples for record_lookup.
+Use these validated examples as few-shot references first:
+datasets/splitmaa_functiongemma/reference_by_type/record_lookup_examples.jsonl
+
 Distribution:
 - 20 search_records
 - 15 open_record
@@ -215,6 +233,9 @@ Return JSONL only.
 
 ```text
 Generate 50 JSONL examples for financial_answer.
+Use these validated examples as few-shot references first:
+datasets/splitmaa_functiongemma/reference_by_type/financial_answer_examples.jsonl
+
 Distribution:
 - 15 compute_balance
 - 10 compute_total
@@ -230,6 +251,9 @@ Return JSONL only.
 
 ```text
 Generate 50 JSONL examples for clarification_response.
+Use these validated examples as few-shot references first:
+datasets/splitmaa_functiongemma/reference_by_type/clarification_response_examples.jsonl
+
 Include:
 - "the second one" ordinal selection
 - "choose Abhishek Rao" label selection
@@ -246,6 +270,11 @@ Return JSONL only.
 
 ```text
 Generate 75 JSONL examples across all workflow types.
+Use these validated examples as few-shot references first:
+datasets/splitmaa_functiongemma/reference_by_type/unsupported_examples.jsonl
+datasets/splitmaa_functiongemma/reference_by_type/multi_step_examples.jsonl
+datasets/splitmaa_functiongemma/reference_by_type/expense_mutation_examples.jsonl
+
 Include:
 - routing boundary: "Create dinner group with Pabba" vs "Add dinner $20 with Pabba" vs "Create dinner group with Pabba and add dinner $20"
 - ambiguous references: "add this to that group", "show it again", "same people as last time"

@@ -29,7 +29,9 @@ def main() -> int:
     parser.add_argument("--output-dir", default="outputs/functiongemma-splitmaa-sft")
     parser.add_argument("--learning-rate", type=float, default=5e-5)
     parser.add_argument("--epochs", type=int, default=8)
-    parser.add_argument("--batch-size", type=int, default=4)
+    parser.add_argument("--batch-size", type=int, default=2)
+    parser.add_argument("--eval-batch-size", type=int, default=1)
+    parser.add_argument("--gradient-accumulation-steps", type=int, default=1)
     parser.add_argument("--max-length", type=int, default=1024)
     parser.add_argument("--push-to-hub", action="store_true")
     parser.add_argument("--no-force-ipv4", action="store_true", help="Do not force IPv4 for Hugging Face downloads.")
@@ -73,14 +75,21 @@ def main() -> int:
         packing=False,
         num_train_epochs=args.epochs,
         per_device_train_batch_size=args.batch_size,
+        per_device_eval_batch_size=args.eval_batch_size,
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
         gradient_checkpointing=False,
         optim="adamw_torch_fused",
         logging_steps=1,
         eval_strategy="epoch",
+        eval_accumulation_steps=1,
         learning_rate=args.learning_rate,
         fp16=torch_dtype == torch.float16,
         bf16=torch_dtype == torch.bfloat16,
         lr_scheduler_type="constant",
+        prediction_loss_only=True,
+        save_strategy="epoch",
+        save_total_limit=2,
+        torch_empty_cache_steps=50,
         push_to_hub=args.push_to_hub,
         report_to="tensorboard",
     )

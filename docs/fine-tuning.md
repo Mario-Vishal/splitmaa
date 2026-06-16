@@ -67,21 +67,29 @@ It also skips `.litertlm` / `.task` artifacts by default because Hugging Face SF
 
 Run training:
 
-```bash
-python tools/finetune/train_functiongemma_sft.py \
-  --train datasets/splitmaa_functiongemma/train.functiongemma.jsonl \
-  --validation datasets/splitmaa_functiongemma/validation.functiongemma.jsonl \
-  --output-dir outputs/functiongemma-splitmaa-sft
+```powershell
+.venv-train\Scripts\python.exe tools\finetune\train_functiongemma_sft.py `
+  --train datasets\splitmaa_functiongemma\train.functiongemma.jsonl `
+  --validation datasets\splitmaa_functiongemma\validation.functiongemma.jsonl `
+  --output-dir outputs\functiongemma-splitmaa-sft `
+  --batch-size 2 `
+  --eval-batch-size 1 `
+  --epochs 8 `
+  --max-length 1024
 ```
 
 Default training settings mirror Google's starter guide:
 
 - learning rate: `5e-5`
 - epochs: `8`
-- batch size: `4`
+- train batch size: `2`
+- eval batch size: `1`
 - optimizer: `adamw_torch_fused`
 - eval strategy: `epoch`
+- save strategy: `epoch`
 - packing: `false`
+
+On a 12 GB Windows GPU, validation can run out of memory if eval uses the same batch size as training. Keep `--eval-batch-size 1`; if training still runs out of memory, rerun with `--batch-size 1` or `--max-length 768`.
 
 ## Evaluate
 

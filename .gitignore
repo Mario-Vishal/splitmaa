@@ -35,6 +35,8 @@ CLAUDE.md
 __pycache__/
 .pytest_cache/
 .venv/
+.venv-train/
+outputs/
 tools/finetune/outputs/
 reports/functiongemma_eval/
 datasets/splitmaa_functiongemma/*.functiongemma.jsonl

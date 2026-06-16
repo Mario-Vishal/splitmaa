@@ -145,3 +145,9 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Local-only load check passed with `GemmaTokenizer`, `Gemma3ForCausalLM`, and 268,098,176 parameters.
 - Next step: start the Windows SFT run from the cached checkpoint with `.venv-train`.
 
+### 2026-06-16 - Windows SFT OOM Guardrails Added
+- First Windows SFT attempt reached step 414, then failed during validation with `torch.AcceleratorError: CUDA error: out of memory`.
+- Root cause: validation used too much GPU memory on the 12 GB RTX 5070 Ti Laptop GPU, even though training itself had progressed.
+- Updated `train_functiongemma_sft.py` to default to train batch size 2, eval batch size 1, loss-only eval, eval accumulation, epoch checkpoint saves, and periodic CUDA cache clears.
+- Updated fine-tuning docs with the safer Windows command and fallback knobs: `--batch-size 1` or `--max-length 768` if memory still runs out.
+

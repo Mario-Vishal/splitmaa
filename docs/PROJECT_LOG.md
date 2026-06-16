@@ -85,3 +85,10 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Rejected 0 examples; stronger `record_lookup` constraints prevented mutation-style lookup fields.
 - Learning: batch-scoped ids and explicit negative field rules are producing clean ChatGPT-generated JSONL for the final single-tool architecture.
 
+### 2026-06-15 - Golden Test Set 001 Partially Promoted
+- Validated the first locked golden test batch separately from training data.
+- Accepted 90 of 135 examples and appended them only to `test.jsonl`; train and validation were unchanged.
+- Current canonical counts: 827 train, 206 validation, 93 test.
+- Rejected 45 examples: mostly `multi_step` old operation names (`add_member`, `remove_member`, `update_expense`, `full_owed`) and `financial_answer` unsupported metrics/fields (`person_total`, `expense_total`, `filters`, `categoryRef`).
+- Learning: the golden prompts need stricter negative constraints than training prompts because the requested harder examples caused ChatGPT to invent older schema aliases.
+

@@ -1,6 +1,6 @@
 {
   "dataset": "splitmaa_functiongemma",
-  "status": "batch_005_promoted",
+  "status": "golden_test_001_promoted_partial",
   "language": "English",
   "currencies": [
     "USD",
@@ -15,43 +15,65 @@
   "current_counts": {
     "train": 827,
     "validation": 206,
-    "test": 3
+    "test": 93
   },
   "notes": [
     "Dataset uses the final single extract_workflow_intent tool contract.",
-    "Batches 001-005 accepted examples were promoted after validator cleanup.",
-    "Rejected incoming examples remain archived under incoming_rejected for prompt improvement.",
-    "Batch 005 focused on entity_mutation, record_lookup, and multi_step and validated at 150/150.",
-    "The locked test set should grow deliberately and then remain unchanged."
+    "Batches 001-005 accepted examples were promoted to train/validation after validator cleanup.",
+    "Golden test set 001 accepted examples were promoted only to test.jsonl.",
+    "Rejected incoming examples remain archived under incoming_rejected and incoming_test_rejected for prompt improvement.",
+    "Golden test 001 needs a repair pass for multi_step and financial_answer because ChatGPT drifted into old operation/metric names.",
+    "The locked test set should now change only through explicit accepted golden-test additions or schema migrations."
   ],
   "last_promotion": {
-    "source": "datasets/splitmaa_functiongemma/incoming_accepted/*batch_005.jsonl",
-    "acceptedExamplesPromoted": 150,
-    "trainAdded": 120,
-    "validationAdded": 30,
-    "testAdded": 0,
+    "source": "datasets/splitmaa_functiongemma/incoming_test_accepted/*_test_001.jsonl",
+    "acceptedExamplesPromoted": 90,
+    "trainAdded": 0,
+    "validationAdded": 0,
+    "testAdded": 90,
     "skippedDuplicates": 0,
     "summary": [
       {
-        "file": "entity_mutation_batch_005.jsonl",
-        "acceptedAvailable": 50,
+        "file": "clarification_response_test_001.jsonl",
+        "acceptedAvailable": 15,
         "skippedDuplicates": 0,
-        "promotedToTrain": 40,
-        "promotedToValidation": 10
+        "promotedToTest": 15
       },
       {
-        "file": "multi_step_batch_005.jsonl",
-        "acceptedAvailable": 50,
+        "file": "entity_mutation_test_001.jsonl",
+        "acceptedAvailable": 15,
         "skippedDuplicates": 0,
-        "promotedToTrain": 40,
-        "promotedToValidation": 10
+        "promotedToTest": 15
       },
       {
-        "file": "record_lookup_batch_005.jsonl",
-        "acceptedAvailable": 50,
+        "file": "expense_mutation_test_001.jsonl",
+        "acceptedAvailable": 19,
         "skippedDuplicates": 0,
-        "promotedToTrain": 40,
-        "promotedToValidation": 10
+        "promotedToTest": 19
+      },
+      {
+        "file": "financial_answer_test_001.jsonl",
+        "acceptedAvailable": 8,
+        "skippedDuplicates": 0,
+        "promotedToTest": 8
+      },
+      {
+        "file": "multi_step_test_001.jsonl",
+        "acceptedAvailable": 8,
+        "skippedDuplicates": 0,
+        "promotedToTest": 8
+      },
+      {
+        "file": "record_lookup_test_001.jsonl",
+        "acceptedAvailable": 15,
+        "skippedDuplicates": 0,
+        "promotedToTest": 15
+      },
+      {
+        "file": "unsupported_test_001.jsonl",
+        "acceptedAvailable": 10,
+        "skippedDuplicates": 0,
+        "promotedToTest": 10
       }
     ]
   }

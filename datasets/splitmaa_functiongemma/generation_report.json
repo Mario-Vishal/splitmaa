@@ -1,6 +1,6 @@
 {
   "dataset": "splitmaa_functiongemma",
-  "status": "batch_004_promoted",
+  "status": "batch_005_promoted",
   "language": "English",
   "currencies": [
     "USD",
@@ -13,19 +13,19 @@
     "test": 300
   },
   "current_counts": {
-    "train": 707,
-    "validation": 176,
+    "train": 827,
+    "validation": 206,
     "test": 3
   },
   "notes": [
     "Dataset uses the final single extract_workflow_intent tool contract.",
-    "Batches 001-004 accepted examples were promoted after validator cleanup.",
+    "Batches 001-005 accepted examples were promoted after validator cleanup.",
     "Rejected incoming examples remain archived under incoming_rejected for prompt improvement.",
-    "Batch 004 focused on expense_mutation, financial_answer, and clarification_response and validated at 150/150.",
+    "Batch 005 focused on entity_mutation, record_lookup, and multi_step and validated at 150/150.",
     "The locked test set should grow deliberately and then remain unchanged."
   ],
   "last_promotion": {
-    "source": "datasets/splitmaa_functiongemma/incoming_accepted/*batch_004.jsonl",
+    "source": "datasets/splitmaa_functiongemma/incoming_accepted/*batch_005.jsonl",
     "acceptedExamplesPromoted": 150,
     "trainAdded": 120,
     "validationAdded": 30,
@@ -33,21 +33,21 @@
     "skippedDuplicates": 0,
     "summary": [
       {
-        "file": "clarification_response_batch_004.jsonl",
+        "file": "entity_mutation_batch_005.jsonl",
         "acceptedAvailable": 50,
         "skippedDuplicates": 0,
         "promotedToTrain": 40,
         "promotedToValidation": 10
       },
       {
-        "file": "expense_mutation_batch_004.jsonl",
+        "file": "multi_step_batch_005.jsonl",
         "acceptedAvailable": 50,
         "skippedDuplicates": 0,
         "promotedToTrain": 40,
         "promotedToValidation": 10
       },
       {
-        "file": "financial_answer_batch_004.jsonl",
+        "file": "record_lookup_batch_005.jsonl",
         "acceptedAvailable": 50,
         "skippedDuplicates": 0,
         "promotedToTrain": 40,

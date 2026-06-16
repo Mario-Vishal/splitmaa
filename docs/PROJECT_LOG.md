@@ -78,3 +78,10 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Rejected 0 examples; all three focused prompt files validated cleanly.
 - Learning: the strict single-tool prompt works well for these three workflow types when ids are batch-scoped and examples show amountText/dateText boundaries clearly.
 
+### 2026-06-15 - Dataset Batch 005 Promoted
+- Promoted 150 accepted examples focused on `entity_mutation`, `record_lookup`, and `multi_step`.
+- Added 120 examples to `train.jsonl` and 30 examples to `validation.jsonl`; locked test set stayed unchanged.
+- Current canonical counts: 827 train, 206 validation, 3 test.
+- Rejected 0 examples; stronger `record_lookup` constraints prevented mutation-style lookup fields.
+- Learning: batch-scoped ids and explicit negative field rules are producing clean ChatGPT-generated JSONL for the final single-tool architecture.
+

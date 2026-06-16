@@ -1,6 +1,6 @@
 {
   "dataset": "splitmaa_functiongemma",
-  "status": "batch_001_promoted",
+  "status": "batch_002_promoted",
   "language": "English",
   "currencies": [
     "USD",
@@ -13,64 +13,65 @@
     "test": 300
   },
   "current_counts": {
-    "train": 267,
-    "validation": 66,
+    "train": 472,
+    "validation": 117,
     "test": 3
   },
   "notes": [
     "Dataset uses the final single extract_workflow_intent tool contract.",
-    "Batch 001 accepted examples were promoted after validator cleanup.",
+    "Batch 001 and batch 002 accepted examples were promoted after validator cleanup.",
     "Rejected incoming examples remain archived under incoming_rejected for prompt improvement.",
+    "Batch 002 showed substantial prompt drift in multi_step and unsupported outputs; regenerate those categories with stricter instructions.",
     "The locked test set should grow deliberately and then remain unchanged."
   ],
   "last_promotion": {
-    "source": "datasets/splitmaa_functiongemma/incoming_accepted",
-    "acceptedExamplesPromoted": 322,
-    "trainAdded": 260,
-    "validationAdded": 62,
+    "source": "datasets/splitmaa_functiongemma/incoming_accepted/*batch_002.jsonl",
+    "acceptedExamplesPromoted": 256,
+    "trainAdded": 205,
+    "validationAdded": 51,
     "testAdded": 0,
     "summary": [
       {
-        "file": "entity_mutation_batch_001.jsonl",
+        "file": "entity_mutation_batch_002.jsonl",
         "available": 50,
         "promotedToTrain": 40,
         "promotedToValidation": 10
       },
       {
-        "file": "clarification_response_batch_001.jsonl",
+        "file": "clarification_response_batch_002.jsonl",
         "available": 50,
         "promotedToTrain": 40,
         "promotedToValidation": 10
       },
       {
-        "file": "expense_mutation_batch_001.jsonl",
+        "file": "expense_mutation_batch_002.jsonl",
         "available": 49,
         "promotedToTrain": 40,
         "promotedToValidation": 9
       },
       {
-        "file": "financial_answer_batch_001.jsonl",
-        "available": 47,
-        "promotedToTrain": 38,
+        "file": "financial_answer_batch_002.jsonl",
+        "available": 46,
+        "promotedToTrain": 37,
         "promotedToValidation": 9
       },
       {
-        "file": "multi_step_batch_001.jsonl",
-        "available": 44,
-        "promotedToTrain": 36,
-        "promotedToValidation": 8
+        "file": "multi_step_batch_002.jsonl",
+        "available": 27,
+        "promotedToTrain": 22,
+        "promotedToValidation": 5
       },
       {
-        "file": "record_lookup_batch_001.jsonl",
-        "available": 42,
-        "promotedToTrain": 34,
-        "promotedToValidation": 8
+        "file": "record_lookup_batch_002.jsonl",
+        "available": 33,
+        "promotedToTrain": 26,
+        "promotedToValidation": 7
       },
       {
-        "file": "unsupported_batch_001.jsonl",
-        "available": 40,
-        "promotedToTrain": 32,
-        "promotedToValidation": 8
+        "file": "unsupported_batch_002.jsonl",
+        "available": 1,
+        "promotedToTrain": 0,
+        "promotedToValidation": 1
       }
     ]
   }

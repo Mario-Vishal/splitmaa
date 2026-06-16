@@ -56,6 +56,15 @@ Login to Hugging Face after accepting the `google/functiongemma-270m-it` license
 
 This project uses the helper above because the normal `hf auth login` may fail on Windows networks where `huggingface.co` resolves through a broken IPv6 route. The helper stores the token through `huggingface_hub.login(...)` and verifies access to `google/functiongemma-270m-it`.
 
+If model download stalls or fails with `WinError 10054` / `RemoteProtocolError`, pre-download the model with the IPv4 helper:
+
+```powershell
+.venv-train\Scripts\python.exe tools\finetune\hf_ipv4_download.py --repo-id google/functiongemma-270m-it
+```
+
+The helper disables the Windows symlink warning, forces IPv4 by default, and downloads with one worker to avoid flaky parallel HEAD requests.
+It also skips `.litertlm` / `.task` artifacts by default because Hugging Face SFT training needs the `transformers` checkpoint files, not mobile runtime artifacts.
+
 Run training:
 
 ```bash

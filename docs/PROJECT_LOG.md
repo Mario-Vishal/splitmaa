@@ -138,3 +138,10 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Added `tools/finetune/hf_ipv4_login.py` to log in without exposing the token in shell history and to verify access to `google/functiongemma-270m-it`.
 - Updated `train_functiongemma_sft.py` to force IPv4 for Hugging Face downloads by default, with `--no-force-ipv4` as an escape hatch.
 
+### 2026-06-16 - FunctionGemma Checkpoint Downloaded For Local Training
+- Hugging Face `snapshot_download` failed on Windows with `WinError 10054` / `httpx.RemoteProtocolError` during metadata requests.
+- Added `tools/finetune/hf_ipv4_download.py`, which forces IPv4, uses one worker, disables the symlink warning, and skips `.litertlm` / `.task` artifacts by default for SFT.
+- Downloaded and verified the cached `google/functiongemma-270m-it` training checkpoint, including `model.safetensors` at 536 MB.
+- Local-only load check passed with `GemmaTokenizer`, `Gemma3ForCausalLM`, and 268,098,176 parameters.
+- Next step: start the Windows SFT run from the cached checkpoint with `.venv-train`.
+

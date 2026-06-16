@@ -99,3 +99,10 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Rejected 5 `multi_step` examples where ChatGPT still used invalid `create_contact` fields (`name`, `currency`) or invalid settlement `counterparty` fields.
 - Learning: financial answer is now clean under strict metric/field constraints; multi-step needs one more small repair prompt if we want every category to hit the original target count.
 
+### 2026-06-15 - FunctionGemma Eval Runner Added
+- Replaced the old rule-based smoke evaluator with a scorer for the final `extract_workflow_intent` dataset contract.
+- Eval runner supports saved prediction JSONL, command-backed model runs, and self-test mode against expected outputs.
+- Added report metrics for parseability, schema validity, tool name accuracy, workflow accuracy, operation count/sequence accuracy, missing-fields accuracy, normalized exact intent accuracy, and leaf argument accuracy.
+- Self-test over the locked `test.jsonl` set passed at 1.0 for all metrics across 138 examples.
+- Reports are generated under `reports/functiongemma_eval/` and ignored by git.
+

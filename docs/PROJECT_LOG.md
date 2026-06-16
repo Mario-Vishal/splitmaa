@@ -71,3 +71,10 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Rejected 6 `record_lookup` examples because ChatGPT added `amountText` to lookup args, which the strict schema correctly rejects.
 - Learning: focused prompt repair improved `multi_step` and `unsupported` to 50/50 validity; `record_lookup` still needs stronger examples that keep search filters separate from mutation amount fields.
 
+### 2026-06-15 - Dataset Batch 004 Promoted
+- Promoted 150 accepted examples focused on `expense_mutation`, `financial_answer`, and `clarification_response`.
+- Added 120 examples to `train.jsonl` and 30 examples to `validation.jsonl`; locked test set stayed unchanged.
+- Current canonical counts: 707 train, 176 validation, 3 test.
+- Rejected 0 examples; all three focused prompt files validated cleanly.
+- Learning: the strict single-tool prompt works well for these three workflow types when ids are batch-scoped and examples show amountText/dateText boundaries clearly.
+

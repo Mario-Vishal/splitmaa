@@ -1,6 +1,6 @@
 {
   "dataset": "splitmaa_functiongemma",
-  "status": "batch_003_promoted",
+  "status": "batch_004_promoted",
   "language": "English",
   "currencies": [
     "USD",
@@ -13,41 +13,41 @@
     "test": 300
   },
   "current_counts": {
-    "train": 587,
-    "validation": 146,
+    "train": 707,
+    "validation": 176,
     "test": 3
   },
   "notes": [
     "Dataset uses the final single extract_workflow_intent tool contract.",
-    "Batches 001-003 accepted examples were promoted after validator cleanup.",
+    "Batches 001-004 accepted examples were promoted after validator cleanup.",
     "Rejected incoming examples remain archived under incoming_rejected for prompt improvement.",
-    "Batch 003 focused on multi_step, record_lookup, and unsupported prompt cleanup; six lookup examples were rejected for invalid amountText fields.",
+    "Batch 004 focused on expense_mutation, financial_answer, and clarification_response and validated at 150/150.",
     "The locked test set should grow deliberately and then remain unchanged."
   ],
   "last_promotion": {
-    "source": "datasets/splitmaa_functiongemma/incoming_accepted/*batch_003.jsonl",
-    "acceptedExamplesPromoted": 144,
-    "trainAdded": 115,
-    "validationAdded": 29,
+    "source": "datasets/splitmaa_functiongemma/incoming_accepted/*batch_004.jsonl",
+    "acceptedExamplesPromoted": 150,
+    "trainAdded": 120,
+    "validationAdded": 30,
     "testAdded": 0,
     "skippedDuplicates": 0,
     "summary": [
       {
-        "file": "multi_step_batch_003.jsonl",
+        "file": "clarification_response_batch_004.jsonl",
         "acceptedAvailable": 50,
         "skippedDuplicates": 0,
         "promotedToTrain": 40,
         "promotedToValidation": 10
       },
       {
-        "file": "record_lookup_batch_003.jsonl",
-        "acceptedAvailable": 44,
+        "file": "expense_mutation_batch_004.jsonl",
+        "acceptedAvailable": 50,
         "skippedDuplicates": 0,
-        "promotedToTrain": 35,
-        "promotedToValidation": 9
+        "promotedToTrain": 40,
+        "promotedToValidation": 10
       },
       {
-        "file": "unsupported_batch_003.jsonl",
+        "file": "financial_answer_batch_004.jsonl",
         "acceptedAvailable": 50,
         "skippedDuplicates": 0,
         "promotedToTrain": 40,

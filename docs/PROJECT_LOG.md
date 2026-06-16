@@ -29,6 +29,7 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Promoted batch 001 into dataset splits: train now has 267 examples, validation has 66 examples, and locked test remains at 3 examples.
 - Validated the second pasted ChatGPT batch: 256 accepted examples and 94 rejected examples.
 - Promoted batch 002 into dataset splits: train now has 472 examples, validation has 117 examples, and locked test remains at 3 examples.
+- Tightened paste-ready prompts for weak batch 002 categories: `multi_step`, `record_lookup`, and `unsupported`.
 
 ### Learnings
 

@@ -23,6 +23,11 @@ Rules:
 - The app owns IDs, validation, confirmation, split math, and commits.
 - Use amountText, never amountCents.
 - Use refs, not trusted IDs.
+- Use only currencyHint/currency values USD or INR. Never use EUR, GBP, JPY, CAD, AUD, SGD, AED, IDR, PKR, or any other currency.
+- If you want location variety, still use USD or INR only.
+- Never use {"refType":"group"} inside split participants. Split participants can only be current_user, name, record_ref, last_result, or active_pending_workflow.
+- Never output old loose fields like type, amount, paidBy, participants, group, or contact directly inside operations. Every operation must be {"operationType":"...","args":{...}}.
+- For group split, explicitly list the group members from the command as split participants. Do not use a group ref as a participant.
 - Include complex real-life phrasing, corrections, "not me", "owes fully", and multiple expenses.
 - If required info is missing, use operations: [] and missingFields.
 
@@ -39,6 +44,6 @@ Validated examples to follow:
 {"id":"multi_real_010","input":"create a group add Sai and add dinner 40 dollars I am missing the group name and who dinner was split with","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"multi_step","confidence":0.7,"operations":[],"missingFields":["groupName","paidBy","participants"],"ambiguities":[]}}}
 
 Generate 50 new JSONL examples.
-Use ids like multi_step_batch_001, multi_step_batch_002, etc.
+Use ids exactly like multi_step_batch_003_001, multi_step_batch_003_002, etc.
 Return JSONL only.
 ```

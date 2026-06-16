@@ -32,6 +32,12 @@ Rules:
 - The app owns SQLite lookup, result display, navigation, and highlighting.
 - Do not generate expense creation or financial answer examples in this chat.
 - Top-level expected.name must always be extract_workflow_intent.
+- Use only USD or INR when currency is present. Never use EUR, GBP, JPY, CAD, AUD, or any other currency.
+- For get_record_metadata args, only use entityType, recordRef, and query. Never use metadataFields.
+- For open_record args, only use entityType, recordRef, searchQuery, and highlightRef. Never use personRef or groupRef.
+- For list_records args, groupRef is allowed.
+- For search_records args, personRef and groupRef are allowed.
+- Every operation must be {"operationType":"...","args":{...}}.
 
 Validated examples to follow:
 {"id":"lookup_real_001","input":"search for the milk split with Aravind from last month I just want to see matching expense records not open anything yet","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"record_lookup","confidence":0.88,"operations":[{"operationType":"search_records","args":{"query":"milk","entityTypes":["expense"],"personRef":{"refType":"name","value":"Aravind"},"dateRange":{"dateText":"last month","dateIntent":"previous_calendar_month"},"limit":10}}],"missingFields":[],"ambiguities":[]}}}
@@ -53,6 +59,6 @@ Distribution:
 - 5 show_previous
 - 5 get_record_metadata
 
-Use ids like lookup_batch_001, lookup_batch_002, etc.
+Use ids exactly like lookup_batch_003_001, lookup_batch_003_002, etc.
 Return JSONL only.
 ```

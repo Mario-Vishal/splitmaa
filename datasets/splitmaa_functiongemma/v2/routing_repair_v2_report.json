@@ -1,0 +1,76 @@
+{
+  "repairDir": "datasets\\splitmaa_functiongemma\\repair",
+  "outputDir": "datasets\\splitmaa_functiongemma\\v2",
+  "splits": {
+    "train": {
+      "outputPath": "datasets\\splitmaa_functiongemma\\v2\\train.v2.jsonl",
+      "manualReviewPath": "datasets\\splitmaa_functiongemma\\v2\\train.manual_review.jsonl",
+      "counts": {
+        "kept_clean": 626,
+        "auto_fixed": 189,
+        "split_or_relabel_workflow": 1,
+        "add_pending_event_type_or_regenerate": 9,
+        "manual_review": 12,
+        "relabel_to_entity_mutation": 40,
+        "relabel_to_clarification_response": 36,
+        "relabel_to_expense_mutation": 40,
+        "relabel_to_financial_answer": 37,
+        "relabel_to_record_lookup": 26
+      },
+      "workflowCounts": {
+        "record_lookup": 136,
+        "multi_step": 134,
+        "expense_mutation": 122,
+        "entity_mutation": 121,
+        "financial_answer": 116,
+        "clarification_response": 116,
+        "unsupported": 70
+      },
+      "manualActions": {
+        "regenerate_or_discard_missing_operations": 10,
+        "split_or_relabel_workflow": 2
+      }
+    },
+    "validation": {
+      "outputPath": "datasets\\splitmaa_functiongemma\\v2\\validation.v2.jsonl",
+      "manualReviewPath": "datasets\\splitmaa_functiongemma\\v2\\validation.manual_review.jsonl",
+      "counts": {
+        "kept_clean": 152,
+        "manual_review": 7,
+        "auto_fixed": 47,
+        "add_pending_event_type_or_regenerate": 3,
+        "relabel_to_entity_mutation": 9,
+        "relabel_to_clarification_response": 9,
+        "relabel_to_expense_mutation": 9,
+        "relabel_to_financial_answer": 9,
+        "relabel_to_record_lookup": 7,
+        "split_or_relabel_workflow": 1
+      },
+      "workflowCounts": {
+        "record_lookup": 35,
+        "multi_step": 34,
+        "expense_mutation": 29,
+        "financial_answer": 29,
+        "clarification_response": 29,
+        "entity_mutation": 28,
+        "unsupported": 15
+      },
+      "manualActions": {
+        "split_or_relabel_workflow": 4,
+        "regenerate_or_discard_missing_operations": 3
+      }
+    }
+  },
+  "totals": {
+    "kept_clean": 778,
+    "auto_fixed": 236,
+    "split_or_relabel_workflow": 2,
+    "add_pending_event_type_or_regenerate": 12,
+    "manual_review": 19,
+    "relabel_to_entity_mutation": 49,
+    "relabel_to_clarification_response": 45,
+    "relabel_to_expense_mutation": 49,
+    "relabel_to_financial_answer": 46,
+    "relabel_to_record_lookup": 33
+  }
+}

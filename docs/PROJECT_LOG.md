@@ -186,3 +186,10 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Suggested repair actions across bad rows: relabel to entity `49`, expense `49`, financial `46`, clarification `45`, lookup `33`; regenerate/discard missing-operation rows `22`; split/relabel workflow rows `21`; add pending event type or regenerate `14`.
 - Tradeoff: training on only clean rows reduces volume by about 24%, but it removes the dominant routing noise. Next step is to create corrected train/validation v2 from repair suggestions, while keeping the locked test set unchanged and separately noting known label issues.
 
+### 2026-06-16 - FunctionGemma Dataset V2 Built From Routing Repairs
+- Added `tools/finetune/build_routing_repair_v2.py` to construct corrected train/validation splits from strict-clean rows plus deterministic repair suggestions.
+- Built `datasets/splitmaa_functiongemma/v2/train.v2.jsonl` and `validation.v2.jsonl` without mutating the original canonical files.
+- V2 counts: train `815`, validation `199`, manual-review leftovers `19`. The v2 train distribution is much more balanced: record lookup `136`, multi-step `134`, expense `122`, entity `121`, financial `116`, clarification `116`, unsupported `70`.
+- Auto-fixed `236` rows by relabeling obvious single-operation rows and adding missing clarification context where deterministic. Left ambiguous missing-operation and split/relabel rows for manual review.
+- Strict validation passes over v2 train and validation. Converted local ignored FunctionGemma files: `train.v2.functiongemma.jsonl` and `validation.v2.functiongemma.jsonl`.
+

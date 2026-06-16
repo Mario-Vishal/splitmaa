@@ -157,3 +157,9 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Reworked `train_functiongemma_sft.py` so the default Windows path is lean PEFT LoRA with local JSONL loading, local snapshot resolution, `bfloat16`, train batch size 1, gradient accumulation 4, and attention-projection LoRA targets.
 - Verified `--max-length 1024` one-step training and full validation smoke tests complete without OOM on the RTX 5070 Ti Laptop GPU.
 
+### 2026-06-16 - Colab LoRA Adapter Imported Locally
+- Downloaded the Colab-trained LoRA checkpoint zip and extracted it to `outputs/functiongemma-splitmaa-lora-colab`.
+- Verified local adapter files are present: `adapter_config.json`, `adapter_model.safetensors`, tokenizer files, and checkpoint state.
+- Local load smoke passed with base `google/functiongemma-270m-it` plus the Colab LoRA adapter.
+- First generation smoke produced a FunctionGemma special function-call string but showed quality issues: duplicated contacts and repeated `add_expense` operations. Next step is adapter evaluation and dataset/prompt repair before app integration.
+

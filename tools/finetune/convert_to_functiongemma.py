@@ -8,16 +8,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-
-TOOLS = [
-    {
-        "type": "function",
-        "function": {
-            "name": "extract_workflow_intent",
-            "description": "Extract one strict Splitmaa workflow intent. The app owns trusted IDs, SQLite lookup, UI clarification, confirmation, money/date normalization, commits, navigation, and audit.",
-        },
-    },
-]
+from splitmaa_tool_schema import TOOLS
 
 
 def main() -> int:
@@ -49,7 +40,7 @@ def convert_item(item: dict[str, Any]) -> dict[str, Any]:
         "messages": [
             {
                 "role": "developer",
-                "content": "You are Splitmaa's local FunctionGemma workflow intent extractor. Return exactly one extract_workflow_intent tool call.",
+                "content": "You are a model that can do function calling with the following functions. Return exactly one extract_workflow_intent tool call.",
             },
             {
                 "role": "user",

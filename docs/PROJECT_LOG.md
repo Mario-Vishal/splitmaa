@@ -119,3 +119,9 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Runtime check: `mobile_actions_q8_ekv1024.litertlm` loads and responds through the Python API, proving the desktop wrapper works.
 - Blocking issue: `functiongemma-270m-ft-mobile-actions_Google_Tensor_G5.litertlm` fails on desktop engine creation with `Input tensor not found`; likely needs a desktop-compatible FunctionGemma `.litertlm` artifact rather than a Google Tensor G5-targeted artifact.
 
+### 2026-06-16 - Fine-Tuning Path Aligned To Official FunctionGemma Guide
+- Confirmed Google's FunctionGemma guide uses `google/functiongemma-270m-it`, Hugging Face `transformers`/`datasets`, and TRL `SFTTrainer`.
+- Updated the FunctionGemma converter to emit a schema-bearing `tools` entry, closer to the official `messages` + `tools` conversational format.
+- Added `tools/finetune/train_functiongemma_sft.py` as the project training entrypoint for GPU/Colab/Kaggle/Vertex environments.
+- Updated fine-tuning docs with the official SFT flow and conversion/training commands.
+

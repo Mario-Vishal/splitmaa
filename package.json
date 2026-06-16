@@ -16,6 +16,7 @@
     "eval:smoke": "python tools/evals/run_eval.py --dataset datasets/splitmaa_functiongemma/test.jsonl --self-test-with-expected --limit 50",
     "eval:functiongemma:self": "python tools/evals/run_eval.py --dataset datasets/splitmaa_functiongemma/test.jsonl --self-test-with-expected",
     "eval:functiongemma": "python tools/evals/run_eval.py --dataset datasets/splitmaa_functiongemma/test.jsonl",
-    "eval:functiongemma:capture": "python tools/evals/capture_predictions.py --dataset datasets/splitmaa_functiongemma/test.jsonl"
+    "eval:functiongemma:capture": "python tools/evals/capture_predictions.py --dataset datasets/splitmaa_functiongemma/test.jsonl",
+    "eval:functiongemma:litert": ".venv/Scripts/python.exe tools/evals/capture_predictions.py --dataset datasets/splitmaa_functiongemma/test.jsonl --model-command \".venv/Scripts/python.exe tools/evals/litert_lm_prompt.py --model C:\\Users\\mario\\OneDrive\\Desktop\\functiongemma-270m-ft-mobile-actions_Google_Tensor_G5.litertlm --cache-dir .cache/litert-lm\" --output reports/functiongemma_eval/litert_predictions.jsonl"
   }
 }

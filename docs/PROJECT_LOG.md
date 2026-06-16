@@ -111,3 +111,11 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - The capture CLI writes `predictions.jsonl` rows with id, input, raw output, stderr, exit code, and latency for later scoring by `tools/evals/run_eval.py`.
 - This keeps the evaluation path independent from the exact desktop LiteRT/FunctionGemma runtime while preserving a stable scoring contract.
 
+### 2026-06-16 - LiteRT-LM Desktop Prompt Runner Added
+- Confirmed the official LiteRT-LM Python API supports Linux, macOS, and Windows and installs from PyPI as `litert-lm-api`.
+- Installed `litert-lm-api==0.13.1` into the local `.venv`.
+- Added `tools/evals/litert_lm_prompt.py`, a one-prompt stdin/stdout wrapper around `litert_lm.Engine(...)` for `.litertlm` desktop inference.
+- Added `eval:functiongemma:litert` as a capture shortcut using the local OneDrive Desktop FunctionGemma `.litertlm` model path.
+- Runtime check: `mobile_actions_q8_ekv1024.litertlm` loads and responds through the Python API, proving the desktop wrapper works.
+- Blocking issue: `functiongemma-270m-ft-mobile-actions_Google_Tensor_G5.litertlm` fails on desktop engine creation with `Input tensor not found`; likely needs a desktop-compatible FunctionGemma `.litertlm` artifact rather than a Google Tensor G5-targeted artifact.
+

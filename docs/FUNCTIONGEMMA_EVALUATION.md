@@ -82,6 +82,46 @@ Useful capture flags:
 - `--timeout-seconds 300` for slow model startup.
 - `--include-prompt` to store prompts in the prediction file while debugging.
 
+## Capture With LiteRT-LM Python
+
+Install the official LiteRT-LM Python package into the local project venv:
+
+```powershell
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install litert-lm-api
+```
+
+Run one prompt through a `.litertlm` model:
+
+```powershell
+"hello" | .venv\Scripts\python.exe tools\evals\litert_lm_prompt.py `
+  --model C:\Users\mario\OneDrive\Desktop\functiongemma-270m-ft-mobile-actions_Google_Tensor_G5.litertlm `
+  --cache-dir .cache\litert-lm
+```
+
+Capture the locked test set:
+
+```powershell
+python tools\evals\capture_predictions.py `
+  --dataset datasets\splitmaa_functiongemma\test.jsonl `
+  --model-command ".venv\Scripts\python.exe tools\evals\litert_lm_prompt.py --model C:\Users\mario\OneDrive\Desktop\functiongemma-270m-ft-mobile-actions_Google_Tensor_G5.litertlm --cache-dir .cache\litert-lm" `
+  --output reports\functiongemma_eval\litert_predictions.jsonl `
+  --timeout-seconds 300
+```
+
+The `cache-dir` should be inside the repo or another writable local folder. Avoid writing runtime cache files next to models in OneDrive.
+
+Current local note: `mobile_actions_q8_ekv1024.litertlm` loads with the LiteRT-LM Python runtime, but it is not the Splitmaa FunctionGemma target. `functiongemma-270m-ft-mobile-actions_Google_Tensor_G5.litertlm` currently fails on desktop engine creation with `Input tensor not found`, so baseline eval needs a desktop-compatible FunctionGemma `.litertlm` artifact.
+
+Then score:
+
+```powershell
+python tools\evals\run_eval.py `
+  --dataset datasets\splitmaa_functiongemma\test.jsonl `
+  --predictions reports\functiongemma_eval\litert_predictions.jsonl `
+  --report reports\functiongemma_eval\litert_baseline.json
+```
+
 ## Score A Command Runner
 
 Use this once a CLI model runner exists. The command receives the prompt on stdin and prints the raw model output to stdout.

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 import time
@@ -222,6 +223,9 @@ def parse_prediction(value: Any) -> tuple[dict[str, Any] | None, str | None]:
         normalized = normalize_tool_call_shape(candidate)
         if normalized is not None:
             return normalized, None
+    native = parse_functiongemma_native(stripped)
+    if native is not None:
+        return native, None
     return None, "could not parse a JSON tool call from model output"
 
 
@@ -267,6 +271,48 @@ def normalize_tool_call_shape(value: Any) -> dict[str, Any] | None:
     if value.get("schemaVersion") == "1.0" and "workflowType" in value:
         return {"name": "extract_workflow_intent", "arguments": value}
 
+    return None
+
+
+def parse_functiongemma_native(text: str) -> dict[str, Any] | None:
+    marker = "call:extract_workflow_intent"
+    start = text.find(marker)
+    if start == -1:
+        return None
+
+    brace_start = text.find("{", start + len(marker))
+    if brace_start == -1:
+        return None
+
+    body = balanced_brace_substring(text, brace_start)
+    if not body:
+        return None
+
+    jsonish = body
+    jsonish = re.sub(r"<escape>(.*?)<escape>", lambda match: json.dumps(match.group(1)), jsonish)
+    jsonish = re.sub(r"([{\[,])\s*([A-Za-z_][A-Za-z0-9_]*)\s*:", r'\1"\2":', jsonish)
+    jsonish = jsonish.replace("'", '"')
+
+    try:
+        arguments = json.loads(jsonish)
+    except json.JSONDecodeError:
+        return None
+
+    if isinstance(arguments, dict):
+        return {"name": "extract_workflow_intent", "arguments": arguments}
+    return None
+
+
+def balanced_brace_substring(text: str, start: int) -> str | None:
+    depth = 0
+    for index in range(start, len(text)):
+        char = text[index]
+        if char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start : index + 1]
     return None
 
 

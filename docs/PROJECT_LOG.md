@@ -163,3 +163,11 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Local load smoke passed with base `google/functiongemma-270m-it` plus the Colab LoRA adapter.
 - First generation smoke produced a FunctionGemma special function-call string but showed quality issues: duplicated contacts and repeated `add_expense` operations. Next step is adapter evaluation and dataset/prompt repair before app integration.
 
+### 2026-06-16 - Colab LoRA Adapter Evaluated Against Locked Test Set
+- Recorded Colab training metrics from the 8-epoch run: validation loss improved from `0.236966` to `0.116501`, entropy improved from `0.227168` to `0.111142`, and mean token accuracy improved from `0.962181` to `0.978566`.
+- Added `tools/evals/hf_peft_predictions.py` to capture predictions from local Hugging Face FunctionGemma plus a PEFT LoRA adapter.
+- Extended `tools/evals/run_eval.py` to parse FunctionGemma's native `<start_function_call>call:extract_workflow_intent{...}` output format in addition to JSON tool calls.
+- Full locked test result for `outputs/functiongemma-splitmaa-lora-colab`: parseable `0.9638`, schema valid `0.7826`, workflow accuracy `0.4928`, operation sequence accuracy `0.2899`, exact intent `0.0072`, leaf argument accuracy `0.4803`.
+- Learning: token-level training metrics looked strong, but workflow-level eval exposed poor semantic routing. The model learned syntax but overuses `multi_step`, `add_expense`, and `provide_missing_field`, and confuses financial operations (`compute_summary`, `compute_total`, `compute_balance`).
+- Tradeoff: do not integrate this adapter into the app yet. Next iteration should simplify/slim the tool schema in prompts, add stronger routing contrast examples, consider LoRA `r=16` with MLP targets, and keep the locked test set unchanged.
+

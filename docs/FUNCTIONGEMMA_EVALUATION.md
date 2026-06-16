@@ -55,6 +55,14 @@ Accepted output field names:
 - `text`
 - `rawOutput`
 
+The scorer also accepts FunctionGemma's native special-call text, for example:
+
+```text
+<start_function_call>call:extract_workflow_intent{schemaVersion:<escape>1.0<escape>,...}<end_function_call>
+```
+
+The parser normalizes that native format into the same `{"name":"extract_workflow_intent","arguments":...}` shape before scoring.
+
 ## Capture Predictions From A Desktop CLI
 
 Use this when you have any desktop model command that reads a prompt from stdin and prints the raw model response to stdout.
@@ -121,6 +129,38 @@ python tools\evals\run_eval.py `
   --predictions reports\functiongemma_eval\litert_predictions.jsonl `
   --report reports\functiongemma_eval\litert_baseline.json
 ```
+
+## Capture With Hugging Face PEFT Adapter
+
+Use this for a LoRA adapter trained from `google/functiongemma-270m-it` before it is merged/exported to a mobile runtime.
+
+```powershell
+.venv-train\Scripts\python.exe tools\evals\hf_peft_predictions.py `
+  --adapter outputs\functiongemma-splitmaa-lora-colab `
+  --output reports\functiongemma_eval\colab_lora_predictions.jsonl `
+  --max-new-tokens 768
+```
+
+Then score:
+
+```powershell
+.venv-train\Scripts\python.exe tools\evals\run_eval.py `
+  --dataset datasets\splitmaa_functiongemma\test.jsonl `
+  --predictions reports\functiongemma_eval\colab_lora_predictions.jsonl `
+  --report reports\functiongemma_eval\colab_lora.json `
+  --failure-limit 200
+```
+
+Current Colab LoRA checkpoint result over the locked 138-example test set:
+
+- parseable: `0.9638`
+- schema valid: `0.7826`
+- workflow accuracy: `0.4928`
+- operation sequence accuracy: `0.2899`
+- exact intent accuracy: `0.0072`
+- leaf argument accuracy: `0.4803`
+
+This checkpoint is not production-ready. It learned the function-call syntax but still over-routes to `multi_step`, overuses `add_expense` / `provide_missing_field`, and confuses financial operations such as `compute_summary`, `compute_total`, and `compute_balance`.
 
 ## Score A Command Runner
 

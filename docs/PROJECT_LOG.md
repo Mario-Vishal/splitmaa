@@ -63,3 +63,11 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Add repository-style SQLite query functions if direct SQL performance becomes necessary.
 - Build and install a fresh Android APK after the SQLite dependency change.
 - Verify create group, add expense, reset local data, and restart persistence on the physical Android device.
+
+### 2026-06-15 - Dataset Batch 003 Promoted
+- Promoted 144 accepted focused examples after tightening weak prompts for `multi_step`, `record_lookup`, and `unsupported`.
+- Added 115 examples to `train.jsonl` and 29 examples to `validation.jsonl`; locked test set stayed unchanged.
+- Current canonical counts: 587 train, 146 validation, 3 test.
+- Rejected 6 `record_lookup` examples because ChatGPT added `amountText` to lookup args, which the strict schema correctly rejects.
+- Learning: focused prompt repair improved `multi_step` and `unsupported` to 50/50 validity; `record_lookup` still needs stronger examples that keep search filters separate from mutation amount fields.
+

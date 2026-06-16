@@ -1,6 +1,6 @@
 {
   "dataset": "splitmaa_functiongemma",
-  "status": "batch_002_promoted",
+  "status": "batch_003_promoted",
   "language": "English",
   "currencies": [
     "USD",
@@ -13,65 +13,45 @@
     "test": 300
   },
   "current_counts": {
-    "train": 472,
-    "validation": 117,
+    "train": 587,
+    "validation": 146,
     "test": 3
   },
   "notes": [
     "Dataset uses the final single extract_workflow_intent tool contract.",
-    "Batch 001 and batch 002 accepted examples were promoted after validator cleanup.",
+    "Batches 001-003 accepted examples were promoted after validator cleanup.",
     "Rejected incoming examples remain archived under incoming_rejected for prompt improvement.",
-    "Batch 002 showed substantial prompt drift in multi_step and unsupported outputs; regenerate those categories with stricter instructions.",
+    "Batch 003 focused on multi_step, record_lookup, and unsupported prompt cleanup; six lookup examples were rejected for invalid amountText fields.",
     "The locked test set should grow deliberately and then remain unchanged."
   ],
   "last_promotion": {
-    "source": "datasets/splitmaa_functiongemma/incoming_accepted/*batch_002.jsonl",
-    "acceptedExamplesPromoted": 256,
-    "trainAdded": 205,
-    "validationAdded": 51,
+    "source": "datasets/splitmaa_functiongemma/incoming_accepted/*batch_003.jsonl",
+    "acceptedExamplesPromoted": 144,
+    "trainAdded": 115,
+    "validationAdded": 29,
     "testAdded": 0,
+    "skippedDuplicates": 0,
     "summary": [
       {
-        "file": "entity_mutation_batch_002.jsonl",
-        "available": 50,
+        "file": "multi_step_batch_003.jsonl",
+        "acceptedAvailable": 50,
+        "skippedDuplicates": 0,
         "promotedToTrain": 40,
         "promotedToValidation": 10
       },
       {
-        "file": "clarification_response_batch_002.jsonl",
-        "available": 50,
+        "file": "record_lookup_batch_003.jsonl",
+        "acceptedAvailable": 44,
+        "skippedDuplicates": 0,
+        "promotedToTrain": 35,
+        "promotedToValidation": 9
+      },
+      {
+        "file": "unsupported_batch_003.jsonl",
+        "acceptedAvailable": 50,
+        "skippedDuplicates": 0,
         "promotedToTrain": 40,
         "promotedToValidation": 10
-      },
-      {
-        "file": "expense_mutation_batch_002.jsonl",
-        "available": 49,
-        "promotedToTrain": 40,
-        "promotedToValidation": 9
-      },
-      {
-        "file": "financial_answer_batch_002.jsonl",
-        "available": 46,
-        "promotedToTrain": 37,
-        "promotedToValidation": 9
-      },
-      {
-        "file": "multi_step_batch_002.jsonl",
-        "available": 27,
-        "promotedToTrain": 22,
-        "promotedToValidation": 5
-      },
-      {
-        "file": "record_lookup_batch_002.jsonl",
-        "available": 33,
-        "promotedToTrain": 26,
-        "promotedToValidation": 7
-      },
-      {
-        "file": "unsupported_batch_002.jsonl",
-        "available": 1,
-        "promotedToTrain": 0,
-        "promotedToValidation": 1
       }
     ]
   }

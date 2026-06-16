@@ -24,6 +24,7 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Rewrote FunctionGemma dataset schema, prompts, seed examples, validator, and converter around the single workflow-intent function.
 - Added a validated realistic reference JSONL file with 70 examples covering the final `extract_workflow_intent` architecture across entity, expense, multi-step, lookup/navigation, financial, clarification-response, and unsupported/adversarial scenarios.
 - Split realistic reference examples into per-workflow JSONL files under `datasets/splitmaa_functiongemma/reference_by_type/` so separate ChatGPT chats can generate focused batches without mixed examples.
+- Added paste-ready web ChatGPT prompt files under `docs/chatgpt_dataset_prompts/`; each file contains inline instructions and examples, so no local file paths need to be pasted into ChatGPT.
 
 ### Learnings
 

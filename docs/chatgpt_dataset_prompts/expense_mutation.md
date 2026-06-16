@@ -1,0 +1,59 @@
+# Expense Mutation Dataset Prompt
+
+Paste this entire prompt into one ChatGPT chat.
+
+```text
+You are generating training data for Splitmaa, an English-only local expense-splitting mobile app.
+
+Return JSONL only.
+One JSON object per line.
+No markdown.
+No code block.
+No JSON array.
+No explanations.
+
+Every line must use this top-level tool name:
+extract_workflow_intent
+
+Every line must use workflowType:
+expense_mutation
+
+Expense operations allowed in this chat:
+- add_expense
+- edit_expense
+- delete_expense
+- settle_up
+- change_split
+
+Rules:
+- Output amountText, never amountCents or amountMinor.
+- Use USD and INR only.
+- The model extracts intent only; the app handles confirmation, IDs, split math, and persistence.
+- Financial writes still extract intent even if they require confirmation later.
+- For missing amount, payer, participants, or target expense, return operations: [] and missingFields.
+- Include realistic long commands, typos, corrections, "I was not part but I paid", and "he owes fully".
+- Top-level expected.name must always be extract_workflow_intent.
+
+Validated examples to follow:
+{"id":"expense_real_001","input":"add milk and eggs for 18 dollars paid by me at safeway split with me Aravind and Pabba mark it as groceries","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"expense_mutation","confidence":0.9,"currencyHint":"USD","operations":[{"operationType":"add_expense","args":{"description":"milk and eggs","amountText":"18 dollars","currency":"USD","paidBy":{"refType":"current_user"},"split":{"splitType":"equal","participants":[{"refType":"current_user"},{"refType":"name","value":"Aravind"},{"refType":"name","value":"Pabba"}]},"category":"groceries","paymentType":"unknown"}}],"missingFields":[],"ambiguities":[]}}}
+{"id":"expense_real_002","input":"coffee was 20$ I paid but I was not part of it split only between Abhishek and Koushik","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"expense_mutation","confidence":0.88,"currencyHint":"USD","operations":[{"operationType":"add_expense","args":{"description":"coffee","amountText":"20$","currency":"USD","paidBy":{"refType":"current_user"},"split":{"splitType":"equal","participants":[{"refType":"name","value":"Abhishek"},{"refType":"name","value":"Koushik"}]},"category":"food","paymentType":"unknown"}}],"missingFields":[],"ambiguities":[]}}}
+{"id":"expense_real_003","input":"biryani 30 dollars for Abhishek he owes the whole thing to me I paid by card","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"expense_mutation","confidence":0.87,"currencyHint":"USD","operations":[{"operationType":"add_expense","args":{"description":"biryani","amountText":"30 dollars","currency":"USD","paidBy":{"refType":"current_user"},"split":{"splitType":"full_amount","participant":{"refType":"name","value":"Abhishek"}},"category":"food","paymentType":"card"}}],"missingFields":[],"ambiguities":[]}}}
+{"id":"expense_real_004","input":"Goa trip cab was 900 rupees Sai paid using upi split it between me Sai and Deepak","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"expense_mutation","confidence":0.89,"currencyHint":"INR","operations":[{"operationType":"add_expense","args":{"groupRef":{"refType":"name","value":"Goa trip"},"description":"cab","amountText":"900 rupees","currency":"INR","paidBy":{"refType":"name","value":"Sai"},"split":{"splitType":"equal","participants":[{"refType":"current_user"},{"refType":"name","value":"Sai"},{"refType":"name","value":"Deepak"}]},"category":"transport","paymentType":"upi"}}],"missingFields":[],"ambiguities":[]}}}
+{"id":"expense_real_005","input":"car and gas was 20 dollars sorry actually 40 dollars I paid split with me Ravi and Neha for Vegas weekend","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"expense_mutation","confidence":0.88,"currencyHint":"USD","operations":[{"operationType":"add_expense","args":{"groupRef":{"refType":"name","value":"Vegas weekend"},"description":"car and gas","amountText":"40 dollars","currency":"USD","paidBy":{"refType":"current_user"},"split":{"splitType":"equal","participants":[{"refType":"current_user"},{"refType":"name","value":"Ravi"},{"refType":"name","value":"Neha"}]},"category":"transport","paymentType":"unknown"}}],"missingFields":[],"ambiguities":[]}}}
+{"id":"expense_real_006","input":"record that Deepak paid me 25 bucks through venmo yesterday for the old dinner balance","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"expense_mutation","confidence":0.87,"currencyHint":"USD","operations":[{"operationType":"settle_up","args":{"from":{"refType":"name","value":"Deepak"},"to":{"refType":"current_user"},"amountText":"25 bucks","currency":"USD","paymentType":"venmo","date":{"dateText":"yesterday","dateIntent":"yesterday"}}}],"missingFields":[],"ambiguities":[]}}}
+{"id":"expense_real_007","input":"I paid Sai 500 rupees cash today settle that amount from me to Sai","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"expense_mutation","confidence":0.86,"currencyHint":"INR","operations":[{"operationType":"settle_up","args":{"from":{"refType":"current_user"},"to":{"refType":"name","value":"Sai"},"amountText":"500 rupees","currency":"INR","paymentType":"cash","date":{"dateText":"today","dateIntent":"today"}}}],"missingFields":[],"ambiguities":[]}}}
+{"id":"expense_real_008","input":"delete the milk expense from yesterday but obviously ask before deleting because I might be wrong","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"expense_mutation","confidence":0.78,"operations":[{"operationType":"delete_expense","args":{"expenseRef":{"refType":"name","value":"milk"}}}],"missingFields":[],"ambiguities":["The app must require strong confirmation before deleting an expense."]}}}
+{"id":"expense_real_009","input":"change the dinner split to include Pabba also keep the same people already there and add him","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"expense_mutation","confidence":0.78,"operations":[{"operationType":"change_split","args":{"expenseRef":{"refType":"name","value":"dinner"},"split":{"splitType":"equal","participants":[{"refType":"last_result"},{"refType":"name","value":"Pabba"}]}}}],"missingFields":[],"ambiguities":["The app must resolve the existing dinner split participants before applying the change."]}}}
+{"id":"expense_real_010","input":"add dinner from yesterday I don't remember the amount yet and I also forgot who paid so ask me those details","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"expense_mutation","confidence":0.72,"operations":[],"missingFields":["amount","paidBy","participants"],"ambiguities":[]}}}
+
+Generate 50 new JSONL examples.
+Distribution:
+- 30 add_expense
+- 10 settle_up
+- 5 change_split
+- 3 edit_expense
+- 2 delete_expense
+
+Use ids like expense_batch_001, expense_batch_002, etc.
+Return JSONL only.
+```

@@ -118,21 +118,21 @@ extract_workflow_intent
 {"id":"example_unsupported_001","input":"book a flight to Goa","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"unsupported","confidence":0.92,"operations":[],"missingFields":[],"ambiguities":["I cannot book travel; I can only manage local Splitmaa expense data."]}}}
 ```
 
-## Realistic Reference Examples
+## Paste-Ready Web ChatGPT Prompts
 
-Use the per-type reference files as your primary few-shot material when generating batches. Each file is meant for a separate ChatGPT chat:
+For web ChatGPT, use these paste-ready files. Each one contains the full instructions and inline examples, so ChatGPT does not need to know any local file paths:
 
-```powershell
-Get-Content datasets\splitmaa_functiongemma\reference_by_type\entity_mutation_examples.jsonl
-Get-Content datasets\splitmaa_functiongemma\reference_by_type\expense_mutation_examples.jsonl
-Get-Content datasets\splitmaa_functiongemma\reference_by_type\multi_step_examples.jsonl
-Get-Content datasets\splitmaa_functiongemma\reference_by_type\record_lookup_examples.jsonl
-Get-Content datasets\splitmaa_functiongemma\reference_by_type\financial_answer_examples.jsonl
-Get-Content datasets\splitmaa_functiongemma\reference_by_type\clarification_response_examples.jsonl
-Get-Content datasets\splitmaa_functiongemma\reference_by_type\unsupported_examples.jsonl
-```
+- `docs/chatgpt_dataset_prompts/entity_mutation.md`
+- `docs/chatgpt_dataset_prompts/expense_mutation.md`
+- `docs/chatgpt_dataset_prompts/multi_step.md`
+- `docs/chatgpt_dataset_prompts/record_lookup.md`
+- `docs/chatgpt_dataset_prompts/financial_answer.md`
+- `docs/chatgpt_dataset_prompts/clarification_response.md`
+- `docs/chatgpt_dataset_prompts/unsupported.md`
 
-When asking ChatGPT to generate a batch, paste the Master Prompt, then paste the full matching per-type file. Do not paste mixed examples into a focused chat unless you are intentionally generating a boundary/adversarial batch. Do not paste old examples with tool names like `create_group`, `add_expense`, `search_records`, or `draft_expense_plan` at the top level. Those are retired. The only top-level tool name is `extract_workflow_intent`.
+Open the relevant file, copy the entire contents, paste it into a fresh web ChatGPT chat, and save ChatGPT's JSONL output into `datasets/splitmaa_functiongemma/incoming/`.
+
+Do not paste old examples with tool names like `create_group`, `add_expense`, `search_records`, or `draft_expense_plan` at the top level. Those are retired. The only top-level tool name is `extract_workflow_intent`.
 
 The model must learn this distinction:
 
@@ -156,17 +156,18 @@ Below are validated Splitmaa examples. Copy the same architecture exactly:
 Now generate new examples with different names, amounts, dates, groups, wording, typos, and speech-to-text phrasing.
 ```
 
-## Batch Prompts
+## Local Reference JSONL
 
-For each batch, paste the Master Prompt, the Few-Shot Examples, and one of these requests.
+Validated examples are also stored as JSONL under `datasets/splitmaa_functiongemma/reference_by_type/` for local validation and future tooling. These JSONL files are not meant to be pasted as path references into ChatGPT; use the paste-ready `.md` files above.
+
+## Batch Prompt Summaries
+
+The paste-ready files already include these batch requests. This section is a quick summary only.
 
 ### Entity Mutation Batch
 
 ```text
 Generate 50 JSONL examples for entity_mutation.
-Use these validated examples as few-shot references first:
-datasets/splitmaa_functiongemma/reference_by_type/entity_mutation_examples.jsonl
-
 Distribution:
 - 20 create_contact
 - 20 create_group
@@ -181,9 +182,6 @@ Return JSONL only.
 
 ```text
 Generate 50 JSONL examples for expense_mutation.
-Use these validated examples as few-shot references first:
-datasets/splitmaa_functiongemma/reference_by_type/expense_mutation_examples.jsonl
-
 Distribution:
 - 30 add_expense
 - 10 settle_up
@@ -200,9 +198,6 @@ Return JSONL only.
 
 ```text
 Generate 50 JSONL examples for multi_step.
-Use these validated examples as few-shot references first:
-datasets/splitmaa_functiongemma/reference_by_type/multi_step_examples.jsonl
-
 Every example must have 2-5 operations.
 Include group creation plus expense, add member plus expense, multiple expenses, contact creation plus group creation, and corrections.
 Keep operations semantic; do not include DB lookup or UI display chains.
@@ -214,9 +209,6 @@ Return JSONL only.
 
 ```text
 Generate 50 JSONL examples for record_lookup.
-Use these validated examples as few-shot references first:
-datasets/splitmaa_functiongemma/reference_by_type/record_lookup_examples.jsonl
-
 Distribution:
 - 20 search_records
 - 15 open_record
@@ -233,9 +225,6 @@ Return JSONL only.
 
 ```text
 Generate 50 JSONL examples for financial_answer.
-Use these validated examples as few-shot references first:
-datasets/splitmaa_functiongemma/reference_by_type/financial_answer_examples.jsonl
-
 Distribution:
 - 15 compute_balance
 - 10 compute_total
@@ -251,9 +240,6 @@ Return JSONL only.
 
 ```text
 Generate 50 JSONL examples for clarification_response.
-Use these validated examples as few-shot references first:
-datasets/splitmaa_functiongemma/reference_by_type/clarification_response_examples.jsonl
-
 Include:
 - "the second one" ordinal selection
 - "choose Abhishek Rao" label selection
@@ -270,11 +256,6 @@ Return JSONL only.
 
 ```text
 Generate 75 JSONL examples across all workflow types.
-Use these validated examples as few-shot references first:
-datasets/splitmaa_functiongemma/reference_by_type/unsupported_examples.jsonl
-datasets/splitmaa_functiongemma/reference_by_type/multi_step_examples.jsonl
-datasets/splitmaa_functiongemma/reference_by_type/expense_mutation_examples.jsonl
-
 Include:
 - routing boundary: "Create dinner group with Pabba" vs "Add dinner $20 with Pabba" vs "Create dinner group with Pabba and add dinner $20"
 - ambiguous references: "add this to that group", "show it again", "same people as last time"

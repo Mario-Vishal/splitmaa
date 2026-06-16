@@ -54,6 +54,7 @@ Distribution:
 - 3 edit_expense
 - 2 delete_expense
 
-Use ids like expense_batch_001, expense_batch_002, etc.
+Use ids like expense_batch_004_001, expense_batch_004_002, etc.
+Do not reuse ids or wording from earlier batches.
 Return JSONL only.
 ```

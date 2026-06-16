@@ -49,6 +49,7 @@ Distribution:
 - 15 compute_summary
 - 10 compute_date_window_total
 
-Use ids like financial_batch_001, financial_batch_002, etc.
+Use ids like financial_batch_004_001, financial_batch_004_002, etc.
+Do not reuse ids or wording from earlier batches.
 Return JSONL only.
 ```

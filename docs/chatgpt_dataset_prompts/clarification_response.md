@@ -43,6 +43,7 @@ Validated examples to follow:
 {"id":"clarification_real_010","input":"use the first result from the search list and open that one","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"clarification_response","confidence":0.9,"pendingWorkflowRef":{"refType":"active_pending_workflow"},"pendingEventType":"search_result_picker","operations":[{"operationType":"select_option","args":{"selection":{"selectionType":"ordinal","ordinal":1,"rawText":"use the first result from the search list and open that one"}}}],"missingFields":[],"ambiguities":[]}}}
 
 Generate 50 new JSONL examples.
-Use ids like clarification_response_batch_001, clarification_response_batch_002, etc.
+Use ids like clarification_response_batch_004_001, clarification_response_batch_004_002, etc.
+Do not reuse ids or wording from earlier batches.
 Return JSONL only.
 ```

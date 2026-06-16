@@ -50,10 +50,11 @@ pip install torch tensorboard transformers datasets accelerate evaluate trl prot
 
 Login to Hugging Face after accepting the `google/functiongemma-270m-it` license:
 
-```python
-from huggingface_hub import login
-login()
+```powershell
+.venv-train\Scripts\python.exe tools\finetune\hf_ipv4_login.py
 ```
+
+This project uses the helper above because the normal `hf auth login` may fail on Windows networks where `huggingface.co` resolves through a broken IPv6 route. The helper stores the token through `huggingface_hub.login(...)` and verifies access to `google/functiongemma-270m-it`.
 
 Run training:
 

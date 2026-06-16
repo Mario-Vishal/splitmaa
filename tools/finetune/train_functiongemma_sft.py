@@ -8,7 +8,17 @@ https://ai.google.dev/gemma/docs/functiongemma/finetuning-with-functiongemma
 from __future__ import annotations
 
 import argparse
+import socket
 from pathlib import Path
+
+
+def force_ipv4() -> None:
+    original_getaddrinfo = socket.getaddrinfo
+
+    def ipv4_getaddrinfo(*args, **kwargs):
+        return [info for info in original_getaddrinfo(*args, **kwargs) if info[0] == socket.AF_INET]
+
+    socket.getaddrinfo = ipv4_getaddrinfo  # type: ignore[assignment]
 
 
 def main() -> int:
@@ -22,7 +32,11 @@ def main() -> int:
     parser.add_argument("--batch-size", type=int, default=4)
     parser.add_argument("--max-length", type=int, default=1024)
     parser.add_argument("--push-to-hub", action="store_true")
+    parser.add_argument("--no-force-ipv4", action="store_true", help="Do not force IPv4 for Hugging Face downloads.")
     args = parser.parse_args()
+
+    if not args.no_force_ipv4:
+        force_ipv4()
 
     try:
         import torch

@@ -132,3 +132,9 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Verified CUDA is available on `NVIDIA GeForce RTX 5070 Ti Laptop GPU`.
 - Converted train and validation into FunctionGemma chat/tool-call JSONL artifacts: 827 train examples and 206 validation examples.
 
+### 2026-06-16 - Hugging Face IPv4 Login Workaround Added
+- `hf auth login` failed during token verification with `WinError 10054`; plain `curl` also reset unless forced to IPv4.
+- Verified `curl -4 https://huggingface.co` succeeds and an IPv4-forced Python request reaches Hugging Face.
+- Added `tools/finetune/hf_ipv4_login.py` to log in without exposing the token in shell history and to verify access to `google/functiongemma-270m-it`.
+- Updated `train_functiongemma_sft.py` to force IPv4 for Hugging Face downloads by default, with `--no-force-ipv4` as an escape hatch.
+

@@ -5,14 +5,16 @@ Use these prompts in ChatGPT web to generate Splitmaa canonical staging JSONL. G
 Validation command:
 
 ```powershell
-python tools/finetune/validate_splitmaa_dataset.py datasets/splitmaa_functiongemma/incoming/chatgpt_batch_001.jsonl
+python tools/finetune/validate_splitmaa_dataset.py --strict-routing datasets/splitmaa_functiongemma/incoming/chatgpt_batch_001.jsonl
 ```
 
 Full split validation:
 
 ```powershell
-python tools/finetune/validate_splitmaa_dataset.py datasets/splitmaa_functiongemma/train.jsonl datasets/splitmaa_functiongemma/validation.jsonl datasets/splitmaa_functiongemma/test.jsonl
+python tools/finetune/validate_splitmaa_dataset.py --strict-routing datasets/splitmaa_functiongemma/train.jsonl datasets/splitmaa_functiongemma/validation.jsonl datasets/splitmaa_functiongemma/test.jsonl
 ```
+
+Strict routing is required for new curated data. It rejects examples where `workflowType` does not match the operation family, especially `multi_step` examples with fewer than two concrete operations. The first Colab LoRA run showed that loose routing labels teach the model to overuse `multi_step`, `add_expense`, and `provide_missing_field`.
 
 ## Master Prompt
 

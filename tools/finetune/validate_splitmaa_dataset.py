@@ -43,6 +43,16 @@ OPERATION_TYPES = {
     "provide_missing_field",
     "cancel_pending_workflow",
 }
+ENTITY_OPERATIONS = {"create_contact", "create_group", "add_group_member", "remove_group_member"}
+EXPENSE_OPERATIONS = {"add_expense", "edit_expense", "delete_expense", "settle_up", "change_split"}
+LOOKUP_OPERATIONS = {"search_records", "open_record", "list_records", "show_previous", "get_record_metadata"}
+FINANCIAL_OPERATIONS = {"compute_balance", "compute_total", "compute_summary", "compute_date_window_total"}
+CLARIFICATION_OPERATIONS = {
+    "select_option",
+    "provide_contact_details",
+    "provide_missing_field",
+    "cancel_pending_workflow",
+}
 ALLOWED_CURRENCIES = {"USD", "INR"}
 ALLOWED_ENTITY_TYPES = {"contact", "group", "expense", "settlement", "activity_log"}
 ALLOWED_REFS = {"current_user", "name", "record_ref", "last_result", "active_pending_workflow"}
@@ -59,6 +69,11 @@ ALLOWED_SUMMARY_TYPES = {
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("paths", nargs="+", type=Path)
+    parser.add_argument(
+        "--strict-routing",
+        action="store_true",
+        help="Also validate workflowType against operation families. Use for curated training/eval data.",
+    )
     args = parser.parse_args()
 
     errors: list[str] = []
@@ -78,7 +93,7 @@ def main() -> int:
                     errors.append(f"{path}:{line_number}: invalid JSON: {exc}")
                     continue
 
-                errors.extend(validate_item(item, path, line_number, seen_ids))
+                errors.extend(validate_item(item, path, line_number, seen_ids, strict_routing=args.strict_routing))
 
     if errors:
         for error in errors:
@@ -90,7 +105,7 @@ def main() -> int:
     return 0
 
 
-def validate_item(item: Any, path: Path, line_number: int, seen_ids: set[str]) -> list[str]:
+def validate_item(item: Any, path: Path, line_number: int, seen_ids: set[str], strict_routing: bool = False) -> list[str]:
     errors: list[str] = []
     prefix = f"{path}:{line_number}"
 
@@ -123,11 +138,11 @@ def validate_item(item: Any, path: Path, line_number: int, seen_ids: set[str]) -
         errors.append(f"{prefix}: expected.arguments must be an object")
         return errors
 
-    errors.extend(validate_intent(expected["arguments"], prefix))
+    errors.extend(validate_intent(expected["arguments"], prefix, strict_routing=strict_routing))
     return errors
 
 
-def validate_intent(arguments: dict[str, Any], prefix: str) -> list[str]:
+def validate_intent(arguments: dict[str, Any], prefix: str, strict_routing: bool = False) -> list[str]:
     errors: list[str] = []
     allowed = {
         "schemaVersion",
@@ -172,6 +187,50 @@ def validate_intent(arguments: dict[str, Any], prefix: str) -> list[str]:
 
     if arguments.get("workflowType") != "unsupported" and not operations and not missing_fields:
         errors.append(f"{prefix}: non-unsupported intents need operations or missingFields")
+    if strict_routing:
+        errors.extend(validate_workflow_routing(arguments, operations, f"{prefix}.arguments"))
+
+    return errors
+
+
+def validate_workflow_routing(arguments: dict[str, Any], operations: list[Any], prefix: str) -> list[str]:
+    workflow_type = arguments.get("workflowType")
+    operation_types = [op.get("operationType") for op in operations if isinstance(op, dict)]
+    errors: list[str] = []
+
+    def reject_unless(allowed: set[str], label: str) -> None:
+        invalid = [op for op in operation_types if op not in allowed]
+        if invalid:
+            errors.append(f"{prefix}: {workflow_type} cannot contain {invalid}; expected only {label} operations")
+
+    if workflow_type == "unsupported":
+        if operation_types:
+            errors.append(f"{prefix}: unsupported must not contain operations")
+    elif workflow_type == "clarification_response":
+        reject_unless(CLARIFICATION_OPERATIONS, "clarification")
+        if not arguments.get("pendingWorkflowRef"):
+            errors.append(f"{prefix}: clarification_response requires pendingWorkflowRef")
+        if not arguments.get("pendingEventType"):
+            errors.append(f"{prefix}: clarification_response requires pendingEventType")
+    elif workflow_type == "entity_mutation":
+        reject_unless(ENTITY_OPERATIONS, "entity")
+        if len(operation_types) != 1:
+            errors.append(f"{prefix}: entity_mutation should contain exactly one entity operation")
+    elif workflow_type == "expense_mutation":
+        reject_unless(EXPENSE_OPERATIONS, "expense")
+        if len(operation_types) != 1:
+            errors.append(f"{prefix}: expense_mutation should contain exactly one expense operation")
+    elif workflow_type == "record_lookup":
+        reject_unless(LOOKUP_OPERATIONS, "lookup")
+        if len(operation_types) != 1:
+            errors.append(f"{prefix}: record_lookup should contain exactly one lookup operation")
+    elif workflow_type == "financial_answer":
+        reject_unless(FINANCIAL_OPERATIONS, "financial")
+        if len(operation_types) != 1:
+            errors.append(f"{prefix}: financial_answer should contain exactly one financial operation")
+    elif workflow_type == "multi_step":
+        if len(operation_types) < 2:
+            errors.append(f"{prefix}: multi_step requires at least two concrete operations")
 
     return errors
 

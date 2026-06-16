@@ -171,3 +171,11 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Learning: token-level training metrics looked strong, but workflow-level eval exposed poor semantic routing. The model learned syntax but overuses `multi_step`, `add_expense`, and `provide_missing_field`, and confuses financial operations (`compute_summary`, `compute_total`, `compute_balance`).
 - Tradeoff: do not integrate this adapter into the app yet. Next iteration should simplify/slim the tool schema in prompts, add stronger routing contrast examples, consider LoRA `r=16` with MLP targets, and keep the locked test set unchanged.
 
+### 2026-06-16 - Dataset Routing Drift Root Cause Found
+- Audited train/validation/test workflow distribution and token lengths after poor adapter eval.
+- Dataset size is modest but not the only issue: `train.jsonl` has 827 examples, with `multi_step` overrepresented at 322 examples and `add_expense` appearing 313 times.
+- Full FunctionGemma rows are 650-1172 tokens because every example repeats the full tool schema, while the user text is usually only 10-15 words. This weakens the useful signal per training token.
+- Found major routing label drift: 189 training examples and 46 validation examples are labeled `multi_step` with zero or one concrete operation. Some examples with IDs like `entity_mutation_batch_002_*` and `clarification_response_batch_002_*` are incorrectly labeled as `multi_step`.
+- Added optional `--strict-routing` validation to catch workflow/operation mismatches. Current strict audit reports 279 routing-quality errors: 244 are `multi_step requires at least two concrete operations`.
+- Learning: the first adapter did not fail because the language was too natural or because FunctionGemma 270M is too small. It mostly learned a noisy routing distribution where `multi_step` and `add_expense` were overrepresented and sometimes mislabeled.
+

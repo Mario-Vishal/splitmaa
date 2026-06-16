@@ -25,6 +25,8 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Added a validated realistic reference JSONL file with 70 examples covering the final `extract_workflow_intent` architecture across entity, expense, multi-step, lookup/navigation, financial, clarification-response, and unsupported/adversarial scenarios.
 - Split realistic reference examples into per-workflow JSONL files under `datasets/splitmaa_functiongemma/reference_by_type/` so separate ChatGPT chats can generate focused batches without mixed examples.
 - Added paste-ready web ChatGPT prompt files under `docs/chatgpt_dataset_prompts/`; each file contains inline instructions and examples, so no local file paths need to be pasted into ChatGPT.
+- Validated the first pasted ChatGPT batch: 322 accepted examples and 28 rejected examples.
+- Promoted batch 001 into dataset splits: train now has 267 examples, validation has 66 examples, and locked test remains at 3 examples.
 
 ### Learnings
 
@@ -37,7 +39,7 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Kept Zustand and screen data shape unchanged for this phase; SQLite is hidden behind the existing storage adapter.
 - Query helpers currently run over validated `LocalAppState` loaded from SQLite instead of exposing raw SQL repositories to screens.
 - AsyncStorage migration leaves the old key untouched for development rollback.
-- Dataset files are starter scaffolds only; final train/validation/test sizes still need generated and reviewed batches.
+- Dataset files now contain the first promoted clean batch, but final train/validation/test sizes still need more generated and reviewed batches.
 - Complex natural-language commands should use `workflowType: "multi_step"` inside `extract_workflow_intent`; the app remains responsible for contact lookup, duplicate disambiguation, missing full-name/email UI, confirmation, split math, and persistence.
 - Existing UI execution still bridges validated workflow intents into current app actions; the durable workflow engine over `workflow_state` is the next implementation layer.
 
@@ -52,7 +54,7 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 
 - Add mobile persistence unit tests around the SQLite adapter.
 - Implement workflow-state execution services: create workflow rows, resolve entities, emit UI events, confirmation tokens, guarded commit, and audit rows.
-- Generate dataset batches by workflow type, validate them locally, and grow the locked test set carefully.
+- Generate the next dataset batch by workflow type, validate it locally, and continue growing train toward 1,500+ examples and validation toward 300 examples.
 - Use `docs/FUNCTIONGEMMA_DATASET_PROMPTS.md` as the source prompt library for ChatGPT batch generation.
 - Add repository-style SQLite query functions if direct SQL performance becomes necessary.
 - Build and install a fresh Android APK after the SQLite dependency change.

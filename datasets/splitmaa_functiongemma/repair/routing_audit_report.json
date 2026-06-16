@@ -1,0 +1,174 @@
+{
+  "datasetDir": "datasets\\splitmaa_functiongemma",
+  "outputDir": "datasets\\splitmaa_functiongemma\\repair",
+  "splits": {
+    "train": {
+      "source": "datasets\\splitmaa_functiongemma\\train.jsonl",
+      "cleanPath": "datasets\\splitmaa_functiongemma\\repair\\train.clean.jsonl",
+      "badPath": "datasets\\splitmaa_functiongemma\\repair\\routing_bad_train.jsonl",
+      "rows": 827,
+      "cleanRows": 626,
+      "badRows": 201,
+      "errors": 201,
+      "errorTypes": {
+        "multi_step requires at least two concrete operations": 189,
+        "clarification_response requires pendingEventType": 9,
+        "expense_mutation should contain exactly one expense operation": 2,
+        "entity_mutation should contain exactly one entity operation": 1
+      },
+      "workflowCounts": {
+        "multi_step": 322,
+        "record_lookup": 110,
+        "expense_mutation": 84,
+        "entity_mutation": 82,
+        "clarification_response": 80,
+        "financial_answer": 79,
+        "unsupported": 70
+      },
+      "badWorkflowCounts": {
+        "multi_step": 189,
+        "clarification_response": 9,
+        "expense_mutation": 2,
+        "entity_mutation": 1
+      },
+      "badOperationCounts": {
+        "add_expense": 22,
+        "create_contact": 17,
+        "create_group": 16,
+        "provide_missing_field": 16,
+        "compute_summary": 15,
+        "cancel_pending_workflow": 13,
+        "select_option": 9,
+        "settle_up": 9,
+        "compute_date_window_total": 9,
+        "compute_balance": 9,
+        "open_record": 9,
+        "search_records": 8,
+        "provide_contact_details": 7,
+        "add_group_member": 6,
+        "change_split": 5,
+        "show_previous": 5,
+        "compute_total": 4,
+        "list_records": 4,
+        "remove_group_member": 3,
+        "edit_expense": 2,
+        "delete_expense": 2
+      }
+    },
+    "validation": {
+      "source": "datasets\\splitmaa_functiongemma\\validation.jsonl",
+      "cleanPath": "datasets\\splitmaa_functiongemma\\repair\\validation.clean.jsonl",
+      "badPath": "datasets\\splitmaa_functiongemma\\repair\\routing_bad_validation.jsonl",
+      "rows": 206,
+      "cleanRows": 152,
+      "badRows": 54,
+      "errors": 54,
+      "errorTypes": {
+        "multi_step requires at least two concrete operations": 46,
+        "expense_mutation should contain exactly one expense operation": 4,
+        "clarification_response requires pendingEventType": 3,
+        "entity_mutation should contain exactly one entity operation": 1
+      },
+      "workflowCounts": {
+        "multi_step": 79,
+        "record_lookup": 28,
+        "expense_mutation": 24,
+        "financial_answer": 20,
+        "entity_mutation": 20,
+        "clarification_response": 20,
+        "unsupported": 15
+      },
+      "badWorkflowCounts": {
+        "multi_step": 46,
+        "expense_mutation": 4,
+        "clarification_response": 3,
+        "entity_mutation": 1
+      },
+      "badOperationCounts": {
+        "add_expense": 7,
+        "compute_balance": 6,
+        "cancel_pending_workflow": 4,
+        "create_group": 4,
+        "provide_missing_field": 4,
+        "create_contact": 3,
+        "select_option": 3,
+        "open_record": 3,
+        "search_records": 3,
+        "remove_group_member": 2,
+        "compute_total": 2,
+        "add_group_member": 2,
+        "provide_contact_details": 1,
+        "settle_up": 1,
+        "edit_expense": 1,
+        "compute_date_window_total": 1,
+        "list_records": 1
+      }
+    },
+    "test": {
+      "source": "datasets\\splitmaa_functiongemma\\test.jsonl",
+      "cleanPath": "datasets\\splitmaa_functiongemma\\repair\\test.clean.jsonl",
+      "badPath": "datasets\\splitmaa_functiongemma\\repair\\routing_bad_test.jsonl",
+      "rows": 138,
+      "cleanRows": 114,
+      "badRows": 24,
+      "errors": 24,
+      "errorTypes": {
+        "multi_step requires at least two concrete operations": 9,
+        "entity_mutation should contain exactly one entity operation": 5,
+        "expense_mutation should contain exactly one expense operation": 5,
+        "financial_answer should contain exactly one financial operation": 3,
+        "clarification_response requires pendingEventType": 2
+      },
+      "workflowCounts": {
+        "financial_answer": 34,
+        "multi_step": 28,
+        "expense_mutation": 19,
+        "record_lookup": 16,
+        "clarification_response": 15,
+        "entity_mutation": 15,
+        "unsupported": 11
+      },
+      "badWorkflowCounts": {
+        "multi_step": 9,
+        "entity_mutation": 5,
+        "expense_mutation": 5,
+        "financial_answer": 3,
+        "clarification_response": 2
+      },
+      "badOperationCounts": {
+        "compute_summary": 3,
+        "cancel_pending_workflow": 2,
+        "add_group_member": 2
+      }
+    }
+  },
+  "totals": {
+    "rows": 1171,
+    "cleanRows": 892,
+    "badRows": 279,
+    "errors": 279,
+    "errorTypes": {
+      "multi_step requires at least two concrete operations": 244,
+      "clarification_response requires pendingEventType": 14,
+      "expense_mutation should contain exactly one expense operation": 11,
+      "entity_mutation should contain exactly one entity operation": 7,
+      "financial_answer should contain exactly one financial operation": 3
+    },
+    "workflowCounts": {
+      "multi_step": 429,
+      "record_lookup": 154,
+      "financial_answer": 133,
+      "expense_mutation": 127,
+      "entity_mutation": 117,
+      "clarification_response": 115,
+      "unsupported": 96
+    },
+    "badWorkflowCounts": {
+      "multi_step": 244,
+      "clarification_response": 14,
+      "expense_mutation": 11,
+      "entity_mutation": 7,
+      "financial_answer": 3
+    }
+  }
+}

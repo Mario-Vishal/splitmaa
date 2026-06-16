@@ -179,3 +179,10 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Added optional `--strict-routing` validation to catch workflow/operation mismatches. Current strict audit reports 279 routing-quality errors: 244 are `multi_step requires at least two concrete operations`.
 - Learning: the first adapter did not fail because the language was too natural or because FunctionGemma 270M is too small. It mostly learned a noisy routing distribution where `multi_step` and `add_expense` were overrepresented and sometimes mislabeled.
 
+### 2026-06-16 - Routing Repair Split Generated
+- Added `tools/finetune/audit_routing_dataset.py` to split dataset rows into strict-routing clean candidates and bad review files without mutating canonical train/validation/test.
+- Generated repair artifacts under `datasets/splitmaa_functiongemma/repair/`: `train.clean.jsonl`, `validation.clean.jsonl`, `test.clean.jsonl`, per-split `routing_bad_*.jsonl`, and `routing_audit_report.json`.
+- Clean/bad counts: total `1171` rows -> `892` clean and `279` bad; train `626/201`, validation `152/54`, test `114/24`.
+- Suggested repair actions across bad rows: relabel to entity `49`, expense `49`, financial `46`, clarification `45`, lookup `33`; regenerate/discard missing-operation rows `22`; split/relabel workflow rows `21`; add pending event type or regenerate `14`.
+- Tradeoff: training on only clean rows reduces volume by about 24%, but it removes the dominant routing noise. Next step is to create corrected train/validation v2 from repair suggestions, while keeping the locked test set unchanged and separately noting known label issues.
+

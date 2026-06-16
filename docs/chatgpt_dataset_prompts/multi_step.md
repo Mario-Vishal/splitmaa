@@ -44,6 +44,7 @@ Validated examples to follow:
 {"id":"multi_real_010","input":"create a group add Sai and add dinner 40 dollars I am missing the group name and who dinner was split with","expected":{"name":"extract_workflow_intent","arguments":{"schemaVersion":"1.0","workflowType":"multi_step","confidence":0.7,"operations":[],"missingFields":["groupName","paidBy","participants"],"ambiguities":[]}}}
 
 Generate 50 new JSONL examples.
-Use ids exactly like multi_step_batch_003_001, multi_step_batch_003_002, etc.
+Use ids exactly like multi_step_batch_005_001, multi_step_batch_005_002, etc.
+Do not reuse ids or wording from earlier batches.
 Return JSONL only.
 ```

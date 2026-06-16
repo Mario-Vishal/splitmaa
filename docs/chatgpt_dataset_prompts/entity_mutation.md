@@ -56,6 +56,7 @@ Distribution:
 - 5 add_group_member
 - 5 remove_group_member
 
-Use ids like entity_batch_001, entity_batch_002, etc.
+Use ids exactly like entity_batch_005_001, entity_batch_005_002, etc.
+Do not reuse ids or wording from earlier batches.
 Return JSONL only.
 ```

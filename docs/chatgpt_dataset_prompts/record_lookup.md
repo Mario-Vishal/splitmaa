@@ -37,6 +37,8 @@ Rules:
 - For open_record args, only use entityType, recordRef, searchQuery, and highlightRef. Never use personRef or groupRef.
 - For list_records args, groupRef is allowed.
 - For search_records args, personRef and groupRef are allowed.
+- Lookup operations must never include amountText, amountMinor, amountCents, paidBy, split, participants, paymentType, or mutation-style fields.
+- If the user says "find the $20 milk expense", put "$20 milk" in query or use currency only if needed; do not add amountText.
 - Every operation must be {"operationType":"...","args":{...}}.
 
 Validated examples to follow:
@@ -59,6 +61,7 @@ Distribution:
 - 5 show_previous
 - 5 get_record_metadata
 
-Use ids exactly like lookup_batch_003_001, lookup_batch_003_002, etc.
+Use ids exactly like lookup_batch_005_001, lookup_batch_005_002, etc.
+Do not reuse ids or wording from earlier batches.
 Return JSONL only.
 ```

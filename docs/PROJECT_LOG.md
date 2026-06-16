@@ -151,3 +151,9 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Updated `train_functiongemma_sft.py` to default to train batch size 2, eval batch size 1, loss-only eval, eval accumulation, epoch checkpoint saves, and periodic CUDA cache clears.
 - Updated fine-tuning docs with the safer Windows command and fallback knobs: `--batch-size 1` or `--max-length 768` if memory still runs out.
 
+### 2026-06-16 - Lean LoRA Windows Training Path Verified
+- Rechecked the assumption that 12 GB VRAM should be enough for FunctionGemma 270M; manual LoRA forward/backward passed and used only a small fraction of available GPU memory.
+- Identified two tooling problems rather than a hardware-size problem: TRL's entropy metric materialized full-vocabulary logits, and `datasets.load_dataset(...)` hung in the Windows local environment.
+- Reworked `train_functiongemma_sft.py` so the default Windows path is lean PEFT LoRA with local JSONL loading, local snapshot resolution, `bfloat16`, train batch size 1, gradient accumulation 4, and attention-projection LoRA targets.
+- Verified `--max-length 1024` one-step training and full validation smoke tests complete without OOM on the RTX 5070 Ti Laptop GPU.
+

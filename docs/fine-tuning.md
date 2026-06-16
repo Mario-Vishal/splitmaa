@@ -45,7 +45,7 @@ python tools\finetune\convert_to_functiongemma.py datasets\splitmaa_functiongemm
 Install dependencies in a GPU environment:
 
 ```bash
-pip install torch tensorboard transformers datasets accelerate evaluate trl protobuf sentencepiece
+pip install torch tensorboard transformers datasets accelerate evaluate trl peft protobuf sentencepiece
 ```
 
 Login to Hugging Face after accepting the `google/functiongemma-270m-it` license:
@@ -72,24 +72,35 @@ Run training:
   --train datasets\splitmaa_functiongemma\train.functiongemma.jsonl `
   --validation datasets\splitmaa_functiongemma\validation.functiongemma.jsonl `
   --output-dir outputs\functiongemma-splitmaa-sft `
-  --batch-size 2 `
+  --trainer-backend lean `
+  --training-mode lora `
+  --batch-size 1 `
   --eval-batch-size 1 `
+  --gradient-accumulation-steps 4 `
   --epochs 8 `
-  --max-length 1024
+  --max-length 1024 `
+  --local-files-only
 ```
 
-Default training settings mirror Google's starter guide:
+Default Windows training settings use a lean local LoRA path:
 
 - learning rate: `5e-5`
 - epochs: `8`
-- train batch size: `2`
+- train batch size: `1`
 - eval batch size: `1`
+- gradient accumulation steps: `4`
+- LoRA rank: `8`
+- LoRA alpha: `16`
+- LoRA target modules: attention projections by default
 - optimizer: `adamw_torch_fused`
 - eval strategy: `epoch`
 - save strategy: `epoch`
 - packing: `false`
+- dtype: `bfloat16`
 
-On a 12 GB Windows GPU, validation can run out of memory if eval uses the same batch size as training. Keep `--eval-batch-size 1`; if training still runs out of memory, rerun with `--batch-size 1` or `--max-length 768`.
+The Windows path intentionally avoids Hugging Face Datasets for the lean trainer because `datasets.load_dataset(...)` hung in the local environment. It also avoids TRL's extra token entropy/accuracy metric path, which materialized full-vocabulary logits and caused VRAM spikes. Manual and scripted smoke tests passed on the 12 GB RTX 5070 Ti Laptop GPU at `--max-length 1024`, including a full validation pass.
+
+Full fine-tuning is not the recommended local Windows path. For this project, use LoRA first; merge/export later after the adapter is validated.
 
 ## Evaluate
 

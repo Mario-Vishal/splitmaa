@@ -125,3 +125,10 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Added `tools/finetune/train_functiongemma_sft.py` as the project training entrypoint for GPU/Colab/Kaggle/Vertex environments.
 - Updated fine-tuning docs with the official SFT flow and conversion/training commands.
 
+### 2026-06-16 - Windows Training Environment Prepared
+- Default Windows Python was 3.14.5, which is too new for reliable PyTorch training wheels.
+- Installed local Python 3.12.13 through `uv` and created `.venv-train`.
+- Installed CUDA PyTorch `2.11.0+cu128` plus Hugging Face/TRL training dependencies.
+- Verified CUDA is available on `NVIDIA GeForce RTX 5070 Ti Laptop GPU`.
+- Converted train and validation into FunctionGemma chat/tool-call JSONL artifacts: 827 train examples and 206 validation examples.
+

@@ -92,3 +92,10 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Rejected 45 examples: mostly `multi_step` old operation names (`add_member`, `remove_member`, `update_expense`, `full_owed`) and `financial_answer` unsupported metrics/fields (`person_total`, `expense_total`, `filters`, `categoryRef`).
 - Learning: the golden prompts need stricter negative constraints than training prompts because the requested harder examples caused ChatGPT to invent older schema aliases.
 
+### 2026-06-15 - Golden Test Repair 002 Promoted
+- Ran a repair-only golden test pass for `multi_step` and `financial_answer`.
+- Accepted 45 of 50 examples and appended them only to `test.jsonl`; train and validation were unchanged.
+- Current canonical counts: 827 train, 206 validation, 138 test.
+- Rejected 5 `multi_step` examples where ChatGPT still used invalid `create_contact` fields (`name`, `currency`) or invalid settlement `counterparty` fields.
+- Learning: financial answer is now clean under strict metric/field constraints; multi-step needs one more small repair prompt if we want every category to hit the original target count.
+

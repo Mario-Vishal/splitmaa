@@ -106,3 +106,8 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Self-test over the locked `test.jsonl` set passed at 1.0 for all metrics across 138 examples.
 - Reports are generated under `reports/functiongemma_eval/` and ignored by git.
 
+### 2026-06-15 - Desktop Eval Capture CLI Added
+- Added `tools/evals/capture_predictions.py` to run the locked eval set through any desktop model command that reads prompts from stdin.
+- The capture CLI writes `predictions.jsonl` rows with id, input, raw output, stderr, exit code, and latency for later scoring by `tools/evals/run_eval.py`.
+- This keeps the evaluation path independent from the exact desktop LiteRT/FunctionGemma runtime while preserving a stable scoring contract.
+

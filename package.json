@@ -15,6 +15,7 @@
     "lint": "pnpm -r lint",
     "eval:smoke": "python tools/evals/run_eval.py --dataset datasets/splitmaa_functiongemma/test.jsonl --self-test-with-expected --limit 50",
     "eval:functiongemma:self": "python tools/evals/run_eval.py --dataset datasets/splitmaa_functiongemma/test.jsonl --self-test-with-expected",
-    "eval:functiongemma": "python tools/evals/run_eval.py --dataset datasets/splitmaa_functiongemma/test.jsonl"
+    "eval:functiongemma": "python tools/evals/run_eval.py --dataset datasets/splitmaa_functiongemma/test.jsonl",
+    "eval:functiongemma:capture": "python tools/evals/capture_predictions.py --dataset datasets/splitmaa_functiongemma/test.jsonl"
   }
 }

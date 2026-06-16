@@ -55,6 +55,33 @@ Accepted output field names:
 - `text`
 - `rawOutput`
 
+## Capture Predictions From A Desktop CLI
+
+Use this when you have any desktop model command that reads a prompt from stdin and prints the raw model response to stdout.
+
+```powershell
+python tools\evals\capture_predictions.py `
+  --dataset datasets\splitmaa_functiongemma\test.jsonl `
+  --model-command "your-model-command --model C:\path\to\model" `
+  --output reports\functiongemma_eval\baseline_predictions.jsonl
+```
+
+Then score the captured file:
+
+```powershell
+python tools\evals\run_eval.py `
+  --dataset datasets\splitmaa_functiongemma\test.jsonl `
+  --predictions reports\functiongemma_eval\baseline_predictions.jsonl `
+  --report reports\functiongemma_eval\baseline.json
+```
+
+Useful capture flags:
+
+- `--limit 10` for a quick smoke run.
+- `--resume` to continue a partially captured file.
+- `--timeout-seconds 300` for slow model startup.
+- `--include-prompt` to store prompts in the prediction file while debugging.
+
 ## Score A Command Runner
 
 Use this once a CLI model runner exists. The command receives the prompt on stdin and prints the raw model output to stdout.
@@ -75,4 +102,3 @@ reports/functiongemma_eval/
 ```
 
 They are intentionally ignored by git. Commit datasets, prompts, and evaluator code; keep local model reports as reproducible artifacts unless a specific report needs to be attached to an issue or release note.
-

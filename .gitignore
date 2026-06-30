@@ -39,4 +39,5 @@ __pycache__/
 outputs/
 tools/finetune/outputs/
 reports/functiongemma_eval/
-datasets/splitmaa_functiongemma/*.functiongemma.jsonl
+datasets/splitmaa_functiongemma/**/*.functiongemma.jsonl
+datasets/splitmaa_functiongemma/**/*.pretty.json

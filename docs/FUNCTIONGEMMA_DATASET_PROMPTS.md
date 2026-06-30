@@ -79,6 +79,12 @@ Money rule:
 - Do not output amountCents, amountMinor, or floating point math.
 - The app converts money.
 
+Percentage split rule:
+- Use `splitType: "percentage"` only with `allocations`.
+- Each allocation must be `{"participant": ref, "percentText": "50%"}`.
+- Do not output numeric `percent`, `share`, `amount`, or custom split aliases.
+- Example: `{"splitType":"percentage","allocations":[{"participant":{"refType":"name","value":"David"},"percentText":"50%"},{"participant":{"refType":"current_user"},"percentText":"25%"},{"participant":{"refType":"name","value":"Alex"},"percentText":"25%"}]}`.
+
 Date rule:
 - Output dateText and dateIntent when dates are mentioned.
 - Do not resolve absolute UTC ranges yourself unless the user explicitly gives exact dates.
@@ -92,6 +98,7 @@ Important behavior:
 - Use missingFields for incomplete Splitmaa actions.
 - Use unsupported only for requests outside Splitmaa's domain.
 - Search and navigation are semantic operations. Do not train raw chains like search_records -> show_search_results -> open_record.
+- For a missing amount inside a larger valid command, keep `amountText` as an empty string and include `missingFields: ["amount"]`.
 
 Include realistic mobile phrasing, common typos, speech-to-text style, run-on commands, corrections like "sorry actually", and ambiguous references.
 Do not include EUR, GBP, crypto, bank sync, cloud sync, invoices, or non-expense product features.
@@ -150,6 +157,7 @@ Below are validated Splitmaa examples. Copy the same architecture exactly:
 - arguments.schemaVersion must be "1.0"
 - use workflowType and operations
 - use amountText, never amountCents
+- use percentage allocations with percentText, never numeric percent fields
 - use dateText/dateIntent, never resolved UTC dates unless the user gave exact dates
 - use refs like {"refType":"current_user"} and {"refType":"name","value":"Pabba"}
 - incomplete Splitmaa requests use missingFields

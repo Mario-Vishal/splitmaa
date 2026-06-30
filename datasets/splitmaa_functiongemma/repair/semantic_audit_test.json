@@ -1,0 +1,11 @@
+{
+  "paths": [
+    "datasets\\splitmaa_functiongemma\\test.jsonl"
+  ],
+  "rows": 138,
+  "findings": 0,
+  "blockingFindings": 0,
+  "ruleCounts": {},
+  "severityCounts": {},
+  "items": []
+}

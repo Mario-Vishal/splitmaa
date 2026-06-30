@@ -14,6 +14,7 @@ Rules:
 - No markdown, no JSON arrays, no comments inside JSONL files.
 - The model outputs names and natural references, not trusted database IDs, unless the ID came from trusted pending UI context.
 - The model outputs `amountText` and `currency`; the app converts to minor units.
+- The model may output percentage splits as `splitType: "percentage"` with `percentText`; the app validates totals and computes money.
 - The model outputs `dateText` and `dateIntent`; the app resolves timezone-aware UTC boundaries.
 - Incomplete Splitmaa actions use `missingFields`, not `unsupported`.
 - Out-of-domain requests use `workflowType: "unsupported"`.
@@ -51,6 +52,16 @@ Reference shapes:
 {"refType":"active_pending_workflow"}
 ```
 
+Supported split shapes:
+
+```json
+{"splitType":"equal","participants":[{"refType":"current_user"},{"refType":"name","value":"Pabba"}]}
+{"splitType":"full_amount","participant":{"refType":"name","value":"Pabba"}}
+{"splitType":"percentage","allocations":[{"participant":{"refType":"name","value":"David"},"percentText":"50%"},{"participant":{"refType":"current_user"},"percentText":"25%"},{"participant":{"refType":"name","value":"Alex"},"percentText":"25%"}]}
+```
+
+For missing amounts inside otherwise useful workflows, keep `amountText` as an empty string and include a top-level `missingFields` entry containing `amount`.
+
 Example multi-step command:
 
 ```json
@@ -66,7 +77,8 @@ Clarification response example:
 Validation command:
 
 ```powershell
-python tools/finetune/validate_splitmaa_dataset.py datasets/splitmaa_functiongemma/train.jsonl datasets/splitmaa_functiongemma/validation.jsonl datasets/splitmaa_functiongemma/test.jsonl
+python tools/finetune/validate_splitmaa_dataset.py --strict-routing datasets/splitmaa_functiongemma/train.jsonl datasets/splitmaa_functiongemma/validation.jsonl datasets/splitmaa_functiongemma/test.jsonl
+python tools/finetune/semantic_audit_dataset.py datasets/splitmaa_functiongemma/v3/train.v3.jsonl datasets/splitmaa_functiongemma/v3/validation.v3.jsonl datasets/splitmaa_functiongemma/v3/test.v3.jsonl --fail-on-blocking
 ```
 
 The local validator is the source of truth before examples move into train, validation, or locked test files.

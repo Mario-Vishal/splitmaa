@@ -182,8 +182,9 @@ def validate_intent(arguments: dict[str, Any], prefix: str, strict_routing: bool
     if not isinstance(ambiguities, list) or any(not_nonempty_string(item) for item in ambiguities):
         errors.append(f"{prefix}: ambiguities must be a string array")
 
+    missing_field_values = missing_fields if isinstance(missing_fields, list) else []
     for index, operation in enumerate(operations, start=1):
-        errors.extend(validate_operation(operation, f"{prefix}.operation[{index}]"))
+        errors.extend(validate_operation(operation, f"{prefix}.operation[{index}]", missing_field_values))
 
     if arguments.get("workflowType") != "unsupported" and not operations and not missing_fields:
         errors.append(f"{prefix}: non-unsupported intents need operations or missingFields")
@@ -196,6 +197,8 @@ def validate_intent(arguments: dict[str, Any], prefix: str, strict_routing: bool
 def validate_workflow_routing(arguments: dict[str, Any], operations: list[Any], prefix: str) -> list[str]:
     workflow_type = arguments.get("workflowType")
     operation_types = [op.get("operationType") for op in operations if isinstance(op, dict)]
+    missing_fields = arguments.get("missingFields")
+    has_missing_fields = isinstance(missing_fields, list) and len(missing_fields) > 0
     errors: list[str] = []
 
     def reject_unless(allowed: set[str], label: str) -> None:
@@ -214,28 +217,38 @@ def validate_workflow_routing(arguments: dict[str, Any], operations: list[Any], 
             errors.append(f"{prefix}: clarification_response requires pendingEventType")
     elif workflow_type == "entity_mutation":
         reject_unless(ENTITY_OPERATIONS, "entity")
-        if len(operation_types) != 1:
+        if len(operation_types) == 0 and has_missing_fields:
+            pass
+        elif len(operation_types) != 1:
             errors.append(f"{prefix}: entity_mutation should contain exactly one entity operation")
     elif workflow_type == "expense_mutation":
         reject_unless(EXPENSE_OPERATIONS, "expense")
-        if len(operation_types) != 1:
+        if len(operation_types) == 0 and has_missing_fields:
+            pass
+        elif len(operation_types) != 1:
             errors.append(f"{prefix}: expense_mutation should contain exactly one expense operation")
     elif workflow_type == "record_lookup":
         reject_unless(LOOKUP_OPERATIONS, "lookup")
-        if len(operation_types) != 1:
+        if len(operation_types) == 0 and has_missing_fields:
+            pass
+        elif len(operation_types) != 1:
             errors.append(f"{prefix}: record_lookup should contain exactly one lookup operation")
     elif workflow_type == "financial_answer":
         reject_unless(FINANCIAL_OPERATIONS, "financial")
-        if len(operation_types) != 1:
+        if len(operation_types) == 0 and has_missing_fields:
+            pass
+        elif len(operation_types) != 1:
             errors.append(f"{prefix}: financial_answer should contain exactly one financial operation")
     elif workflow_type == "multi_step":
-        if len(operation_types) < 2:
+        if len(operation_types) == 0 and has_missing_fields:
+            pass
+        elif len(operation_types) < 2:
             errors.append(f"{prefix}: multi_step requires at least two concrete operations")
 
     return errors
 
 
-def validate_operation(operation: Any, prefix: str) -> list[str]:
+def validate_operation(operation: Any, prefix: str, missing_fields: list[Any] | None = None) -> list[str]:
     errors: list[str] = []
     if not isinstance(operation, dict):
         return [f"{prefix}: operation must be an object"]
@@ -260,7 +273,7 @@ def validate_operation(operation: Any, prefix: str) -> list[str]:
     elif operation_type == "add_expense":
         assert_subset_keys(args, {"description", "amountText", "currency", "groupRef", "paidBy", "split", "category", "paymentType", "date"}, f"{prefix}.args", errors)
         require_string(args, "description", prefix, errors)
-        require_string(args, "amountText", prefix, errors)
+        require_amount_text(args, prefix, errors, missing_fields or [])
         validate_currency(args, "currency", prefix, errors)
         validate_ref(args.get("paidBy"), f"{prefix}.args.paidBy", errors)
         validate_split(args.get("split"), f"{prefix}.args.split", errors)
@@ -307,8 +320,25 @@ def validate_split(value: Any, prefix: str, errors: list[str]) -> None:
     elif split_type == "full_amount":
         assert_exact_keys(value, {"splitType", "participant"}, prefix, errors)
         validate_ref(value.get("participant"), f"{prefix}.participant", errors)
+    elif split_type == "percentage":
+        assert_exact_keys(value, {"splitType", "allocations"}, prefix, errors)
+        allocations = value.get("allocations")
+        if not isinstance(allocations, list) or not allocations:
+            errors.append(f"{prefix}.allocations: allocations must be a non-empty array")
+            return
+        for index, allocation in enumerate(allocations, start=1):
+            validate_percentage_allocation(allocation, f"{prefix}.allocations[{index}]", errors)
     else:
         errors.append(f"{prefix}: invalid splitType {split_type!r}")
+
+
+def validate_percentage_allocation(value: Any, prefix: str, errors: list[str]) -> None:
+    if not isinstance(value, dict):
+        errors.append(f"{prefix}: allocation must be an object")
+        return
+    assert_exact_keys(value, {"participant", "percentText"}, prefix, errors)
+    validate_ref(value.get("participant"), f"{prefix}.participant", errors)
+    require_string(value, "percentText", prefix, errors)
 
 
 def require_refs(value: Any, prefix: str, errors: list[str]) -> None:
@@ -370,6 +400,16 @@ def find_currency_values(value: Any) -> list[str]:
 def require_string(arguments: dict[str, Any], key: str, prefix: str, errors: list[str]) -> None:
     if not isinstance(arguments.get(key), str) or not arguments.get(key).strip():
         errors.append(f"{prefix}: {key} must be a non-empty string")
+
+
+def require_amount_text(arguments: dict[str, Any], prefix: str, errors: list[str], missing_fields: list[Any]) -> None:
+    if not isinstance(arguments.get("amountText"), str):
+        errors.append(f"{prefix}: amountText must be a string")
+        return
+    if arguments["amountText"].strip():
+        return
+    if not any(isinstance(field, str) and "amount" in field.lower() for field in missing_fields):
+        errors.append(f"{prefix}: amountText must be non-empty unless top-level missingFields includes amount")
 
 
 def not_nonempty_string(value: Any) -> bool:

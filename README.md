@@ -10,8 +10,8 @@ The project is framed as an AI system first: a small local function-calling mode
 
 Local MVP is moving into the local-first AI phase.
 
-- Real: pnpm monorepo scaffold, Expo mobile reference client, Splitwise/Notion-inspired Home, Groups, Contacts, and Diagnostics screens, group/contact detail views, compact bottom-sheet assistant, confirmation cards, FunctionGemma-only parser adapter, single `extract_workflow_intent` model-facing function, strict workflow operation schemas, Android LiteRT-LM native runner module, Android debug APK build, deterministic action application, SQLite local persistence with one-time AsyncStorage migration, workflow state/audit tables, local query/search/navigation helpers, smoke eval runner, guided create-group execution animation, starter fine-tune dataset tooling, project plan, TODO tracker, and project log.
-- Not complete yet: full workflow engine UI for persisted `workflow_state`, Splitmaa-specific fine-tuned FunctionGemma model, final 1,500-3,000 example training dataset, mobile SQLite adapter unit tests, speech-to-text, Supabase sync.
+- Real: pnpm monorepo scaffold, Expo mobile reference client, Splitwise/Notion-inspired Home, Groups, Contacts, and Diagnostics screens, group/contact detail views, compact bottom-sheet assistant, confirmation cards, FunctionGemma-only parser adapter, single `extract_workflow_intent` model-facing function, strict workflow operation schemas, Android LiteRT-LM native runner module, Android debug APK build, deterministic action application, SQLite local persistence with one-time AsyncStorage migration, workflow state/audit tables, local query/search/navigation helpers, smoke eval runner, guided create-group execution animation, v3 FunctionGemma dataset with percentage splits and semantic audit gates, project plan, TODO tracker, and project log.
+- Not complete yet: full workflow engine UI for persisted `workflow_state`, Splitmaa-specific fine-tuned FunctionGemma model trained on v3, mobile SQLite adapter unit tests, speech-to-text, Supabase sync.
 
 GitHub: https://github.com/Mario-Vishal/splitmaa
 
@@ -131,13 +131,14 @@ docs/FUNCTIONGEMMA_DATASET_PROMPTS.md
 Validate generated batches:
 
 ```bash
-python tools/finetune/validate_splitmaa_dataset.py datasets/splitmaa_functiongemma/train.jsonl datasets/splitmaa_functiongemma/validation.jsonl datasets/splitmaa_functiongemma/test.jsonl
+python tools/finetune/validate_splitmaa_dataset.py --strict-routing datasets/splitmaa_functiongemma/v3/train.v3.jsonl datasets/splitmaa_functiongemma/v3/validation.v3.jsonl datasets/splitmaa_functiongemma/v3/test.v3.jsonl
+python tools/finetune/semantic_audit_dataset.py datasets/splitmaa_functiongemma/v3/train.v3.jsonl datasets/splitmaa_functiongemma/v3/validation.v3.jsonl datasets/splitmaa_functiongemma/v3/test.v3.jsonl --fail-on-blocking
 ```
 
 Convert a validated split to FunctionGemma chat/tool-call JSONL:
 
 ```bash
-python tools/finetune/convert_to_functiongemma.py datasets/splitmaa_functiongemma/train.jsonl .local-models/splitmaa_train.functiongemma.jsonl
+python tools/finetune/convert_to_functiongemma.py datasets/splitmaa_functiongemma/v3/train.v3.jsonl datasets/splitmaa_functiongemma/v3/train.v3.functiongemma.jsonl
 ```
 
 ## Roadmap

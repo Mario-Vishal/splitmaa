@@ -1,0 +1,13 @@
+{
+  "paths": [
+    "datasets\\splitmaa_functiongemma\\v3\\train.v3.jsonl",
+    "datasets\\splitmaa_functiongemma\\v3\\validation.v3.jsonl",
+    "datasets\\splitmaa_functiongemma\\v3\\test.v3.jsonl"
+  ],
+  "rows": 2172,
+  "findings": 0,
+  "blockingFindings": 0,
+  "ruleCounts": {},
+  "severityCounts": {},
+  "items": []
+}

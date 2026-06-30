@@ -1,0 +1,172 @@
+{
+  "baseCounts": {
+    "train": 815,
+    "validation": 199,
+    "test": 138
+  },
+  "generatedCounts": {
+    "train": 980,
+    "validation": 180,
+    "test": 180
+  },
+  "splits": {
+    "train": {
+      "path": "datasets\\splitmaa_functiongemma\\v3\\train.v3.jsonl",
+      "rows": 1516,
+      "workflowCounts": {
+        "multi_step": 519,
+        "expense_mutation": 300,
+        "entity_mutation": 177,
+        "record_lookup": 176,
+        "financial_answer": 143,
+        "clarification_response": 124,
+        "unsupported": 77
+      },
+      "operationCounts": {
+        "add_expense": 1646,
+        "create_group": 572,
+        "create_contact": 84,
+        "search_records": 77,
+        "compute_summary": 63,
+        "provide_missing_field": 62,
+        "add_group_member": 53,
+        "open_record": 49,
+        "select_option": 42,
+        "compute_balance": 37,
+        "compute_date_window_total": 27,
+        "settle_up": 26,
+        "provide_contact_details": 21,
+        "show_previous": 19,
+        "compute_total": 16,
+        "get_record_metadata": 16,
+        "change_split": 15,
+        "list_records": 15,
+        "cancel_pending_workflow": 15,
+        "remove_group_member": 12,
+        "edit_expense": 5,
+        "delete_expense": 3
+      },
+      "inputStyleCounts": {
+        "messy": 1203,
+        "clean": 313
+      },
+      "operationCountDistribution": {
+        "0": 79,
+        "1": 912,
+        "2": 12,
+        "3": 113,
+        "4": 400
+      },
+      "splitTypeCounts": {
+        "equal": 1125,
+        "percentage": 420,
+        "full_amount": 101
+      },
+      "maxInputWords": 56
+    },
+    "validation": {
+      "path": "datasets\\splitmaa_functiongemma\\v3\\validation.v3.jsonl",
+      "rows": 360,
+      "workflowCounts": {
+        "multi_step": 114,
+        "expense_mutation": 58,
+        "record_lookup": 51,
+        "financial_answer": 41,
+        "entity_mutation": 41,
+        "clarification_response": 33,
+        "unsupported": 22
+      },
+      "operationCounts": {
+        "add_expense": 345,
+        "create_group": 126,
+        "compute_summary": 22,
+        "search_records": 20,
+        "add_group_member": 18,
+        "provide_missing_field": 18,
+        "open_record": 17,
+        "create_contact": 10,
+        "compute_balance": 9,
+        "select_option": 8,
+        "compute_total": 7,
+        "settle_up": 5,
+        "list_records": 5,
+        "show_previous": 5,
+        "cancel_pending_workflow": 5,
+        "provide_contact_details": 4,
+        "edit_expense": 4,
+        "get_record_metadata": 4,
+        "delete_expense": 3,
+        "compute_date_window_total": 3,
+        "remove_group_member": 3
+      },
+      "inputStyleCounts": {
+        "messy": 289,
+        "clean": 71
+      },
+      "operationCountDistribution": {
+        "0": 24,
+        "1": 222,
+        "2": 4,
+        "3": 29,
+        "4": 81
+      },
+      "splitTypeCounts": {
+        "equal": 237,
+        "percentage": 85,
+        "full_amount": 23
+      },
+      "maxInputWords": 56
+    },
+    "test": {
+      "path": "datasets\\splitmaa_functiongemma\\v3\\test.v3.jsonl",
+      "rows": 296,
+      "workflowCounts": {
+        "multi_step": 108,
+        "expense_mutation": 50,
+        "financial_answer": 48,
+        "record_lookup": 31,
+        "entity_mutation": 26,
+        "clarification_response": 20,
+        "unsupported": 13
+      },
+      "operationCounts": {
+        "add_expense": 296,
+        "create_group": 98,
+        "compute_summary": 30,
+        "add_group_member": 15,
+        "compute_date_window_total": 10,
+        "search_records": 10,
+        "select_option": 9,
+        "compute_balance": 9,
+        "get_record_metadata": 8,
+        "provide_missing_field": 7,
+        "change_split": 6,
+        "open_record": 6,
+        "remove_group_member": 5,
+        "edit_expense": 4,
+        "list_records": 4,
+        "cancel_pending_workflow": 3,
+        "delete_expense": 3,
+        "show_previous": 3,
+        "provide_contact_details": 2
+      },
+      "inputStyleCounts": {
+        "messy": 218,
+        "clean": 78
+      },
+      "operationCountDistribution": {
+        "0": 35,
+        "1": 161,
+        "2": 14,
+        "3": 5,
+        "4": 81
+      },
+      "splitTypeCounts": {
+        "equal": 202,
+        "percentage": 84,
+        "full_amount": 10
+      },
+      "maxInputWords": 56
+    }
+  }
+}

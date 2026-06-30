@@ -193,3 +193,25 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Auto-fixed `236` rows by relabeling obvious single-operation rows and adding missing clarification context where deterministic. Left ambiguous missing-operation and split/relabel rows for manual review.
 - Strict validation passes over v2 train and validation. Converted local ignored FunctionGemma files: `train.v2.functiongemma.jsonl` and `validation.v2.functiongemma.jsonl`.
 
+### 2026-06-16 - Workflow Test Authoring Visualization Added
+- Added `docs/workflow-visualization.html` as a standalone interactive reference for manually writing and reviewing FunctionGemma dataset rows.
+- The page maps the code schema into workflow routing rules, operation schemas, enum lists, JSONL examples, date handling, `show_previous` semantics, lookup boundaries, and a manual review checklist.
+- Flowthis MCP config exists locally at `http://localhost:5373/mcp`, but this Codex session did not expose Flowthis upload tools, so the artifact remains local until a fresh session exposes the Flowthis MCP tools.
+
+### 2026-06-29 - Local Teacher Bakeoff And Dataset Trust Policy
+- Tested local Ollama models for Splitmaa dataset generation. Plain `ollama run` caused visible thinking/reasoning leakage even when the prompt requested JSON only.
+- Ollama structured API with `format` JSON schema, `stream:false`, `think:false`, and low temperature prevented thinking leakage, but smaller models still invented invalid schema fields.
+- Large-model structured bakeoff: `qwen3.5:27b` produced the best candidate row under a strict schema but took about 188 seconds; `gemma4:26b` was faster at about 58 seconds but made a payer error; `gpt-oss:20b` returned an empty strict-schema response; `qwen3-coder:30b` crashed the local Ollama/CUDA runner.
+- Decision: local models are candidate generators only, not trusted labelers. Trusted rows must pass schema validation, strict routing, semantic audits, dedupe, and Codex/manual review before promotion.
+- Article note: this was the key lesson from synthetic data work. Structured JSON output is necessary but not sufficient; semantic label quality still needs app-specific gates.
+
+### 2026-06-29 - Percentage Splits, Semantic Audit, And V3 Dataset Built
+- Extended dataset validation for `splitType: "percentage"` using `allocations` with `participant` refs and `percentText`. The model still outputs text; the app will validate totals and compute money later.
+- Relaxed strict routing for incomplete Splitmaa actions: zero-operation rows are allowed when `missingFields` explains the missing information.
+- Repaired the locked `test.jsonl` set: added missing `pendingEventType` values, relabeled one multi-member entity command to `multi_step`, and relabeled one three-metric financial summary to `multi_step`.
+- Added `tools/finetune/semantic_audit_dataset.py` for high-risk checks around corrections, exclusions, percentage splits, missing amounts, payer extraction, and numeric money fields.
+- Added `tools/finetune/build_v3_dataset.py` to build v3 splits from the repaired/v2 base plus Codex-authored high-risk mobile/TTS examples.
+- V3 counts: train `1516`, validation `360`, test `296`, total `2172`. V3 input style is intentionally messy-heavy: train `1203` messy / `313` clean, validation `289` messy / `71` clean, test `218` messy / `78` clean.
+- V3 split coverage includes `percentage` examples: train `420`, validation `85`, test `84`; long multi-step examples now reach 56 words and 4 operations.
+- Validation status: strict dataset validation passes across all `2172` v3 rows; semantic audit passes with zero blocking findings; evaluator self-test over `test.v3.jsonl` passes at `1.0` for all metrics.
+

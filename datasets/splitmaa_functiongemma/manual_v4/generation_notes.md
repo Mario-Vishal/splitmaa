@@ -8,14 +8,14 @@ This folder is the manually authored FunctionGemma staging dataset for Splitmaa.
 - Validation, semantic audit, dedupe, pretty-printing, conversion, and reporting scripts may be used only as checks.
 
 ## Current Status
-- `train.jsonl`, `validation.jsonl`, and `test.jsonl` contain 700 manually authored rows:
-  - train: 490
-  - validation: 105
-  - test: 105
-- Strict routing validation passes for all 700 rows.
+- `train.jsonl`, `validation.jsonl`, and `test.jsonl` contain 800 manually authored rows:
+  - train: 560
+  - validation: 120
+  - test: 120
+- Strict routing validation passes for all 800 rows.
 - Semantic audit passes with zero findings.
 - Input uniqueness checks report zero exact duplicates, zero normalized shape duplicates, and zero near-duplicate pairs at the current review threshold.
-- The initial 600-row manual seed target is complete, and expansion has reached a 700-row checkpoint. The next target is 1,500-1,800 training rows before serious LoRA training.
+- The initial 600-row manual seed target is complete, and expansion has reached an 800-row checkpoint. The next target is 1,500-1,800 training rows before serious LoRA training.
 - The existing `v3` dataset is retained only as stress/validator data and is not the trusted training source.
 
 ## Authoring Rules

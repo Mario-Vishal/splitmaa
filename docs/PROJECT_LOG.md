@@ -272,3 +272,10 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Learning: the validator caught unsupported schema drift (`aliases`, unsupported financial metrics/query fields) and the duplicate scan caught repeated short sentence shells. Both were repaired before promotion.
 - Next step: keep expanding manually in reviewed checkpoints until the train split is large enough for a stronger LoRA run, while preserving validation/test uniqueness.
 
+### 2026-06-30 - Manual V4 Expanded To 800 Rows
+- Expanded `manual_v4` by another 100 manually authored rows: train `560`, validation `120`, test `120`, total `800`.
+- The new batch continued hard-case coverage across multi-step commands, missing amounts, corrections, percentage splits, full-owed expenses, settlements, search/open/highlight intents, date-window financial questions, clarification replies, and unsupported boundary requests.
+- Quality gates pass at this checkpoint: strict routing `800/800`, semantic audit zero findings, exact duplicate inputs zero, normalized shape duplicate inputs zero, duplicate IDs zero, and near-duplicate pairs zero at threshold `0.78`.
+- Learning: as the corpus grows, the near-duplicate scan can surface older rows that become too close to newer phrasing. Rewriting those rows before committing keeps the manual set from drifting into repeated shells.
+- Next step: continue manual expansion in 100-row checkpoints or pause to run a dry eval only if we want failure-guided authoring before the 1,500+ train-row target.
+

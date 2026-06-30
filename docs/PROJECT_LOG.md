@@ -302,3 +302,11 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Learning: as the manual corpus gets bigger, the strict validator is necessary but insufficient. The semantic audit caught a payer/name conflict, and the near-duplicate scan caught repeated short-command shapes. Both checks should remain mandatory before future dataset commits.
 - Remaining to frozen pre-training target: `1,000` rows total, aiming for train `1,700`, validation `350`, locked test `350`.
 
+### 2026-06-30 - Manual V4 Expanded To 1,500 Rows
+- Expanded `manual_v4` by another 100 manually authored rows: train `1,050`, validation `225`, test `225`, total `1,500`.
+- The new block added fresh contexts around brunch, hostel mess, dog park, art class, coding meetup, family dinner, music sessions, temple drives, taco nights, and coffee crawls. Coverage again includes multi-step creation, missing amounts, percentage splits, full-owed expenses, settlements, search/open/highlight intent, date-window financial questions, clarification replies, and unsupported app-boundary requests.
+- Quality gates pass at this checkpoint: strict routing `1,500/1,500`, semantic audit zero findings, evaluator self-test over the locked test split at `1.0` for all reported metrics.
+- Converted passing train and validation splits into FunctionGemma format: `train.functiongemma.jsonl` has `1,050` examples and `validation.functiongemma.jsonl` has `225` examples.
+- Duplicate review: exact normalized duplicate inputs are zero. Near-duplicate scan at threshold `0.78` reports `12` low-risk pairs, primarily short lookup/financial command shapes that remain semantically distinct.
+- Remaining to frozen pre-training target: `900` rows total, aiming for train `1,700`, validation `350`, locked test `350`.
+

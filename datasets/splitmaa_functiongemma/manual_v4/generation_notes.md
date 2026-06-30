@@ -8,18 +8,18 @@ This folder is the manually authored FunctionGemma staging dataset for Splitmaa.
 - Validation, semantic audit, dedupe, pretty-printing, conversion, and reporting scripts may be used only as checks.
 
 ## Current Status
-- `train.jsonl`, `validation.jsonl`, and `test.jsonl` contain 1,400 manually authored rows:
-  - train: 980
-  - validation: 210
-  - test: 210
-- Strict routing validation passes for all 1,400 rows.
+- `train.jsonl`, `validation.jsonl`, and `test.jsonl` contain 1,500 manually authored rows:
+  - train: 1,050
+  - validation: 225
+  - test: 225
+- Strict routing validation passes for all 1,500 rows.
 - Semantic audit passes with zero findings.
 - Evaluator self-test over the locked test split passes at 1.0 across parseability, schema validity, workflow accuracy, operation sequence accuracy, exact intent, and leaf argument accuracy.
-- Input uniqueness checks report zero exact duplicates. The latest near-duplicate scan reports 7 low-risk pairs at threshold 0.78, mostly short command shapes that remain semantically distinct.
-- The initial 600-row manual seed target is complete, and expansion has reached a 1,400-row checkpoint.
+- Input uniqueness checks report zero exact duplicates. The latest near-duplicate scan reports 12 low-risk pairs at threshold 0.78, mostly short command shapes that remain semantically distinct.
+- The initial 600-row manual seed target is complete, and expansion has reached a 1,500-row checkpoint.
 - Passing train and validation splits have been converted to FunctionGemma format:
-  - `train.functiongemma.jsonl`: 980 examples
-  - `validation.functiongemma.jsonl`: 210 examples
+  - `train.functiongemma.jsonl`: 1,050 examples
+  - `validation.functiongemma.jsonl`: 225 examples
 - The frozen pre-training target is 2,400 rows total:
   - train: 1,700
   - validation: 350

@@ -341,3 +341,10 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Learning: the current FunctionGemma tool schema exposes operation `args` as a loose object, while the app validator is strict. This lets the model invent invalid keys and metrics such as `displayName`, `entityType`, `total_amount`, and `balance`.
 - Next fix before another serious LoRA run: add assistant-only loss masking and make the model-facing tool schema carry strict operation argument shapes that match the validator.
 
+### 2026-06-30 - Masked Training And Compact Tool Contract Decision
+- Implemented assistant-only label masking for the lean local trainer so prompt/tool-schema/user tokens are ignored with `-100` labels and only the assistant tool call contributes to training loss.
+- Tried a fully expanded nested operation JSON Schema, but it pushed the prompt to roughly `2.6k-5.4k` tokens before the assistant answer. At `max_length=1024/2048`, that truncates all or most assistant labels, and at much larger lengths it materially increases activation memory on the 12 GB GPU.
+- Decision: use a compact model-facing tool contract with strict workflow/operation enums and concise operation arg-key rules in the tool description. Keep app-side validator strict and use eval to reject invented keys.
+- Regenerated manual v4 FunctionGemma train/validation artifacts with the compact contract. New prompt lengths are about `984-1033` tokens; full train examples max at `1556` tokens, so the next run uses `max_length=2048` for zero truncation.
+- Decision: write the next adapter to `outputs/functiongemma-splitmaa-manual-v4-lora-masked` so it cannot accidentally resume the first bad run.
+

@@ -53,7 +53,7 @@ def main() -> int:
     parser.add_argument("--batch-size", type=int, default=1)
     parser.add_argument("--eval-batch-size", type=int, default=1)
     parser.add_argument("--gradient-accumulation-steps", type=int, default=4)
-    parser.add_argument("--max-length", type=int, default=1024)
+    parser.add_argument("--max-length", type=int, default=2048)
     parser.add_argument("--max-steps", type=int, default=-1)
     parser.add_argument("--trainer-backend", choices=["lean", "trl"], default="lean")
     parser.add_argument("--training-mode", choices=["lora", "full"], default="lora")
@@ -81,7 +81,6 @@ def main() -> int:
         from transformers import (
             AutoModelForCausalLM,
             AutoTokenizer,
-            DataCollatorForLanguageModeling,
             PrinterCallback,
             Trainer,
             TrainerCallback,
@@ -106,6 +105,16 @@ def main() -> int:
     class JsonlChatDataset(torch.utils.data.Dataset):
         def __init__(self, path: Path, tokenizer, max_length: int):
             self.examples = []
+            self.stats = {
+                "path": str(path),
+                "examples": 0,
+                "max_input_tokens": 0,
+                "max_prompt_tokens": 0,
+                "max_trainable_tokens": 0,
+                "min_trainable_tokens": None,
+                "truncated_examples": 0,
+                "zero_trainable_examples": 0,
+            }
             with path.open("r", encoding="utf-8") as file:
                 for line in file:
                     if not line.strip():
@@ -116,13 +125,59 @@ def main() -> int:
                         tools=row.get("tools"),
                         tokenize=False,
                     )
-                    self.examples.append(tokenizer(text, truncation=True, max_length=max_length))
+                    prompt_text = tokenizer.apply_chat_template(
+                        row["messages"][:2],
+                        tools=row.get("tools"),
+                        add_generation_prompt=True,
+                        tokenize=False,
+                    )
+                    full_untruncated = tokenizer(text, truncation=False)
+                    prompt_untruncated = tokenizer(prompt_text, truncation=False)
+                    tokenized = tokenizer(text, truncation=True, max_length=max_length)
+                    prompt_ids = tokenizer(prompt_text, truncation=True, max_length=max_length)["input_ids"]
+                    labels = list(tokenized["input_ids"])
+                    prompt_length = min(len(prompt_ids), len(labels))
+                    labels[:prompt_length] = [-100] * prompt_length
+                    trainable_tokens = sum(1 for label in labels if label != -100)
+                    self.stats["examples"] += 1
+                    self.stats["max_input_tokens"] = max(self.stats["max_input_tokens"], len(full_untruncated["input_ids"]))
+                    self.stats["max_prompt_tokens"] = max(self.stats["max_prompt_tokens"], len(prompt_untruncated["input_ids"]))
+                    self.stats["max_trainable_tokens"] = max(self.stats["max_trainable_tokens"], trainable_tokens)
+                    current_min = self.stats["min_trainable_tokens"]
+                    self.stats["min_trainable_tokens"] = trainable_tokens if current_min is None else min(current_min, trainable_tokens)
+                    if len(full_untruncated["input_ids"]) > max_length:
+                        self.stats["truncated_examples"] += 1
+                    if trainable_tokens == 0:
+                        self.stats["zero_trainable_examples"] += 1
+                    tokenized["labels"] = labels
+                    self.examples.append(tokenized)
+            if self.stats["zero_trainable_examples"]:
+                raise ValueError(
+                    f"{path} has {self.stats['zero_trainable_examples']} examples with zero assistant-label tokens at "
+                    f"max_length={max_length}. Increase --max-length or compact the tool schema."
+                )
 
         def __len__(self) -> int:
             return len(self.examples)
 
         def __getitem__(self, index: int):
             return self.examples[index]
+
+    class CausalLMCollator:
+        def __init__(self, tokenizer):
+            self.tokenizer = tokenizer
+
+        def __call__(self, features):
+            labels = [feature["labels"] for feature in features]
+            model_features = [{key: value for key, value in feature.items() if key != "labels"} for feature in features]
+            batch = self.tokenizer.pad(model_features, padding=True, return_tensors="pt")
+            max_length = batch["input_ids"].shape[1]
+            padded_labels = []
+            for label in labels:
+                padding = [-100] * (max_length - len(label))
+                padded_labels.append(label + padding)
+            batch["labels"] = torch.tensor(padded_labels, dtype=torch.long)
+            return batch
 
     class MemorySafeSFTTrainer(SFTTrainer):
         """SFTTrainer without TRL's per-token entropy metric pass.
@@ -277,7 +332,9 @@ def main() -> int:
     if args.trainer_backend == "lean":
         train_dataset = JsonlChatDataset(args.train, tokenizer, args.max_length)
         eval_dataset = JsonlChatDataset(args.validation, tokenizer, args.max_length)
-        data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
+        data_collator = CausalLMCollator(tokenizer)
+        print("SPLITMAA_DATASET_STATS " + json.dumps(train_dataset.stats, sort_keys=True), flush=True)
+        print("SPLITMAA_DATASET_STATS " + json.dumps(eval_dataset.stats, sort_keys=True), flush=True)
     else:
         from datasets import load_dataset
 

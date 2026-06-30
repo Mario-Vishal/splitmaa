@@ -215,3 +215,9 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - V3 split coverage includes `percentage` examples: train `420`, validation `85`, test `84`; long multi-step examples now reach 56 words and 4 operations.
 - Validation status: strict dataset validation passes across all `2172` v3 rows; semantic audit passes with zero blocking findings; evaluator self-test over `test.v3.jsonl` passes at `1.0` for all metrics.
 
+### 2026-06-29 - Manual V4 Dataset Policy Started
+- Reclassified the script-built `datasets/splitmaa_functiongemma/v3/` split as stress/validator data only, not the trusted final training source.
+- Started `datasets/splitmaa_functiongemma/manual_v4/` as the manually authored dataset line, with provenance notes that prohibit template expansion scripts and local-model generation from authoring trusted examples.
+- Learning: schema-clean generated rows are useful for tooling, but the training set needs hand-authored variety to avoid repeated sentence shells and brittle routing patterns.
+- Tradeoff: the first manual v4 commit is a quality seed, not the full 600-row target. Expansion should continue in reviewed manual batches, with scripts used only for validation, semantic audit, dedupe, conversion, and reporting.
+

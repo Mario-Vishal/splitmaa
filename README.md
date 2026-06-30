@@ -10,8 +10,8 @@ The project is framed as an AI system first: a small local function-calling mode
 
 Local MVP is moving into the local-first AI phase.
 
-- Real: pnpm monorepo scaffold, Expo mobile reference client, Splitwise/Notion-inspired Home, Groups, Contacts, and Diagnostics screens, group/contact detail views, compact bottom-sheet assistant, confirmation cards, FunctionGemma-only parser adapter, single `extract_workflow_intent` model-facing function, strict workflow operation schemas, Android LiteRT-LM native runner module, Android debug APK build, deterministic action application, SQLite local persistence with one-time AsyncStorage migration, workflow state/audit tables, local query/search/navigation helpers, smoke eval runner, guided create-group execution animation, v3 FunctionGemma dataset with percentage splits and semantic audit gates, project plan, TODO tracker, and project log.
-- Not complete yet: full workflow engine UI for persisted `workflow_state`, Splitmaa-specific fine-tuned FunctionGemma model trained on v3, mobile SQLite adapter unit tests, speech-to-text, Supabase sync.
+- Real: pnpm monorepo scaffold, Expo mobile reference client, Splitwise/Notion-inspired Home, Groups, Contacts, and Diagnostics screens, group/contact detail views, compact bottom-sheet assistant, confirmation cards, FunctionGemma-only parser adapter, single `extract_workflow_intent` model-facing function, strict workflow operation schemas, Android LiteRT-LM native runner module, Android debug APK build, deterministic action application, SQLite local persistence with one-time AsyncStorage migration, workflow state/audit tables, local query/search/navigation helpers, smoke eval runner, guided create-group execution animation, v3 stress dataset with percentage splits and semantic audit gates, manual v4 dataset seed, project plan, TODO tracker, and project log.
+- Not complete yet: full workflow engine UI for persisted `workflow_state`, Splitmaa-specific fine-tuned FunctionGemma model trained on the manual v4 dataset, mobile SQLite adapter unit tests, speech-to-text, Supabase sync.
 
 GitHub: https://github.com/Mario-Vishal/splitmaa
 
@@ -122,23 +122,25 @@ Canonical staging JSONL lives in:
 datasets/splitmaa_functiongemma
 ```
 
-Prompt templates for generating reviewed batches are tracked in:
+The trusted training path now starts in:
 
 ```text
-docs/FUNCTIONGEMMA_DATASET_PROMPTS.md
+datasets/splitmaa_functiongemma/manual_v4
 ```
 
-Validate generated batches:
+Rows in `manual_v4` are manually authored. Scripts are used only for validation, semantic audit, conversion, dedupe/reporting, and evaluation. The script-built `datasets/splitmaa_functiongemma/v3` split is retained only as stress/validator data, not as the trusted fine-tuning source.
+
+Validate manual v4:
 
 ```bash
-python tools/finetune/validate_splitmaa_dataset.py --strict-routing datasets/splitmaa_functiongemma/v3/train.v3.jsonl datasets/splitmaa_functiongemma/v3/validation.v3.jsonl datasets/splitmaa_functiongemma/v3/test.v3.jsonl
-python tools/finetune/semantic_audit_dataset.py datasets/splitmaa_functiongemma/v3/train.v3.jsonl datasets/splitmaa_functiongemma/v3/validation.v3.jsonl datasets/splitmaa_functiongemma/v3/test.v3.jsonl --fail-on-blocking
+python tools/finetune/validate_splitmaa_dataset.py --strict-routing datasets/splitmaa_functiongemma/manual_v4/train.jsonl datasets/splitmaa_functiongemma/manual_v4/validation.jsonl datasets/splitmaa_functiongemma/manual_v4/test.jsonl
+python tools/finetune/semantic_audit_dataset.py datasets/splitmaa_functiongemma/manual_v4/train.jsonl datasets/splitmaa_functiongemma/manual_v4/validation.jsonl datasets/splitmaa_functiongemma/manual_v4/test.jsonl --fail-on-blocking
 ```
 
 Convert a validated split to FunctionGemma chat/tool-call JSONL:
 
 ```bash
-python tools/finetune/convert_to_functiongemma.py datasets/splitmaa_functiongemma/v3/train.v3.jsonl datasets/splitmaa_functiongemma/v3/train.v3.functiongemma.jsonl
+python tools/finetune/convert_to_functiongemma.py datasets/splitmaa_functiongemma/manual_v4/train.jsonl datasets/splitmaa_functiongemma/manual_v4/train.functiongemma.jsonl
 ```
 
 ## Roadmap

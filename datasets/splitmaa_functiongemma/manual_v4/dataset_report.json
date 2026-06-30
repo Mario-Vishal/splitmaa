@@ -1,0 +1,433 @@
+{
+  "summary": {
+    "rows": 1000,
+    "targetRows": 2400,
+    "targetSplit": {
+      "train": 1700,
+      "validation": 350,
+      "test": 350
+    },
+    "remainingRows": 1400,
+    "splitCounts": {
+      "test": 150,
+      "train": 700,
+      "validation": 150
+    },
+    "workflowCounts": {
+      "clarification_response": 94,
+      "entity_mutation": 175,
+      "expense_mutation": 213,
+      "financial_answer": 123,
+      "multi_step": 154,
+      "record_lookup": 149,
+      "unsupported": 92
+    },
+    "avgInputWords": 10.8,
+    "maxInputWords": 38,
+    "avgOperations": 1.21,
+    "maxOperations": 4
+  },
+  "splitWorkflowCounts": {
+    "test": {
+      "clarification_response": 14,
+      "entity_mutation": 26,
+      "expense_mutation": 31,
+      "financial_answer": 21,
+      "multi_step": 18,
+      "record_lookup": 22,
+      "unsupported": 18
+    },
+    "train": {
+      "clarification_response": 64,
+      "entity_mutation": 124,
+      "expense_mutation": 150,
+      "financial_answer": 81,
+      "multi_step": 119,
+      "record_lookup": 106,
+      "unsupported": 56
+    },
+    "validation": {
+      "clarification_response": 16,
+      "entity_mutation": 25,
+      "expense_mutation": 32,
+      "financial_answer": 21,
+      "multi_step": 17,
+      "record_lookup": 21,
+      "unsupported": 18
+    }
+  },
+  "operationCounts": {
+    "add_expense": 440,
+    "add_group_member": 46,
+    "cancel_pending_workflow": 15,
+    "change_split": 13,
+    "compute_balance": 40,
+    "compute_date_window_total": 21,
+    "compute_summary": 61,
+    "compute_total": 1,
+    "create_contact": 62,
+    "create_group": 181,
+    "delete_expense": 14,
+    "edit_expense": 16,
+    "get_record_metadata": 23,
+    "list_records": 1,
+    "open_record": 36,
+    "provide_contact_details": 9,
+    "provide_missing_field": 20,
+    "remove_group_member": 33,
+    "search_records": 75,
+    "select_option": 50,
+    "settle_up": 38,
+    "show_previous": 14
+  },
+  "splitTypeCounts": {
+    "equal": 284,
+    "full_amount": 101,
+    "percentage": 68
+  },
+  "currencyMentions": {
+    "INR": 332,
+    "USD": 505
+  },
+  "missingFieldCounts": {
+    "amount": 40,
+    "groupName": 9
+  },
+  "styleHeuristics": {
+    "messyMobileLike": 1000,
+    "cleanLike": 0,
+    "messyMobileLikeRate": 1.0
+  },
+  "evalSubsets": {
+    "long_multi_step": {
+      "count": 154,
+      "bySplit": {
+        "test": 18,
+        "train": 119,
+        "validation": 17
+      },
+      "sampleIds": [
+        "manual_v4_train_multi_001",
+        "manual_v4_train_multi_002",
+        "manual_v4_train_multi_003",
+        "manual_v4_train_multi_004",
+        "manual_v4_train_multi_005",
+        "manual_v4_train_multi_006",
+        "manual_v4_train_multi_007",
+        "manual_v4_train_multi_008",
+        "manual_v4_train_multi_009",
+        "manual_v4_train_multi_010",
+        "manual_v4_train_multi_011",
+        "manual_v4_train_multi_012",
+        "manual_v4_train_multi_013",
+        "manual_v4_train_multi_014",
+        "manual_v4_train_multi_015",
+        "manual_v4_train_multi_016",
+        "manual_v4_train_multi_017",
+        "manual_v4_train_multi_018",
+        "manual_v4_train_multi_019",
+        "manual_v4_train_multi_020"
+      ]
+    },
+    "messy_mobile_tts": {
+      "count": 1000,
+      "bySplit": {
+        "test": 150,
+        "train": 700,
+        "validation": 150
+      },
+      "sampleIds": [
+        "manual_v4_train_multi_001",
+        "manual_v4_train_multi_002",
+        "manual_v4_train_multi_003",
+        "manual_v4_train_multi_004",
+        "manual_v4_train_multi_005",
+        "manual_v4_train_multi_006",
+        "manual_v4_train_multi_007",
+        "manual_v4_train_multi_008",
+        "manual_v4_train_entity_001",
+        "manual_v4_train_entity_002",
+        "manual_v4_train_entity_003",
+        "manual_v4_train_entity_004",
+        "manual_v4_train_entity_005",
+        "manual_v4_train_expense_001",
+        "manual_v4_train_expense_002",
+        "manual_v4_train_expense_003",
+        "manual_v4_train_expense_004",
+        "manual_v4_train_expense_005",
+        "manual_v4_train_expense_006",
+        "manual_v4_train_expense_007"
+      ]
+    },
+    "missing_fields": {
+      "count": 49,
+      "bySplit": {
+        "test": 4,
+        "train": 40,
+        "validation": 5
+      },
+      "sampleIds": [
+        "manual_v4_train_multi_004",
+        "manual_v4_train_expense_004",
+        "manual_v4_train_multi_014",
+        "manual_v4_train_entity_010",
+        "manual_v4_train_expense_017",
+        "manual_v4_train_multi_025",
+        "manual_v4_train_entity_015",
+        "manual_v4_train_expense_027",
+        "manual_v4_train_multi_030",
+        "manual_v4_train_entity_020",
+        "manual_v4_train_expense_037",
+        "manual_v4_train_multi_037",
+        "manual_v4_train_entity_025",
+        "manual_v4_train_expense_047",
+        "manual_v4_train_multi_042",
+        "manual_v4_train_entity_030",
+        "manual_v4_train_expense_057",
+        "manual_v4_train_entity_039",
+        "manual_v4_train_entity_051",
+        "manual_v4_train_multi_048"
+      ]
+    },
+    "clarification_response": {
+      "count": 94,
+      "bySplit": {
+        "test": 14,
+        "train": 64,
+        "validation": 16
+      },
+      "sampleIds": [
+        "manual_v4_train_clarification_001",
+        "manual_v4_train_clarification_002",
+        "manual_v4_train_clarification_003",
+        "manual_v4_train_clarification_004",
+        "manual_v4_train_clarification_005",
+        "manual_v4_train_clarification_006",
+        "manual_v4_train_clarification_007",
+        "manual_v4_train_clarification_008",
+        "manual_v4_train_clarification_009",
+        "manual_v4_train_clarification_010",
+        "manual_v4_train_clarification_011",
+        "manual_v4_train_clarification_012",
+        "manual_v4_train_clarification_013",
+        "manual_v4_train_clarification_014",
+        "manual_v4_train_clarification_015",
+        "manual_v4_train_clarification_016",
+        "manual_v4_train_clarification_017",
+        "manual_v4_train_clarification_018",
+        "manual_v4_train_clarification_019",
+        "manual_v4_train_clarification_020"
+      ]
+    },
+    "financial_answer": {
+      "count": 123,
+      "bySplit": {
+        "test": 21,
+        "train": 81,
+        "validation": 21
+      },
+      "sampleIds": [
+        "manual_v4_train_financial_001",
+        "manual_v4_train_financial_002",
+        "manual_v4_train_financial_003",
+        "manual_v4_train_financial_004",
+        "manual_v4_train_financial_005",
+        "manual_v4_train_financial_006",
+        "manual_v4_train_financial_007",
+        "manual_v4_train_financial_008",
+        "manual_v4_train_financial_009",
+        "manual_v4_train_financial_010",
+        "manual_v4_train_financial_011",
+        "manual_v4_train_financial_012",
+        "manual_v4_train_financial_013",
+        "manual_v4_train_financial_014",
+        "manual_v4_train_financial_015",
+        "manual_v4_train_financial_016",
+        "manual_v4_train_financial_017",
+        "manual_v4_train_financial_018",
+        "manual_v4_train_financial_019",
+        "manual_v4_train_financial_020"
+      ]
+    },
+    "lookup_navigation": {
+      "count": 149,
+      "bySplit": {
+        "test": 22,
+        "train": 106,
+        "validation": 21
+      },
+      "sampleIds": [
+        "manual_v4_train_lookup_001",
+        "manual_v4_train_lookup_002",
+        "manual_v4_train_lookup_003",
+        "manual_v4_train_lookup_004",
+        "manual_v4_train_lookup_005",
+        "manual_v4_train_lookup_006",
+        "manual_v4_train_lookup_007",
+        "manual_v4_train_lookup_008",
+        "manual_v4_train_lookup_009",
+        "manual_v4_train_lookup_010",
+        "manual_v4_train_lookup_011",
+        "manual_v4_train_lookup_012",
+        "manual_v4_train_lookup_013",
+        "manual_v4_train_lookup_014",
+        "manual_v4_train_lookup_015",
+        "manual_v4_train_lookup_016",
+        "manual_v4_train_lookup_017",
+        "manual_v4_train_lookup_018",
+        "manual_v4_train_lookup_019",
+        "manual_v4_train_lookup_020"
+      ]
+    },
+    "unsupported_boundary": {
+      "count": 92,
+      "bySplit": {
+        "test": 18,
+        "train": 56,
+        "validation": 18
+      },
+      "sampleIds": [
+        "manual_v4_train_unsupported_001",
+        "manual_v4_train_unsupported_002",
+        "manual_v4_train_unsupported_003",
+        "manual_v4_train_unsupported_004",
+        "manual_v4_train_unsupported_005",
+        "manual_v4_train_unsupported_006",
+        "manual_v4_train_unsupported_007",
+        "manual_v4_train_unsupported_008",
+        "manual_v4_train_unsupported_009",
+        "manual_v4_train_unsupported_010",
+        "manual_v4_train_unsupported_011",
+        "manual_v4_train_unsupported_012",
+        "manual_v4_train_unsupported_013",
+        "manual_v4_train_unsupported_014",
+        "manual_v4_train_unsupported_015",
+        "manual_v4_train_unsupported_016",
+        "manual_v4_train_unsupported_017",
+        "manual_v4_train_unsupported_018",
+        "manual_v4_train_unsupported_019",
+        "manual_v4_train_unsupported_020"
+      ]
+    },
+    "percentage_splits": {
+      "count": 68,
+      "bySplit": {
+        "test": 1,
+        "train": 65,
+        "validation": 2
+      },
+      "sampleIds": [
+        "manual_v4_train_multi_003",
+        "manual_v4_train_multi_006",
+        "manual_v4_train_expense_003",
+        "manual_v4_train_multi_012",
+        "manual_v4_train_multi_018",
+        "manual_v4_train_expense_012",
+        "manual_v4_train_expense_018",
+        "manual_v4_train_multi_022",
+        "manual_v4_train_multi_024",
+        "manual_v4_train_expense_022",
+        "manual_v4_train_expense_028",
+        "manual_v4_train_multi_029",
+        "manual_v4_train_multi_033",
+        "manual_v4_train_expense_032",
+        "manual_v4_train_expense_038",
+        "manual_v4_train_multi_036",
+        "manual_v4_train_expense_042",
+        "manual_v4_train_expense_048",
+        "manual_v4_train_multi_041",
+        "manual_v4_train_multi_044"
+      ]
+    },
+    "full_amount_splits": {
+      "count": 101,
+      "bySplit": {
+        "test": 18,
+        "train": 63,
+        "validation": 20
+      },
+      "sampleIds": [
+        "manual_v4_train_multi_002",
+        "manual_v4_train_multi_005",
+        "manual_v4_train_multi_008",
+        "manual_v4_train_multi_010",
+        "manual_v4_train_expense_011",
+        "manual_v4_train_multi_020",
+        "manual_v4_train_multi_023",
+        "manual_v4_train_expense_021",
+        "manual_v4_train_multi_028",
+        "manual_v4_train_multi_031",
+        "manual_v4_train_expense_031",
+        "manual_v4_train_multi_035",
+        "manual_v4_train_multi_038",
+        "manual_v4_train_expense_041",
+        "manual_v4_train_multi_039",
+        "manual_v4_train_multi_040",
+        "manual_v4_train_multi_043",
+        "manual_v4_train_expense_051",
+        "manual_v4_train_multi_045",
+        "manual_v4_train_multi_046"
+      ]
+    },
+    "settlements": {
+      "count": 38,
+      "bySplit": {
+        "test": 8,
+        "train": 26,
+        "validation": 4
+      },
+      "sampleIds": [
+        "manual_v4_train_expense_005",
+        "manual_v4_train_expense_006",
+        "manual_v4_train_expense_013",
+        "manual_v4_train_expense_014",
+        "manual_v4_train_expense_023",
+        "manual_v4_train_expense_024",
+        "manual_v4_train_expense_033",
+        "manual_v4_train_expense_034",
+        "manual_v4_train_expense_043",
+        "manual_v4_train_expense_044",
+        "manual_v4_train_expense_053",
+        "manual_v4_train_expense_054",
+        "manual_v4_train_expense_063",
+        "manual_v4_train_expense_064",
+        "manual_v4_train_expense_073",
+        "manual_v4_train_expense_074",
+        "manual_v4_train_expense_083",
+        "manual_v4_train_expense_084",
+        "manual_v4_train_expense_092",
+        "manual_v4_train_expense_093"
+      ]
+    },
+    "destructive_or_edit": {
+      "count": 76,
+      "bySplit": {
+        "test": 6,
+        "train": 64,
+        "validation": 6
+      },
+      "sampleIds": [
+        "manual_v4_train_entity_004",
+        "manual_v4_train_expense_007",
+        "manual_v4_train_expense_008",
+        "manual_v4_train_multi_017",
+        "manual_v4_train_entity_009",
+        "manual_v4_train_expense_015",
+        "manual_v4_train_expense_016",
+        "manual_v4_train_expense_018",
+        "manual_v4_train_multi_026",
+        "manual_v4_train_entity_014",
+        "manual_v4_train_expense_025",
+        "manual_v4_train_expense_026",
+        "manual_v4_train_expense_028",
+        "manual_v4_train_entity_019",
+        "manual_v4_train_expense_035",
+        "manual_v4_train_expense_036",
+        "manual_v4_train_expense_038",
+        "manual_v4_train_entity_024",
+        "manual_v4_train_expense_045",
+        "manual_v4_train_expense_046"
+      ]
+    }
+  }
+}

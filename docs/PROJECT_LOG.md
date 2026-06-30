@@ -286,3 +286,10 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Learning: missing-amount phrases like `no amount paid X` can confuse audits and likely small models; the cleaner pattern is `amount missing payer X`. Lookup rows also need varied navigation wording to avoid repetitive `open X and highlight Y` shells.
 - Next step: either continue toward the `1,500-1,800` train-row target or run a dry eval/tooling pass on the 1,000-row corpus before the next large authoring block.
 
+### 2026-06-30 - Manual V4 Dry Eval And Coverage Report
+- Froze the exact pre-training manual target at `2,400` rows total: train `1,700`, validation `350`, locked test `350`.
+- Added `tools/finetune/report_splitmaa_dataset.py` to generate reproducible JSON and Markdown coverage reports for the manual corpus.
+- Generated `dataset_report.json` and `dataset_report.md` for `manual_v4`: current rows `1,000`, remaining rows `1,400`, max input words `38`, max operations `4`.
+- Evaluator self-test over `manual_v4/test.jsonl` passes at `1.0` for parseability, schema validity, workflow accuracy, operation sequence accuracy, exact intent, and leaf argument accuracy.
+- Coverage learning: the current manual v4 set is intentionally messy-heavy; if we want the earlier 70/30 messy-clean blend, the remaining rows should deliberately add cleaner, well-punctuated English examples while keeping hard workflow semantics.
+

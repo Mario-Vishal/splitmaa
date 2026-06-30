@@ -15,7 +15,11 @@ This folder is the manually authored FunctionGemma staging dataset for Splitmaa.
 - Strict routing validation passes for all 1,000 rows.
 - Semantic audit passes with zero findings.
 - Input uniqueness checks report zero exact duplicates, zero normalized shape duplicates, and zero near-duplicate pairs at the current review threshold.
-- The initial 600-row manual seed target is complete, and expansion has reached a 1,000-row checkpoint. The next target is 1,500-1,800 training rows before serious LoRA training.
+- The initial 600-row manual seed target is complete, and expansion has reached a 1,000-row checkpoint.
+- The frozen pre-training target is 2,400 rows total:
+  - train: 1,700
+  - validation: 350
+  - locked test: 350
 - The existing `v3` dataset is retained only as stress/validator data and is not the trusted training source.
 
 ## Authoring Rules

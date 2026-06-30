@@ -227,3 +227,9 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Validation status: strict routing passes for all `108` rows; semantic audit reports zero findings.
 - Uniqueness status: zero exact duplicate inputs, zero normalized shape duplicates, and zero near-duplicate pairs at the current review threshold.
 
+### 2026-06-29 - Manual V4 Goal Checkpoint At 257 Rows
+- Continued manual-only dataset authoring toward the 600-row initial target.
+- Current `manual_v4` counts: train `185`, validation `39`, test `33`, total `257`.
+- Quality gates pass at this checkpoint: strict routing `257/257`, semantic audit zero findings, exact duplicates zero, normalized shape duplicates zero, near-duplicate pairs zero at the current threshold.
+- Remaining to 600-row initial target: `343` manually authored rows.
+

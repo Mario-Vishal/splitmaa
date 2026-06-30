@@ -238,3 +238,8 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Quality gates pass at this checkpoint: strict routing `302/302`, semantic audit zero findings, exact duplicates zero, normalized shape duplicates zero, near-duplicate pairs zero at the current threshold.
 - Remaining to 600-row initial target: `298` manually authored rows.
 
+### 2026-06-29 - Manual V4 Goal Checkpoint At 350 Rows
+- Expanded `manual_v4` to train `257`, validation `50`, test `43`, total `350`.
+- Quality gates pass at this checkpoint: strict routing `350/350`, semantic audit zero findings, exact duplicates zero, normalized shape duplicates zero, near-duplicate pairs zero at the current threshold.
+- Remaining to 600-row initial target: `250` manually authored rows.
+

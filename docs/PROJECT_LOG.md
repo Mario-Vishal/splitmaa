@@ -348,3 +348,10 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Regenerated manual v4 FunctionGemma train/validation artifacts with the compact contract. New prompt lengths are about `984-1033` tokens; full train examples max at `1556` tokens, so the next run uses `max_length=2048` for zero truncation.
 - Decision: write the next adapter to `outputs/functiongemma-splitmaa-manual-v4-lora-masked` so it cannot accidentally resume the first bad run.
 
+### 2026-06-30 - Full Fine-Tune Trial Decision
+- Reconsidered full fine-tuning for FunctionGemma 270M on the local 12 GB VRAM / 32 GB RAM Windows machine. Full fine-tuning means updating all base model parameters instead of training a small LoRA adapter.
+- Decision: try full fine-tuning now that the masking and compact contract issues are fixed. The run uses conservative settings first: `max_length=2048`, `batch_size=1`, `gradient_accumulation_steps=8`, `bf16`, `gradient_checkpointing`, and learning rate `2e-5`.
+- The full run writes to `outputs/functiongemma-splitmaa-manual-v4-full-masked` so it cannot resume or overwrite the earlier LoRA experiment.
+- Updated evaluation loading so the same prediction script can read either a PEFT adapter directory or a full saved Hugging Face model directory.
+- Risk: full fine-tuning may still OOM or overfit despite the small model size because activation memory, optimizer state, CUDA overhead, and Windows/PyTorch behavior matter more than parameter count alone.
+

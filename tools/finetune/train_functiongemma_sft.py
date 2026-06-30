@@ -326,6 +326,9 @@ def main() -> int:
         if args.trainer_backend == "lean":
             model = get_peft_model(model, peft_config)
 
+    if args.training_mode == "full":
+        model.train()
+
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
@@ -404,6 +407,13 @@ def main() -> int:
     trainer.remove_callback(PrinterCallback)
     trainer.add_callback(SplitmaaProgressCallback(eval_dataset, data_collator, args.progress_accuracy_batches))
 
+    trainable_params = sum(parameter.numel() for parameter in trainer.model.parameters() if parameter.requires_grad)
+    total_params = sum(parameter.numel() for parameter in trainer.model.parameters())
+    print(
+        f"trainable params: {trainable_params:,} || all params: {total_params:,} || "
+        f"trainable%: {100 * trainable_params / total_params:.4f}",
+        flush=True,
+    )
     if args.training_mode == "lora":
         trainer.model.print_trainable_parameters()
     trainer.train(resume_from_checkpoint=str(args.resume_from_checkpoint) if args.resume_from_checkpoint else None)

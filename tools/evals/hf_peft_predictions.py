@@ -34,7 +34,6 @@ def main() -> int:
     args = parser.parse_args()
 
     import torch
-    from peft import PeftModel
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
     from tools.finetune.convert_to_functiongemma import convert_item
@@ -54,17 +53,28 @@ def main() -> int:
         "float32": torch.float32,
     }
 
-    tokenizer = AutoTokenizer.from_pretrained(str(args.adapter.resolve()), local_files_only=True)
+    model_dir = args.adapter.resolve()
+    tokenizer = AutoTokenizer.from_pretrained(str(model_dir), local_files_only=True)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    model = AutoModelForCausalLM.from_pretrained(
-        base_model,
-        local_files_only=True,
-        dtype=dtype_by_name[args.dtype],
-        attn_implementation="eager",
-    )
-    model = PeftModel.from_pretrained(model, str(args.adapter.resolve()), local_files_only=True)
+    if (model_dir / "adapter_config.json").exists():
+        from peft import PeftModel
+
+        model = AutoModelForCausalLM.from_pretrained(
+            base_model,
+            local_files_only=True,
+            dtype=dtype_by_name[args.dtype],
+            attn_implementation="eager",
+        )
+        model = PeftModel.from_pretrained(model, str(model_dir), local_files_only=True)
+    else:
+        model = AutoModelForCausalLM.from_pretrained(
+            str(model_dir),
+            local_files_only=True,
+            dtype=dtype_by_name[args.dtype],
+            attn_implementation="eager",
+        )
     model.eval()
 
     if args.device == "cuda" or (args.device == "auto" and torch.cuda.is_available()):

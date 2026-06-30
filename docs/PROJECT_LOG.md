@@ -221,3 +221,9 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Learning: schema-clean generated rows are useful for tooling, but the training set needs hand-authored variety to avoid repeated sentence shells and brittle routing patterns.
 - Tradeoff: the first manual v4 commit is a quality seed, not the full 600-row target. Expansion should continue in reviewed manual batches, with scripts used only for validation, semantic audit, dedupe, conversion, and reporting.
 
+### 2026-06-29 - Manual V4 Batch 2 Added
+- Expanded `datasets/splitmaa_functiongemma/manual_v4/` from 53 to 108 manually authored rows: train `77`, validation `16`, test `15`.
+- Coverage after batch 2: train has multi-step `18`, expense `18`, entity `10`, lookup `10`, financial `8`, clarification `7`, unsupported `6`.
+- Validation status: strict routing passes for all `108` rows; semantic audit reports zero findings.
+- Uniqueness status: zero exact duplicate inputs, zero normalized shape duplicates, and zero near-duplicate pairs at the current review threshold.
+

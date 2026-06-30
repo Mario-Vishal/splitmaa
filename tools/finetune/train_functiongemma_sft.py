@@ -65,6 +65,7 @@ def main() -> int:
     parser.add_argument("--eval-strategy", choices=["no", "epoch"], default="epoch")
     parser.add_argument("--push-to-hub", action="store_true")
     parser.add_argument("--no-force-ipv4", action="store_true", help="Do not force IPv4 for Hugging Face downloads.")
+    parser.add_argument("--resume-from-checkpoint", type=Path, help="Resume Trainer state from a previous checkpoint directory.")
     args = parser.parse_args()
 
     if not args.no_force_ipv4:
@@ -236,7 +237,7 @@ def main() -> int:
 
     if args.training_mode == "lora":
         trainer.model.print_trainable_parameters()
-    trainer.train()
+    trainer.train(resume_from_checkpoint=str(args.resume_from_checkpoint) if args.resume_from_checkpoint else None)
     trainer.save_model()
     return 0
 

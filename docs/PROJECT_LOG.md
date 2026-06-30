@@ -265,3 +265,10 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Decision: this 600-row split is the trusted manual v4 seed for the next FunctionGemma conversion/eval pass. The older v3 corpus remains stress/validator data only.
 - Next step: regenerate FunctionGemma-format train/validation artifacts, run evaluator checks against the locked manual test set, then decide whether to expand manual v4 toward the larger `1,500-1,800` train-row target before the next LoRA run.
 
+### 2026-06-30 - Manual V4 Expanded To 700 Rows
+- Expanded `manual_v4` by another 100 hand-authored rows instead of training immediately: train `490`, validation `105`, test `105`, total `700`.
+- The added batch focused on harder mobile/TTS-style commands: multi-step group creation with multiple expenses, missing amounts, percentage splits, full-owed phrasing, corrections, excluded participants, settlement wording, lookup/navigation, and unsupported app-boundary requests.
+- Quality gates pass at this checkpoint: strict routing `700/700`, semantic audit zero findings, exact duplicate inputs zero, normalized shape duplicate inputs zero, duplicate IDs zero, and near-duplicate pairs zero at threshold `0.78`.
+- Learning: the validator caught unsupported schema drift (`aliases`, unsupported financial metrics/query fields) and the duplicate scan caught repeated short sentence shells. Both were repaired before promotion.
+- Next step: keep expanding manually in reviewed checkpoints until the train split is large enough for a stronger LoRA run, while preserving validation/test uniqueness.
+

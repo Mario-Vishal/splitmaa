@@ -355,3 +355,9 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Updated evaluation loading so the same prediction script can read either a PEFT adapter directory or a full saved Hugging Face model directory.
 - Risk: full fine-tuning may still OOM or overfit despite the small model size because activation memory, optimizer state, CUDA overhead, and Windows/PyTorch behavior matter more than parameter count alone.
 
+### 2026-06-30 - Local Full Fine-Tune OOM At 2048
+- The first local full fine-tune attempt failed with CUDA OOM during backward inside Gemma3 rotary embedding recomputation, even with `batch_size=1`, `bf16`, and gradient checkpointing.
+- Dataset stats were healthy before the crash: train max full tokens `1556`, max prompt `1033`, max trainable answer tokens `527`, truncated examples `0`, zero-trainable examples `0`.
+- Decision: local full fine-tuning should use `max_length=1600`, not `2048`, because `1600` still gives zero truncation for the current dataset while reducing activation memory.
+- Updated the full-training notebook output to `outputs/functiongemma-splitmaa-manual-v4-full-masked-len1600` and disabled gradient-checkpoint RNG preservation to reduce overhead.
+

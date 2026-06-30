@@ -65,6 +65,7 @@ def main() -> int:
     parser.add_argument("--local-files-only", action="store_true", help="Load the base model only from the local Hugging Face cache.")
     parser.add_argument("--gradient-checkpointing", action="store_true")
     parser.add_argument("--eval-strategy", choices=["no", "epoch"], default="epoch")
+    parser.add_argument("--optim", default="adamw_torch_fused")
     parser.add_argument("--push-to-hub", action="store_true")
     parser.add_argument("--no-force-ipv4", action="store_true", help="Do not force IPv4 for Hugging Face downloads.")
     parser.add_argument("--resume-from-checkpoint", type=Path, help="Resume Trainer state from a previous checkpoint directory.")
@@ -361,8 +362,8 @@ def main() -> int:
         per_device_eval_batch_size=args.eval_batch_size,
         gradient_accumulation_steps=args.gradient_accumulation_steps,
         gradient_checkpointing=args.gradient_checkpointing,
-        gradient_checkpointing_kwargs={"use_reentrant": False},
-        optim="adamw_torch_fused",
+        gradient_checkpointing_kwargs={"use_reentrant": False, "preserve_rng_state": False},
+        optim=args.optim,
         logging_steps=1,
         eval_strategy=args.eval_strategy,
         eval_accumulation_steps=1,

@@ -258,3 +258,10 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Quality gates pass at this checkpoint: strict routing `462/462`, semantic audit zero findings, exact duplicates zero, normalized shape duplicates zero, near-duplicate pairs zero at the current threshold.
 - Remaining to 600-row initial target: `138` manually authored rows.
 
+### 2026-06-30 - Manual V4 Initial Seed Target Complete
+- Expanded `manual_v4` to the initial manual seed target: train `420`, validation `90`, test `90`, total `600`.
+- Quality gates pass at this checkpoint: strict routing `600/600`, semantic audit zero findings, exact duplicate inputs zero, normalized shape duplicate inputs zero, duplicate IDs zero, and near-duplicate pairs zero at threshold `0.78`.
+- Fixed the last uniqueness issue by rewriting one short `remove_group_member` test input that had the same sentence shape as a training row.
+- Decision: this 600-row split is the trusted manual v4 seed for the next FunctionGemma conversion/eval pass. The older v3 corpus remains stress/validator data only.
+- Next step: regenerate FunctionGemma-format train/validation artifacts, run evaluator checks against the locked manual test set, then decide whether to expand manual v4 toward the larger `1,500-1,800` train-row target before the next LoRA run.
+

@@ -310,3 +310,11 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Duplicate review: exact normalized duplicate inputs are zero. Near-duplicate scan at threshold `0.78` reports `12` low-risk pairs, primarily short lookup/financial command shapes that remain semantically distinct.
 - Remaining to frozen pre-training target: `900` rows total, aiming for train `1,700`, validation `350`, locked test `350`.
 
+### 2026-06-30 - Manual V4 Expanded To 1,600 Rows
+- Expanded `manual_v4` by another 100 manually authored rows: train `1,120`, validation `240`, test `240`, total `1,600`.
+- The block added new everyday contexts around library sales, flat pantry expenses, picnics, hostel laundry, soccer, seminars, food halls, train days, exam prep, and mural days. It continued coverage for multi-step creation, missing amounts, percentage splits, full-owed expenses, corrections, settlements, lookup/open/highlight intent, date-window financial questions, clarification replies, and unsupported app-boundary requests.
+- Quality gates pass at this checkpoint: strict routing `1,600/1,600`, semantic audit zero findings, evaluator self-test over the locked test split at `1.0` for all reported metrics.
+- Converted passing train and validation splits into FunctionGemma format: `train.functiongemma.jsonl` has `1,120` examples and `validation.functiongemma.jsonl` has `240` examples.
+- Duplicate review: exact normalized duplicate inputs are zero. Near-duplicate scan at threshold `0.78` reports `19` low-risk pairs, mostly compact lookup and financial command shapes. A semantic-audit payer conflict and several repeated shells were repaired before promotion.
+- Remaining to frozen pre-training target: `800` rows total, aiming for train `1,700`, validation `350`, locked test `350`.
+

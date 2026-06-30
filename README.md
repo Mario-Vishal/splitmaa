@@ -132,8 +132,8 @@ Rows in `manual_v4` are manually authored. Scripts are used only for validation,
 
 Current manual v4 checkpoint:
 
-- Total rows: `1,500`
-- Split: train `1,050`, validation `225`, locked test `225`
+- Total rows: `1,600`
+- Split: train `1,120`, validation `240`, locked test `240`
 - Frozen pre-training target: train `1,700`, validation `350`, locked test `350`
 - Latest gates: strict routing valid, semantic audit zero findings, locked-test self-test `1.0` across reported metrics
 

@@ -16,6 +16,9 @@ import time
 from pathlib import Path
 
 
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
+
+
 def force_ipv4() -> None:
     original_getaddrinfo = socket.getaddrinfo
 

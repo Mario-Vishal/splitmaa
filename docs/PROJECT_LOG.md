@@ -366,3 +366,9 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - The run failed before completing the first step with `ValueError: Attempting to unscale FP16 gradients.` This happened because the script loaded the full trainable base model directly in FP16 and Trainer/Accelerate then tried to use FP16 gradient scaling.
 - Decision: split model load dtype from Trainer AMP dtype. For Kaggle T4/P100 full fine-tuning, load trainable weights as `float32` and use Trainer AMP `float16`: `--dtype float32 --amp-dtype float16`.
 
+### 2026-06-30 - Kaggle T4 x2 DataParallel OOM
+- After the dtype/AMP fix, the Kaggle smoke test progressed through real full fine-tune steps, proving the FP16 gradient issue was fixed.
+- It then failed on T4 x2 with CUDA OOM in `torch.nn.parallel.data_parallel` while gathering model outputs back to GPU 0. The failure tried to allocate about `2.81 GiB` on GPU 0.
+- Decision: do not use naive PyTorch DataParallel for this full fine-tune. The notebook now defaults `CUDA_VISIBLE_DEVICES=0` so the smoke/full run uses one T4 instead of T4 x2 DataParallel gather.
+- Added `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` to reduce CUDA allocator fragmentation.
+

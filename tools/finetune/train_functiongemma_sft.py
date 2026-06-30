@@ -58,6 +58,12 @@ def main() -> int:
     parser.add_argument("--trainer-backend", choices=["lean", "trl"], default="lean")
     parser.add_argument("--training-mode", choices=["lora", "full"], default="lora")
     parser.add_argument("--dtype", choices=["auto", "bfloat16", "float16", "float32"], default="bfloat16")
+    parser.add_argument(
+        "--amp-dtype",
+        choices=["auto", "none", "bfloat16", "float16"],
+        default="auto",
+        help="Trainer autocast precision. Use float16 on T4/P100 with full training while loading model weights in float32.",
+    )
     parser.add_argument("--lora-r", type=int, default=8)
     parser.add_argument("--lora-alpha", type=int, default=16)
     parser.add_argument("--lora-dropout", type=float, default=0.05)
@@ -102,6 +108,9 @@ def main() -> int:
         "float32": torch.float32,
     }
     base_model = resolve_local_snapshot(args.base_model) if args.local_files_only else args.base_model
+    amp_dtype = args.amp_dtype
+    if amp_dtype == "auto":
+        amp_dtype = "none" if args.dtype in {"auto", "float32"} else args.dtype
 
     class JsonlChatDataset(torch.utils.data.Dataset):
         def __init__(self, path: Path, tokenizer, max_length: int):
@@ -368,8 +377,8 @@ def main() -> int:
         eval_strategy=args.eval_strategy,
         eval_accumulation_steps=1,
         learning_rate=args.learning_rate,
-        fp16=torch_dtype == torch.float16,
-        bf16=torch_dtype == torch.bfloat16,
+        fp16=amp_dtype == "float16",
+        bf16=amp_dtype == "bfloat16",
         lr_scheduler_type="constant",
         prediction_loss_only=True,
         save_strategy="epoch",

@@ -361,3 +361,8 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Decision: local full fine-tuning should use `max_length=1600`, not `2048`, because `1600` still gives zero truncation for the current dataset while reducing activation memory.
 - Updated the full-training notebook output to `outputs/functiongemma-splitmaa-manual-v4-full-masked-len1600` and disabled gradient-checkpoint RNG preservation to reduce overhead.
 
+### 2026-06-30 - Kaggle Full Fine-Tune FP16 Gradient Failure
+- Kaggle T4 x2 smoke test reached full fine-tuning correctly: `trainable params: 268,098,176`, `trainable%: 100.0000`.
+- The run failed before completing the first step with `ValueError: Attempting to unscale FP16 gradients.` This happened because the script loaded the full trainable base model directly in FP16 and Trainer/Accelerate then tried to use FP16 gradient scaling.
+- Decision: split model load dtype from Trainer AMP dtype. For Kaggle T4/P100 full fine-tuning, load trainable weights as `float32` and use Trainer AMP `float16`: `--dtype float32 --amp-dtype float16`.
+

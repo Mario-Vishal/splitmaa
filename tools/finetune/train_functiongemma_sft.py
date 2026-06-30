@@ -8,9 +8,11 @@ https://ai.google.dev/gemma/docs/functiongemma/finetuning-with-functiongemma
 from __future__ import annotations
 
 import argparse
+import itertools
 import json
 import os
 import socket
+import time
 from pathlib import Path
 
 
@@ -66,6 +68,7 @@ def main() -> int:
     parser.add_argument("--push-to-hub", action="store_true")
     parser.add_argument("--no-force-ipv4", action="store_true", help="Do not force IPv4 for Hugging Face downloads.")
     parser.add_argument("--resume-from-checkpoint", type=Path, help="Resume Trainer state from a previous checkpoint directory.")
+    parser.add_argument("--progress-accuracy-batches", type=int, default=4, help="Eval batches used for lightweight token accuracy progress.")
     args = parser.parse_args()
 
     if not args.no_force_ipv4:
@@ -75,7 +78,15 @@ def main() -> int:
 
     try:
         import torch
-        from transformers import AutoModelForCausalLM, AutoTokenizer, DataCollatorForLanguageModeling, Trainer, TrainingArguments
+        from transformers import (
+            AutoModelForCausalLM,
+            AutoTokenizer,
+            DataCollatorForLanguageModeling,
+            PrinterCallback,
+            Trainer,
+            TrainerCallback,
+            TrainingArguments,
+        )
         from trl import SFTConfig, SFTTrainer
     except Exception as exc:
         raise SystemExit(
@@ -130,6 +141,101 @@ def main() -> int:
                 num_items_in_batch=num_items_in_batch,
             )
 
+    class SplitmaaProgressCallback(TrainerCallback):
+        def __init__(self, eval_dataset, data_collator, accuracy_batches: int):
+            self.started_at = time.monotonic()
+            self.eval_dataset = eval_dataset
+            self.data_collator = data_collator
+            self.accuracy_batches = max(0, accuracy_batches)
+
+        def emit(self, event: str, state, payload: dict | None = None) -> None:
+            elapsed = max(0.0, time.monotonic() - self.started_at)
+            max_steps = max(0, int(getattr(state, "max_steps", 0) or 0))
+            step = max(0, int(getattr(state, "global_step", 0) or 0))
+            percent = (step / max_steps * 100.0) if max_steps else 0.0
+            eta_seconds = (elapsed * (max_steps - step) / step) if step and max_steps and step < max_steps else 0.0
+            message = {
+                "event": event,
+                "step": step,
+                "max_steps": max_steps,
+                "percent": round(percent, 4),
+                "epoch": round(float(getattr(state, "epoch", 0.0) or 0.0), 4),
+                "elapsed_seconds": round(elapsed, 2),
+                "eta_seconds": round(eta_seconds, 2),
+            }
+            if payload:
+                message.update(payload)
+            print("SPLITMAA_PROGRESS " + json.dumps(message, sort_keys=True), flush=True)
+
+        def on_train_begin(self, args, state, control, **kwargs):
+            self.emit("train_begin", state)
+
+        def on_log(self, args, state, control, logs=None, **kwargs):
+            logs = logs or {}
+            payload = {}
+            for source, target in (
+                ("loss", "loss"),
+                ("grad_norm", "grad_norm"),
+                ("learning_rate", "learning_rate"),
+                ("eval_loss", "eval_loss"),
+            ):
+                if source in logs:
+                    try:
+                        payload[target] = round(float(logs[source]), 6)
+                    except (TypeError, ValueError):
+                        payload[target] = logs[source]
+            self.emit("log", state, payload)
+
+        def on_evaluate(self, args, state, control, metrics=None, model=None, **kwargs):
+            payload = {}
+            if metrics and "eval_loss" in metrics:
+                payload["eval_loss"] = round(float(metrics["eval_loss"]), 6)
+            if model is not None and self.accuracy_batches:
+                accuracy = self.compute_token_accuracy(model, args)
+                if accuracy is not None:
+                    payload["token_accuracy"] = round(accuracy, 6)
+            self.emit("evaluate", state, payload)
+
+        def on_train_end(self, args, state, control, **kwargs):
+            self.emit("train_end", state)
+
+        def compute_token_accuracy(self, model, args) -> float | None:
+            if self.eval_dataset is None or self.data_collator is None:
+                return None
+            was_training = model.training
+            model.eval()
+            total = 0
+            correct = 0
+            loader = torch.utils.data.DataLoader(
+                self.eval_dataset,
+                batch_size=max(1, int(args.per_device_eval_batch_size)),
+                collate_fn=self.data_collator,
+            )
+            try:
+                with torch.no_grad():
+                    for batch in itertools.islice(loader, self.accuracy_batches):
+                        batch = {key: value.to(model.device) for key, value in batch.items()}
+                        labels = batch.get("labels")
+                        if labels is None:
+                            labels = batch["input_ids"]
+                        logits = model(**batch).logits
+                        predictions = logits[:, :-1, :].argmax(dim=-1)
+                        shifted_labels = labels[:, 1:]
+                        mask = shifted_labels.ne(-100)
+                        correct += predictions.eq(shifted_labels).masked_select(mask).sum().item()
+                        total += mask.sum().item()
+                        del logits, predictions, shifted_labels, mask, batch
+            except RuntimeError as exc:
+                if "out of memory" not in str(exc).lower():
+                    raise
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                return None
+            finally:
+                if was_training:
+                    model.train()
+            return (correct / total) if total else None
+
     model = AutoModelForCausalLM.from_pretrained(
         base_model,
         dtype=dtype_by_name[args.dtype],
@@ -171,6 +277,7 @@ def main() -> int:
     if args.trainer_backend == "lean":
         train_dataset = JsonlChatDataset(args.train, tokenizer, args.max_length)
         eval_dataset = JsonlChatDataset(args.validation, tokenizer, args.max_length)
+        data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
     else:
         from datasets import load_dataset
 
@@ -183,6 +290,7 @@ def main() -> int:
         )
         train_dataset = dataset["train"]
         eval_dataset = dataset["validation"]
+        data_collator = None
 
     torch_dtype = model.dtype
     common_config = dict(
@@ -208,6 +316,7 @@ def main() -> int:
         torch_empty_cache_steps=50,
         push_to_hub=args.push_to_hub,
         report_to="tensorboard",
+        disable_tqdm=True,
     )
 
     if args.trainer_backend == "lean":
@@ -218,7 +327,7 @@ def main() -> int:
             train_dataset=train_dataset,
             eval_dataset=eval_dataset,
             processing_class=tokenizer,
-            data_collator=DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False),
+            data_collator=data_collator,
         )
     else:
         config = SFTConfig(
@@ -234,6 +343,9 @@ def main() -> int:
             processing_class=tokenizer,
             peft_config=peft_config,
         )
+
+    trainer.remove_callback(PrinterCallback)
+    trainer.add_callback(SplitmaaProgressCallback(eval_dataset, data_collator, args.progress_accuracy_batches))
 
     if args.training_mode == "lora":
         trainer.model.print_trainable_parameters()

@@ -327,3 +327,9 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Learning: semantic audit stayed valuable even late in the process; it caught a payer-name conflict in a multi-step row before final promotion. Multi-word payer phrases can trigger the current audit heuristic, so rows should either phrase the payer unambiguously or use a single natural reference when the example is not explicitly testing name expansion.
 - Next step: train a controlled LoRA run from `google/functiongemma-270m-it` using the final manual v4 FunctionGemma artifacts, then evaluate against the locked manual test split before wiring any fine-tuned model into the app.
 
+### 2026-06-30 - FunctionGemma Training Notebook Progress Dashboard
+- Added checkpoint resume support to the FunctionGemma SFT script after the first Windows notebook run reached epoch `1/3` and saved `checkpoint-213`, then failed with only a wrapper `exit code 1` visible in the notebook.
+- Added a Splitmaa-specific training progress event stream and notebook renderer so training shows one in-place dashboard-style progress bar instead of raw Hugging Face log dictionaries.
+- The dashboard displays step, epoch, percent complete, elapsed time, ETA, train loss, eval loss, gradient norm, learning rate, and lightweight token accuracy from a small number of eval batches.
+- Decision: keep token accuracy lightweight because TRL's full entropy/token-accuracy pass previously caused CUDA OOM on the 12 GB Windows GPU.
+

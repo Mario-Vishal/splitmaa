@@ -279,3 +279,10 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Learning: as the corpus grows, the near-duplicate scan can surface older rows that become too close to newer phrasing. Rewriting those rows before committing keeps the manual set from drifting into repeated shells.
 - Next step: continue manual expansion in 100-row checkpoints or pause to run a dry eval only if we want failure-guided authoring before the 1,500+ train-row target.
 
+### 2026-06-30 - Manual V4 Expanded To 1,000 Rows
+- Expanded `manual_v4` by 200 manually authored rows: train `700`, validation `150`, test `150`, total `1,000`.
+- The batch added more long multi-step examples, missing-amount payer phrasing, percentage and full-amount splits, settlement variants, lookup/open/highlight navigation, financial summaries, clarification replies, and unsupported app-boundary requests.
+- Quality gates pass at this checkpoint: strict routing `1,000/1,000`, semantic audit zero findings, exact duplicate inputs zero, normalized shape duplicate inputs zero, duplicate IDs zero, and near-duplicate pairs zero at threshold `0.78`.
+- Learning: missing-amount phrases like `no amount paid X` can confuse audits and likely small models; the cleaner pattern is `amount missing payer X`. Lookup rows also need varied navigation wording to avoid repetitive `open X and highlight Y` shells.
+- Next step: either continue toward the `1,500-1,800` train-row target or run a dry eval/tooling pass on the 1,000-row corpus before the next large authoring block.
+

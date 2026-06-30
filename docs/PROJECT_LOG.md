@@ -293,3 +293,12 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Evaluator self-test over `manual_v4/test.jsonl` passes at `1.0` for parseability, schema validity, workflow accuracy, operation sequence accuracy, exact intent, and leaf argument accuracy.
 - Coverage learning: the current manual v4 set is intentionally messy-heavy; if we want the earlier 70/30 messy-clean blend, the remaining rows should deliberately add cleaner, well-punctuated English examples while keeping hard workflow semantics.
 
+### 2026-06-30 - Manual V4 Expanded To 1,400 Rows
+- Expanded `manual_v4` by another 400 manually authored rows: train `980`, validation `210`, test `210`, total `1,400`.
+- The expansion deliberately added cleaner, well-punctuated examples while still covering hard workflows: multi-step group plus expense creation, corrections, missing amounts, full-owed phrasing, percentage splits, exclusions, settlements, lookup/open/highlight intent, date-window financial questions, clarification replies, and unsupported app-boundary requests.
+- Quality gates pass at this checkpoint: strict routing `1,400/1,400`, semantic audit zero findings, evaluator self-test over the locked test split at `1.0` for all reported metrics.
+- Converted passing train and validation splits into FunctionGemma format: `train.functiongemma.jsonl` has `980` examples and `validation.functiongemma.jsonl` has `210` examples.
+- Duplicate review: exact normalized duplicate inputs are zero. Near-duplicate scan at threshold `0.78` reports `7` low-risk pairs, mostly short command shapes such as compact totals, settlements, and simple add-expense commands. High-risk repeated shells found during the run were rewritten before promotion.
+- Learning: as the manual corpus gets bigger, the strict validator is necessary but insufficient. The semantic audit caught a payer/name conflict, and the near-duplicate scan caught repeated short-command shapes. Both checks should remain mandatory before future dataset commits.
+- Remaining to frozen pre-training target: `1,000` rows total, aiming for train `1,700`, validation `350`, locked test `350`.
+

@@ -1,110 +1,111 @@
 {
   "summary": {
-    "rows": 1000,
+    "rows": 1400,
     "targetRows": 2400,
     "targetSplit": {
       "train": 1700,
       "validation": 350,
       "test": 350
     },
-    "remainingRows": 1400,
+    "remainingRows": 1000,
     "splitCounts": {
-      "test": 150,
-      "train": 700,
-      "validation": 150
+      "test": 210,
+      "train": 980,
+      "validation": 210
     },
     "workflowCounts": {
-      "clarification_response": 94,
-      "entity_mutation": 175,
-      "expense_mutation": 213,
-      "financial_answer": 123,
-      "multi_step": 154,
-      "record_lookup": 149,
-      "unsupported": 92
+      "clarification_response": 128,
+      "entity_mutation": 239,
+      "expense_mutation": 317,
+      "financial_answer": 171,
+      "multi_step": 210,
+      "record_lookup": 209,
+      "unsupported": 126
     },
-    "avgInputWords": 10.8,
-    "maxInputWords": 38,
-    "avgOperations": 1.21,
+    "avgInputWords": 11.02,
+    "maxInputWords": 39,
+    "avgOperations": 1.2,
     "maxOperations": 4
   },
   "splitWorkflowCounts": {
     "test": {
-      "clarification_response": 14,
-      "entity_mutation": 26,
-      "expense_mutation": 31,
-      "financial_answer": 21,
-      "multi_step": 18,
-      "record_lookup": 22,
-      "unsupported": 18
+      "clarification_response": 18,
+      "entity_mutation": 38,
+      "expense_mutation": 47,
+      "financial_answer": 29,
+      "multi_step": 26,
+      "record_lookup": 30,
+      "unsupported": 22
     },
     "train": {
-      "clarification_response": 64,
-      "entity_mutation": 124,
-      "expense_mutation": 150,
-      "financial_answer": 81,
-      "multi_step": 119,
-      "record_lookup": 106,
-      "unsupported": 56
+      "clarification_response": 90,
+      "entity_mutation": 164,
+      "expense_mutation": 222,
+      "financial_answer": 113,
+      "multi_step": 159,
+      "record_lookup": 150,
+      "unsupported": 82
     },
     "validation": {
-      "clarification_response": 16,
-      "entity_mutation": 25,
-      "expense_mutation": 32,
-      "financial_answer": 21,
-      "multi_step": 17,
-      "record_lookup": 21,
-      "unsupported": 18
+      "clarification_response": 20,
+      "entity_mutation": 37,
+      "expense_mutation": 48,
+      "financial_answer": 29,
+      "multi_step": 25,
+      "record_lookup": 29,
+      "unsupported": 22
     }
   },
   "operationCounts": {
-    "add_expense": 440,
-    "add_group_member": 46,
-    "cancel_pending_workflow": 15,
-    "change_split": 13,
-    "compute_balance": 40,
-    "compute_date_window_total": 21,
-    "compute_summary": 61,
-    "compute_total": 1,
-    "create_contact": 62,
-    "create_group": 181,
-    "delete_expense": 14,
-    "edit_expense": 16,
-    "get_record_metadata": 23,
-    "list_records": 1,
-    "open_record": 36,
-    "provide_contact_details": 9,
-    "provide_missing_field": 20,
-    "remove_group_member": 33,
-    "search_records": 75,
-    "select_option": 50,
-    "settle_up": 38,
-    "show_previous": 14
+    "add_expense": 596,
+    "add_group_member": 64,
+    "cancel_pending_workflow": 20,
+    "change_split": 21,
+    "compute_balance": 57,
+    "compute_date_window_total": 36,
+    "compute_summary": 76,
+    "compute_total": 2,
+    "create_contact": 84,
+    "create_group": 244,
+    "delete_expense": 28,
+    "edit_expense": 35,
+    "get_record_metadata": 29,
+    "list_records": 5,
+    "open_record": 58,
+    "provide_contact_details": 13,
+    "provide_missing_field": 24,
+    "remove_group_member": 50,
+    "search_records": 99,
+    "select_option": 71,
+    "settle_up": 55,
+    "show_previous": 18
   },
   "splitTypeCounts": {
-    "equal": 284,
-    "full_amount": 101,
-    "percentage": 68
+    "equal": 394,
+    "full_amount": 128,
+    "percentage": 95
   },
   "currencyMentions": {
-    "INR": 332,
-    "USD": 505
+    "INR": 490,
+    "USD": 654
   },
   "missingFieldCounts": {
-    "amount": 40,
-    "groupName": 9
+    "amount": 53,
+    "groupName": 9,
+    "group_or_participants": 3
   },
   "styleHeuristics": {
-    "messyMobileLike": 1000,
-    "cleanLike": 0,
-    "messyMobileLikeRate": 1.0
+    "messyMobileLike": 1302,
+    "cleanLike": 98,
+    "messyMobileLikeRate": 0.93
   },
   "evalSubsets": {
     "long_multi_step": {
-      "count": 154,
+      "count": 210,
       "bySplit": {
-        "test": 18,
-        "train": 119,
-        "validation": 17
+        "test": 26,
+        "train": 159,
+        "validation": 25
       },
       "sampleIds": [
         "manual_v4_train_multi_001",
@@ -130,11 +131,11 @@
       ]
     },
     "messy_mobile_tts": {
-      "count": 1000,
+      "count": 1302,
       "bySplit": {
-        "test": 150,
-        "train": 700,
-        "validation": 150
+        "test": 199,
+        "train": 911,
+        "validation": 192
       },
       "sampleIds": [
         "manual_v4_train_multi_001",
@@ -160,11 +161,11 @@
       ]
     },
     "missing_fields": {
-      "count": 49,
+      "count": 65,
       "bySplit": {
         "test": 4,
-        "train": 40,
-        "validation": 5
+        "train": 53,
+        "validation": 8
       },
       "sampleIds": [
         "manual_v4_train_multi_004",
@@ -190,11 +191,11 @@
       ]
     },
     "clarification_response": {
-      "count": 94,
+      "count": 128,
       "bySplit": {
-        "test": 14,
-        "train": 64,
-        "validation": 16
+        "test": 18,
+        "train": 90,
+        "validation": 20
       },
       "sampleIds": [
         "manual_v4_train_clarification_001",
@@ -220,11 +221,11 @@
       ]
     },
     "financial_answer": {
-      "count": 123,
+      "count": 171,
       "bySplit": {
-        "test": 21,
-        "train": 81,
-        "validation": 21
+        "test": 29,
+        "train": 113,
+        "validation": 29
       },
       "sampleIds": [
         "manual_v4_train_financial_001",
@@ -250,11 +251,11 @@
       ]
     },
     "lookup_navigation": {
-      "count": 149,
+      "count": 209,
       "bySplit": {
-        "test": 22,
-        "train": 106,
-        "validation": 21
+        "test": 30,
+        "train": 150,
+        "validation": 29
       },
       "sampleIds": [
         "manual_v4_train_lookup_001",
@@ -280,11 +281,11 @@
       ]
     },
     "unsupported_boundary": {
-      "count": 92,
+      "count": 126,
       "bySplit": {
-        "test": 18,
-        "train": 56,
-        "validation": 18
+        "test": 22,
+        "train": 82,
+        "validation": 22
       },
       "sampleIds": [
         "manual_v4_train_unsupported_001",
@@ -310,11 +311,11 @@
       ]
     },
     "percentage_splits": {
-      "count": 68,
+      "count": 95,
       "bySplit": {
-        "test": 1,
-        "train": 65,
-        "validation": 2
+        "test": 5,
+        "train": 86,
+        "validation": 4
       },
       "sampleIds": [
         "manual_v4_train_multi_003",
@@ -340,11 +341,11 @@
       ]
     },
     "full_amount_splits": {
-      "count": 101,
+      "count": 128,
       "bySplit": {
-        "test": 18,
-        "train": 63,
-        "validation": 20
+        "test": 22,
+        "train": 81,
+        "validation": 25
       },
       "sampleIds": [
         "manual_v4_train_multi_002",
@@ -370,11 +371,11 @@
       ]
     },
     "settlements": {
-      "count": 38,
+      "count": 55,
       "bySplit": {
-        "test": 8,
-        "train": 26,
-        "validation": 4
+        "test": 12,
+        "train": 35,
+        "validation": 8
       },
       "sampleIds": [
         "manual_v4_train_expense_005",
@@ -400,11 +401,11 @@
       ]
     },
     "destructive_or_edit": {
-      "count": 76,
+      "count": 134,
       "bySplit": {
-        "test": 6,
-        "train": 64,
-        "validation": 6
+        "test": 17,
+        "train": 102,
+        "validation": 15
       },
       "sampleIds": [
         "manual_v4_train_entity_004",

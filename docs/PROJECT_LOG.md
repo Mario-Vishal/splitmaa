@@ -333,3 +333,11 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - The dashboard displays step, epoch, percent complete, elapsed time, ETA, train loss, eval loss, gradient norm, learning rate, and lightweight token accuracy from a small number of eval batches.
 - Decision: keep token accuracy lightweight because TRL's full entropy/token-accuracy pass previously caused CUDA OOM on the 12 GB Windows GPU.
 
+### 2026-06-30 - First Manual V4 LoRA Result
+- Completed the first local Windows LoRA run against `google/functiongemma-270m-it` using manual v4 FunctionGemma artifacts: final checkpoint `checkpoint-639`, epoch `3.0/3.0`, final train loss around `0.1685`, final eval loss `0.1299`, lightweight token accuracy `0.9733`.
+- The adapter was saved at `outputs/functiongemma-splitmaa-manual-v4-lora/adapter_model.safetensors`.
+- Locked-test evaluation is not acceptable for app wiring yet: parseable rate `0.8543`, schema-valid rate `0.3029`, workflow accuracy `0.5029`, operation sequence accuracy `0.3829`, exact intent accuracy `0.0286`, leaf argument accuracy `0.4312`.
+- Learning: the low eval loss and high lightweight token accuracy are misleading because the lean trainer currently computes loss over the whole chat transcript, including repeated prompt/tool schema tokens, instead of masking the prompt and training only on the assistant tool call.
+- Learning: the current FunctionGemma tool schema exposes operation `args` as a loose object, while the app validator is strict. This lets the model invent invalid keys and metrics such as `displayName`, `entityType`, `total_amount`, and `balance`.
+- Next fix before another serious LoRA run: add assistant-only loss masking and make the model-facing tool schema carry strict operation argument shapes that match the validator.
+

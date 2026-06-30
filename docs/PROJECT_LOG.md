@@ -318,3 +318,12 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Duplicate review: exact normalized duplicate inputs are zero. Near-duplicate scan at threshold `0.78` reports `19` low-risk pairs, mostly compact lookup and financial command shapes. A semantic-audit payer conflict and several repeated shells were repaired before promotion.
 - Remaining to frozen pre-training target: `800` rows total, aiming for train `1,700`, validation `350`, locked test `350`.
 
+### 2026-06-30 - Manual V4 Frozen Target Complete
+- Expanded `manual_v4` to the frozen pre-training target: train `1,700`, validation `350`, locked test `350`, total `2,400`.
+- The final expansion added fresh train, validation, and locked-test rows across multi-step group-plus-expense workflows, entity mutations, expense edits/deletes/settlements/split changes, record lookup/navigation, financial answers, clarification replies, and unsupported safety boundaries.
+- Quality gates pass at the final checkpoint: strict routing `2,400/2,400`, semantic audit zero findings, evaluator self-test over the locked test split at `1.0` for all reported metrics.
+- Converted passing train and validation splits into FunctionGemma format: `train.functiongemma.jsonl` has `1,700` examples and `validation.functiongemma.jsonl` has `350` examples.
+- Duplicate review: exact normalized duplicate inputs are zero. The loose near-duplicate scan at threshold `0.78` reports `58` low-risk pairs and no pairs above `0.90`; the remaining pairs are mostly intentionally similar short lookup, financial, and clarification shapes across different entities/currencies.
+- Learning: semantic audit stayed valuable even late in the process; it caught a payer-name conflict in a multi-step row before final promotion. Multi-word payer phrases can trigger the current audit heuristic, so rows should either phrase the payer unambiguously or use a single natural reference when the example is not explicitly testing name expansion.
+- Next step: train a controlled LoRA run from `google/functiongemma-270m-it` using the final manual v4 FunctionGemma artifacts, then evaluate against the locked manual test split before wiring any fine-tuned model into the app.
+

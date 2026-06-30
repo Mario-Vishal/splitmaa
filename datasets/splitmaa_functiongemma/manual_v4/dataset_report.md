@@ -1,77 +1,80 @@
 # Splitmaa Manual v4 Dataset Report
 
 ## Summary
-- Rows: `1600`
+- Rows: `2400`
 - Target rows before serious training: `2400`
 - Target split: train `1700`, validation `350`, test `350`
-- Remaining rows to target: `800`
-- Average input words: `10.9`
+- Remaining rows to target: `0`
+- Average input words: `10.73`
 - Max input words: `39`
-- Average operations: `1.2`
+- Average operations: `1.17`
 - Max operations: `4`
 
 ## Split Counts
-- `test`: `240`
-- `train`: `1120`
-- `validation`: `240`
+- `test`: `350`
+- `train`: `1700`
+- `validation`: `350`
 
 ## Workflow Counts
-- `clarification_response`: `146`
-- `entity_mutation`: `267`
-- `expense_mutation`: `373`
-- `financial_answer`: `195`
-- `multi_step`: `234`
-- `record_lookup`: `241`
-- `unsupported`: `144`
+- `clarification_response`: `242`
+- `entity_mutation`: `399`
+- `expense_mutation`: `535`
+- `financial_answer`: `309`
+- `multi_step`: `347`
+- `record_lookup`: `354`
+- `unsupported`: `214`
 
 ## Operation Counts
-- `add_expense`: `664`
-- `add_group_member`: `72`
-- `cancel_pending_workflow`: `22`
-- `change_split`: `27`
-- `compute_balance`: `65`
-- `compute_date_window_total`: `44`
-- `compute_summary`: `84`
-- `compute_total`: `2`
-- `create_contact`: `94`
-- `create_group`: `270`
-- `delete_expense`: `36`
-- `edit_expense`: `47`
-- `get_record_metadata`: `33`
-- `list_records`: `7`
-- `open_record`: `70`
-- `provide_contact_details`: `15`
-- `provide_missing_field`: `26`
-- `remove_group_member`: `58`
-- `search_records`: `111`
-- `select_option`: `83`
-- `settle_up`: `65`
-- `show_previous`: `20`
+- `add_expense`: `870`
+- `add_group_member`: `106`
+- `cancel_pending_workflow`: `40`
+- `change_split`: `54`
+- `compute_balance`: `112`
+- `compute_date_window_total`: `84`
+- `compute_summary`: `110`
+- `compute_total`: `3`
+- `create_contact`: `134`
+- `create_group`: `412`
+- `delete_expense`: `62`
+- `edit_expense`: `81`
+- `get_record_metadata`: `50`
+- `list_records`: `19`
+- `open_record`: `106`
+- `provide_contact_details`: `27`
+- `provide_missing_field`: `60`
+- `remove_group_member`: `88`
+- `search_records`: `145`
+- `select_option`: `116`
+- `settle_up`: `99`
+- `show_previous`: `34`
 
 ## Split Type Counts
-- `equal`: `437`
-- `full_amount`: `143`
-- `percentage`: `111`
+- `equal`: `575`
+- `full_amount`: `185`
+- `percentage`: `164`
 
 ## Missing Field Counts
-- `amount`: `57`
+- `amount`: `62`
+- `contact_details`: `2`
+- `currency`: `2`
+- `email`: `2`
 - `groupName`: `9`
-- `group_or_participants`: `5`
+- `group_or_participants`: `6`
 
 ## Style Heuristics
-- `messyMobileLike`: `1489`
-- `cleanLike`: `111`
-- `messyMobileLikeRate`: `0.9306`
+- `messyMobileLike`: `2286`
+- `cleanLike`: `114`
+- `messyMobileLikeRate`: `0.9525`
 
 ## Eval Subsets
-- `clarification_response`: `146` rows, by split `{'test': 20, 'train': 104, 'validation': 22}`
-- `destructive_or_edit`: `168` rows, by split `{'test': 23, 'train': 124, 'validation': 21}`
-- `financial_answer`: `195` rows, by split `{'test': 33, 'train': 129, 'validation': 33}`
-- `full_amount_splits`: `143` rows, by split `{'test': 24, 'train': 92, 'validation': 27}`
-- `long_multi_step`: `234` rows, by split `{'test': 30, 'train': 175, 'validation': 29}`
-- `lookup_navigation`: `241` rows, by split `{'test': 34, 'train': 174, 'validation': 33}`
-- `messy_mobile_tts`: `1489` rows, by split `{'test': 225, 'train': 1046, 'validation': 218}`
-- `missing_fields`: `71` rows, by split `{'test': 4, 'train': 59, 'validation': 8}`
-- `percentage_splits`: `111` rows, by split `{'test': 7, 'train': 98, 'validation': 6}`
-- `settlements`: `65` rows, by split `{'test': 14, 'train': 41, 'validation': 10}`
-- `unsupported_boundary`: `144` rows, by split `{'test': 24, 'train': 96, 'validation': 24}`
+- `clarification_response`: `242` rows, by split `{'test': 35, 'train': 172, 'validation': 35}`
+- `destructive_or_edit`: `285` rows, by split `{'test': 43, 'train': 204, 'validation': 38}`
+- `financial_answer`: `309` rows, by split `{'test': 50, 'train': 209, 'validation': 50}`
+- `full_amount_splits`: `185` rows, by split `{'test': 29, 'train': 125, 'validation': 31}`
+- `long_multi_step`: `332` rows, by split `{'test': 39, 'train': 253, 'validation': 40}`
+- `lookup_navigation`: `354` rows, by split `{'test': 50, 'train': 254, 'validation': 50}`
+- `messy_mobile_tts`: `2286` rows, by split `{'test': 335, 'train': 1623, 'validation': 328}`
+- `missing_fields`: `83` rows, by split `{'test': 4, 'train': 71, 'validation': 8}`
+- `percentage_splits`: `164` rows, by split `{'test': 14, 'train': 137, 'validation': 13}`
+- `settlements`: `99` rows, by split `{'test': 21, 'train': 62, 'validation': 16}`
+- `unsupported_boundary`: `214` rows, by split `{'test': 30, 'train': 154, 'validation': 30}`

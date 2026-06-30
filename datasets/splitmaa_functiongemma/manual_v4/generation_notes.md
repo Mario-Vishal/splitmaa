@@ -8,22 +8,18 @@ This folder is the manually authored FunctionGemma staging dataset for Splitmaa.
 - Validation, semantic audit, dedupe, pretty-printing, conversion, and reporting scripts may be used only as checks.
 
 ## Current Status
-- `train.jsonl`, `validation.jsonl`, and `test.jsonl` contain 1,600 manually authored rows:
-  - train: 1,120
-  - validation: 240
-  - test: 240
-- Strict routing validation passes for all 1,600 rows.
-- Semantic audit passes with zero findings.
-- Evaluator self-test over the locked test split passes at 1.0 across parseability, schema validity, workflow accuracy, operation sequence accuracy, exact intent, and leaf argument accuracy.
-- Input uniqueness checks report zero exact duplicates. The latest near-duplicate scan reports 19 low-risk pairs at threshold 0.78, mostly short lookup and financial command shapes that remain semantically distinct.
-- The initial 600-row manual seed target is complete, and expansion has reached a 1,600-row checkpoint.
-- Passing train and validation splits have been converted to FunctionGemma format:
-  - `train.functiongemma.jsonl`: 1,120 examples
-  - `validation.functiongemma.jsonl`: 240 examples
-- The frozen pre-training target is 2,400 rows total:
+- `train.jsonl`, `validation.jsonl`, and `test.jsonl` contain 2,400 manually authored rows:
   - train: 1,700
   - validation: 350
   - locked test: 350
+- Strict routing validation passes for all 2,400 rows.
+- Semantic audit passes with zero findings.
+- Evaluator self-test over the locked test split passes at 1.0 across parseability, schema validity, workflow accuracy, operation sequence accuracy, exact intent, and leaf argument accuracy.
+- Input uniqueness checks report zero exact duplicates. The latest near-duplicate scan reports 58 low-risk pairs at threshold 0.78 and no near pairs above 0.90; the loose-threshold pairs are mostly short lookup, financial, and clarification command shapes that remain semantically distinct.
+- The frozen pre-training target is complete.
+- Passing train and validation splits have been converted to FunctionGemma format:
+  - `train.functiongemma.jsonl`: 1,700 examples
+  - `validation.functiongemma.jsonl`: 350 examples
 - The existing `v3` dataset is retained only as stress/validator data and is not the trusted training source.
 
 ## Authoring Rules

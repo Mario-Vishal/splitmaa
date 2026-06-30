@@ -4,7 +4,7 @@
     "datasets\\splitmaa_functiongemma\\manual_v4\\validation.jsonl",
     "datasets\\splitmaa_functiongemma\\manual_v4\\test.jsonl"
   ],
-  "rows": 1600,
+  "rows": 2400,
   "findings": 0,
   "blockingFindings": 0,
   "ruleCounts": {},

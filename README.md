@@ -132,10 +132,12 @@ Rows in `manual_v4` are manually authored. Scripts are used only for validation,
 
 Current manual v4 checkpoint:
 
-- Total rows: `1,600`
-- Split: train `1,120`, validation `240`, locked test `240`
-- Frozen pre-training target: train `1,700`, validation `350`, locked test `350`
+- Total rows: `2,400`
+- Split: train `1,700`, validation `350`, locked test `350`
+- Frozen pre-training target: complete
+- Converted artifacts: `train.functiongemma.jsonl` has `1,700` examples; `validation.functiongemma.jsonl` has `350` examples
 - Latest gates: strict routing valid, semantic audit zero findings, locked-test self-test `1.0` across reported metrics
+- Duplicate review: zero exact normalized duplicates; loose `0.78` near-pair scan reports `58` low-risk pairs and no pairs above `0.90`
 
 Validate manual v4:
 

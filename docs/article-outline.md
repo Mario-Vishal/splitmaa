@@ -28,6 +28,16 @@ Animations should visualize deterministic execution steps.
 
 Fine-tuning comes after baseline measurement and failure analysis.
 
+## The FunctionGemma Pivot
+
+FunctionGemma was the principled first choice: tiny, local, and made for function calling. The project still pivoted after generation-based evals showed that low loss was not enough. The decisive failure was the one-row overfit gate: teacher-forced token accuracy reached `1.0`, but free generation still malformed the nested workflow JSON.
+
+The lesson: for small local models, the serialization shape can matter as much as the model family. Splitmaa's nested operation union worked better as strict JSON assistant output than as FunctionGemma-native tool-call output.
+
+## Qwen As The Next Candidate
+
+Qwen2.5-0.5B-Instruct became the primary candidate after passing the same one-row gate and beating Qwen3-0.6B slightly on the 20-row same-set gate. The cost is mobile size, so the app should treat the model as an optional downloaded local AI pack.
+
 ## Tradeoffs And Lessons Learned
 
 Start local, keep mocks honest, and do not let model output directly mutate app state.

@@ -372,3 +372,45 @@ This file is the session bridge for implementation status, decisions, tradeoffs,
 - Decision: do not use naive PyTorch DataParallel for this full fine-tune. The notebook now defaults `CUDA_VISIBLE_DEVICES=0` so the smoke/full run uses one T4 instead of T4 x2 DataParallel gather.
 - Added `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` to reduce CUDA allocator fragmentation.
 
+### 2026-06-30 - Kaggle Full Fine-Tune Download And Local Eval Failure
+- Downloaded the Kaggle full fine-tune archive as `splitmaa-full-model.tar.gz` and extracted only the root model files locally to `outputs/functiongemma-splitmaa-kaggle-full`; extracted checkpoint `321` separately to `outputs/functiongemma-splitmaa-kaggle-full-checkpoint321`.
+- The downloaded run contains full fine-tune checkpoints at epoch `3` and epoch `4`. Epoch `3` validation loss was about `2.1016`; epoch `4` validation loss was about `2.1193`, so epoch `4` did not improve validation loss.
+- Local CUDA inference with `float16` produced NaN logits even for the base `google/functiongemma-270m-it` model on the Windows RTX 5070 Ti stack. This caused generation to emit repeated `<pad>` tokens or immediate `<eos>`. Local evaluation must use `float32` for now.
+- With `float32`, the fine-tuned model emits FunctionGemma syntax, but quality is not acceptable. A 10-row locked-test check on epoch `3` scored schema-valid `0.60`, workflow `0.50`, operation sequence `0.40`, exact intent `0.00`, leaf argument accuracy `0.2954`.
+- A 10-row locked-test check on epoch `4` scored schema-valid `0.60`, workflow `0.60`, operation sequence `0.60`, exact intent `0.00`, leaf argument accuracy `0.4219`.
+- Learning: low-ish training/eval loss from the full fine-tune is not sufficient. We need generation-based eval early in training, because the model can learn the broad function-call surface while still corrupting names, choosing wrong operations, or emitting malformed values.
+- Decision: do not wire this Kaggle full fine-tuned model into the app. Next training should use smaller learning rate and/or fewer epochs, and the notebook should run a generation smoke eval after each saved epoch before spending time on longer runs.
+
+### 2026-06-30 - FunctionGemma Pipeline Overfit Gate
+- Ran a base `google/functiongemma-270m-it` generation eval on the first 20 locked-test rows using local CUDA `float32`: schema-valid `0.00`, workflow `0.00`, operation sequence `0.10`, exact intent `0.00`. This confirms the base model is not usable for Splitmaa without fine-tuning.
+- Created `outputs/functiongemma_pipeline_checks/overfit20_train.jsonl` from 20 manual train rows and trained a masked LoRA overfit adapter. The run reached low same-set token loss and token accuracy around `0.99`, but same-set generation still failed: on 17 completed rows, schema-valid `0.5294`, workflow `0.5294`, operation sequence `0.5294`, exact intent `0.2353`.
+- Ran a sharper one-row expense overfit. Teacher-forced eval reached loss about `0.00033` and token accuracy `1.0`, but free generation still produced malformed output and scored schema-valid `0.00`.
+- Root cause found: FunctionGemma's native chat template serializes operation objects with `args` before `operationType`, even when the source JSON has `operationType` first. The model therefore has to finish a long nested `args` object and then remember to emit the discriminator. In free generation it often skips or corrupts the discriminator, even after one-row overfit.
+- Decision: stop larger training until the model-facing operation contract is changed. The next contract should put the discriminator before nested args under the native serializer, for example using a model-facing key such as `action` or `kind`, then normalizing it back to app-side `operationType` after parsing. After that, rerun one-row overfit, 20-row overfit, then small generalization.
+
+### 2026-07-01 - Small Model JSON Intent Bakeoff
+- Added a generic JSON chat conversion path, `tools/finetune/convert_to_json_chat.py`, and a generic Hugging Face prediction path, `tools/evals/hf_json_predictions.py`, so non-FunctionGemma chat models can be tested against the same Splitmaa staging/eval contract.
+- Tested `Qwen/Qwen3-0.6B` with LoRA on the one-row and 20-row overfit gates. One-row free generation scored `1.0` across parseability, schema validity, workflow, operation sequence, exact intent, and leaf arguments. The 20-row same-set gate scored parseable `0.90`, schema-valid `0.85`, workflow `0.90`, operation sequence `0.90`, exact intent `0.55`, leaf argument accuracy `0.8537`. Output includes an empty `<think></think>` prefix unless filtered.
+- Tested `Qwen/Qwen2.5-0.5B-Instruct` with LoRA on the same gates. One-row free generation scored `1.0` across all metrics. The 20-row same-set gate scored parseable `0.90`, schema-valid `0.90`, workflow `0.90`, operation sequence `0.90`, exact intent `0.55`, leaf argument accuracy `0.8854`. Output was cleaner than Qwen3 on the one-row check, with no thinking prefix.
+- Retried `HuggingFaceTB/SmolLM2-360M-Instruct` after the earlier Hugging Face connection failure. It passed the one-row overfit metric gate, but free generation continued after the first correct JSON object with extra explanatory text and a second malformed JSON-like block. The one-row prediction also took about `30s` locally, compared with about `5s` for Qwen2.5 and `7s` for Qwen3 in the same environment.
+- Learning: FunctionGemma is still conceptually aligned with local function calling, but our current FunctionGemma-format path is not leading empirically. The native function-call serialization creates a discriminator-order problem for the nested Splitmaa operation schema.
+- Decision: the current best tested path is `Qwen/Qwen2.5-0.5B-Instruct` with strict JSON-only output and the app-side validator unchanged. `Qwen/Qwen3-0.6B` remains the backup candidate. SmolLM2 is not promoted beyond one-row because of continuation/junk output and slower local generation.
+- Next step: run a controlled Qwen2.5 small-generalization pass, not a full-corpus run yet: train on a larger but still bounded subset, evaluate on held-out manual v4 rows, inspect failure classes, then decide whether Qwen2.5 should replace FunctionGemma for the mobile prototype track.
+
+### 2026-07-01 - Qwen Pivot Documented And Training Path Added
+- Accepted the pivot away from FunctionGemma for the active training track. FunctionGemma remains documented and preserved as a failed-path learning, not deleted.
+- Added ADR `docs/adr/0009-pivot-from-functiongemma-to-qwen.md` with the decision, evidence, consequences, and follow-up tasks.
+- Rewrote `docs/fine-tuning.md` around Qwen JSON-output SFT. The canonical dataset shape does not change; only the training serialization changes from FunctionGemma `tool_calls` to normal chat rows where assistant content is the compact JSON object.
+- Added Qwen-specific command wrappers:
+  - `tools/finetune/train_qwen_json_sft.py`
+  - `tools/evals/qwen_json_predictions.py`
+  - `tools/finetune/report_chat_sft_dataset.py`
+- Added package scripts for Qwen data conversion, token reporting, training, prediction capture, and eval.
+- Updated `docs/model-integration.md` and `docs/mobile-inference.md` to mark the existing FunctionGemma native runner as legacy technical debt. The future runtime should be a generic local intent model runner that returns raw text for TypeScript JSON parsing and validation.
+- Verified dataset compatibility for Qwen:
+  - strict manual v4 validation still passes: `2,400/2,400`.
+  - generated `train.qwen.jsonl`, `validation.qwen.jsonl`, and `test.qwen.jsonl`.
+  - Qwen2.5 token report at `max_length=2048`: train max `600` tokens, validation max `486`, test max `527`, zero truncation, zero zero-label rows.
+  - one-step Qwen training smoke completed with local cached `Qwen/Qwen2.5-0.5B-Instruct`; trainable LoRA params `2,162,688` out of `496,195,456` total params.
+- Decision: no canonical dataset rewrite is needed for Qwen. Keep manual v4 as staging truth and regenerate model-specific training serializations from it.
+

@@ -19,6 +19,11 @@
     "eval:functiongemma": "python tools/evals/run_eval.py --dataset datasets/splitmaa_functiongemma/test.jsonl",
     "eval:functiongemma:capture": "python tools/evals/capture_predictions.py --dataset datasets/splitmaa_functiongemma/test.jsonl",
     "eval:functiongemma:litert": ".venv/Scripts/python.exe tools/evals/capture_predictions.py --dataset datasets/splitmaa_functiongemma/test.jsonl --model-command \".venv/Scripts/python.exe tools/evals/litert_lm_prompt.py --model C:\\Users\\mario\\OneDrive\\Desktop\\functiongemma-270m-ft-mobile-actions_Google_Tensor_G5.litertlm --cache-dir .cache/litert-lm\" --output reports/functiongemma_eval/litert_predictions.jsonl",
-    "report:functiongemma:manual-v4": ".\\.venv-train\\Scripts\\python.exe tools/finetune/report_splitmaa_dataset.py --base datasets/splitmaa_functiongemma/manual_v4"
+    "report:functiongemma:manual-v4": ".\\.venv-train\\Scripts\\python.exe tools/finetune/report_splitmaa_dataset.py --base datasets/splitmaa_functiongemma/manual_v4",
+    "dataset:qwen:manual-v4": ".\\.venv-train\\Scripts\\python.exe tools/finetune/convert_to_json_chat.py datasets/splitmaa_functiongemma/manual_v4/train.jsonl datasets/splitmaa_functiongemma/manual_v4/train.qwen.jsonl && .\\.venv-train\\Scripts\\python.exe tools/finetune/convert_to_json_chat.py datasets/splitmaa_functiongemma/manual_v4/validation.jsonl datasets/splitmaa_functiongemma/manual_v4/validation.qwen.jsonl && .\\.venv-train\\Scripts\\python.exe tools/finetune/convert_to_json_chat.py datasets/splitmaa_functiongemma/manual_v4/test.jsonl datasets/splitmaa_functiongemma/manual_v4/test.qwen.jsonl",
+    "report:qwen:manual-v4": ".\\.venv-train\\Scripts\\python.exe tools/finetune/report_chat_sft_dataset.py datasets/splitmaa_functiongemma/manual_v4/train.qwen.jsonl datasets/splitmaa_functiongemma/manual_v4/validation.qwen.jsonl datasets/splitmaa_functiongemma/manual_v4/test.qwen.jsonl --model Qwen/Qwen2.5-0.5B-Instruct --max-length 2048",
+    "train:qwen:manual-v4": ".\\.venv-train\\Scripts\\python.exe tools/finetune/train_qwen_json_sft.py",
+    "eval:qwen:manual-v4:capture": ".\\.venv-train\\Scripts\\python.exe tools/evals/qwen_json_predictions.py",
+    "eval:qwen:manual-v4": ".\\.venv-train\\Scripts\\python.exe tools/evals/run_eval.py --dataset datasets/splitmaa_functiongemma/manual_v4/test.jsonl --predictions reports/qwen_eval/manual_v4_predictions.jsonl --report reports/qwen_eval/manual_v4_eval.json --failure-limit 200"
   }
 }

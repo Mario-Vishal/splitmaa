@@ -1,117 +1,155 @@
 # Fine-Tuning
 
-Splitmaa fine-tuning follows Google's official FunctionGemma SFT workflow:
+Splitmaa has pivoted from FunctionGemma-native tool-call training to Qwen JSON-output training.
+
+Current workflow:
 
 ```text
-canonical JSONL -> FunctionGemma chat/tool-call JSONL -> Hugging Face TRL SFTTrainer -> validation eval -> export -> LiteRT-LM/mobile conversion
+canonical Splitmaa JSONL
+-> Qwen chat JSONL where assistant content is compact JSON
+-> Hugging Face chat SFT
+-> generation eval against locked test rows
+-> merge/quantize only after eval passes
 ```
 
-Official reference:
+## Current Decision
 
-```text
-https://ai.google.dev/gemma/docs/functiongemma/finetuning-with-functiongemma
+- Primary candidate: `Qwen/Qwen2.5-0.5B-Instruct`.
+- Backup candidate: `Qwen/Qwen3-0.6B`.
+- Archived path: `google/functiongemma-270m-it`.
+- Keep one model-facing logical call: `extract_workflow_intent`.
+- Keep the existing canonical dataset source shape:
+
+```json
+{"id":"...","input":"...","expected":{"name":"extract_workflow_intent","arguments":{}}}
 ```
 
-The official guide fine-tunes `google/functiongemma-270m-it` with Hugging Face `transformers`, `datasets`, and TRL `SFTTrainer`. It uses conversational records with `messages` and `tools`; the assistant message contains a `tool_calls` entry.
+The dataset does not need a source-schema rewrite for Qwen. The compatibility change is only the training serialization: Qwen sees normal chat messages and learns to emit the expected JSON object as assistant text.
 
-## Current Contract
+## Why Pivot
 
-- Train from base `google/functiongemma-270m-it`.
-- Use one model-facing function: `extract_workflow_intent`.
-- Store canonical staging JSONL under `datasets/splitmaa_functiongemma/`.
-- Validate every batch with `tools/finetune/validate_splitmaa_dataset.py`.
-- Convert accepted splits with `tools/finetune/convert_to_functiongemma.py`.
-- Train with `tools/finetune/train_functiongemma_sft.py` in Colab, Kaggle, Vertex, or another GPU environment.
+FunctionGemma is still conceptually aligned with local function calling, but the measured Splitmaa path failed the generation gates:
 
-The dataset trains workflow routing, strict operation extraction, names/references instead of IDs, `amountText`/`dateText`, missing information vs unsupported requests, and clarification replies such as "the second one."
+- Base FunctionGemma was not usable for Splitmaa without tuning.
+- LoRA and full fine-tune runs had reasonable loss but poor free-generation eval.
+- A one-row FunctionGemma overfit reached teacher-forced token accuracy `1.0` but still produced malformed free generation.
+- Root cause: the native FunctionGemma function-call serializer places nested `args` before `operationType`, so the model has to generate a long nested object before the operation discriminator.
+- Qwen2.5-0.5B passed the same one-row and 20-row gates more cleanly using strict JSON assistant output.
 
 ## Prepare Data
 
-Validate canonical splits:
+Validate canonical manual v4 splits:
 
 ```powershell
-python tools\finetune\validate_splitmaa_dataset.py datasets\splitmaa_functiongemma\train.jsonl datasets\splitmaa_functiongemma\validation.jsonl datasets\splitmaa_functiongemma\test.jsonl
+.\.venv-train\Scripts\python.exe tools\finetune\validate_splitmaa_dataset.py --strict-routing `
+  datasets\splitmaa_functiongemma\manual_v4\train.jsonl `
+  datasets\splitmaa_functiongemma\manual_v4\validation.jsonl `
+  datasets\splitmaa_functiongemma\manual_v4\test.jsonl
 ```
 
-Convert train and validation to FunctionGemma chat/tool-call JSONL:
+Convert to Qwen chat SFT JSONL:
 
 ```powershell
-python tools\finetune\convert_to_functiongemma.py datasets\splitmaa_functiongemma\train.jsonl datasets\splitmaa_functiongemma\train.functiongemma.jsonl
-python tools\finetune\convert_to_functiongemma.py datasets\splitmaa_functiongemma\validation.jsonl datasets\splitmaa_functiongemma\validation.functiongemma.jsonl
+pnpm dataset:qwen:manual-v4
 ```
+
+Equivalent direct commands:
+
+```powershell
+.\.venv-train\Scripts\python.exe tools\finetune\convert_to_json_chat.py `
+  datasets\splitmaa_functiongemma\manual_v4\train.jsonl `
+  datasets\splitmaa_functiongemma\manual_v4\train.qwen.jsonl
+
+.\.venv-train\Scripts\python.exe tools\finetune\convert_to_json_chat.py `
+  datasets\splitmaa_functiongemma\manual_v4\validation.jsonl `
+  datasets\splitmaa_functiongemma\manual_v4\validation.qwen.jsonl
+```
+
+Check token compatibility:
+
+```powershell
+pnpm report:qwen:manual-v4
+```
+
+At `max_length=2048`, current manual v4 Qwen chat artifacts have zero truncation.
 
 ## Train
 
-Install dependencies in a GPU environment:
-
-```bash
-pip install torch tensorboard transformers datasets accelerate evaluate trl peft protobuf sentencepiece
-```
-
-Login to Hugging Face after accepting the `google/functiongemma-270m-it` license:
+Install training dependencies in `.venv-train`:
 
 ```powershell
-.venv-train\Scripts\python.exe tools\finetune\hf_ipv4_login.py
+.\.venv-train\Scripts\python.exe -m pip install torch tensorboard transformers datasets accelerate evaluate trl peft protobuf sentencepiece
 ```
 
-This project uses the helper above because the normal `hf auth login` may fail on Windows networks where `huggingface.co` resolves through a broken IPv6 route. The helper stores the token through `huggingface_hub.login(...)` and verifies access to `google/functiongemma-270m-it`.
-
-If model download stalls or fails with `WinError 10054` / `RemoteProtocolError`, pre-download the model with the IPv4 helper:
+Run the Qwen preset:
 
 ```powershell
-.venv-train\Scripts\python.exe tools\finetune\hf_ipv4_download.py --repo-id google/functiongemma-270m-it
+pnpm train:qwen:manual-v4
 ```
 
-The helper disables the Windows symlink warning, forces IPv4 by default, and downloads with one worker to avoid flaky parallel HEAD requests.
-It also skips `.litertlm` / `.task` artifacts by default because Hugging Face SFT training needs the `transformers` checkpoint files, not mobile runtime artifacts.
-
-Run training:
+The preset expands to:
 
 ```powershell
-.venv-train\Scripts\python.exe tools\finetune\train_functiongemma_sft.py `
-  --train datasets\splitmaa_functiongemma\train.functiongemma.jsonl `
-  --validation datasets\splitmaa_functiongemma\validation.functiongemma.jsonl `
-  --output-dir outputs\functiongemma-splitmaa-sft `
-  --trainer-backend lean `
-  --training-mode lora `
-  --batch-size 1 `
-  --eval-batch-size 1 `
-  --gradient-accumulation-steps 4 `
-  --epochs 8 `
-  --max-length 1024 `
-  --local-files-only
+.\.venv-train\Scripts\python.exe tools\finetune\train_qwen_json_sft.py
 ```
 
-Default Windows training settings use a lean local LoRA path:
+Default Qwen training settings:
 
-- learning rate: `5e-5`
-- epochs: `8`
-- train batch size: `1`
-- eval batch size: `1`
-- gradient accumulation steps: `4`
-- LoRA rank: `8`
-- LoRA alpha: `16`
-- LoRA target modules: attention projections by default
-- optimizer: `adamw_torch_fused`
-- eval strategy: `epoch`
-- save strategy: `epoch`
-- packing: `false`
-- dtype: `bfloat16`
+- base model: `Qwen/Qwen2.5-0.5B-Instruct`
+- train: `datasets/splitmaa_functiongemma/manual_v4/train.qwen.jsonl`
+- validation: `datasets/splitmaa_functiongemma/manual_v4/validation.qwen.jsonl`
+- output: `outputs/qwen25-05b-splitmaa-manual-v4-lora`
+- training mode: LoRA
+- LoRA rank: `16`
+- LoRA alpha: `32`
+- dtype: `float32`
+- AMP: disabled
+- max length: `2048`
+- epochs: `3`
+- batch size: `1`
+- gradient accumulation: `8`
 
-The Windows path intentionally avoids Hugging Face Datasets for the lean trainer because `datasets.load_dataset(...)` hung in the local environment. It also avoids TRL's extra token entropy/accuracy metric path, which materialized full-vocabulary logits and caused VRAM spikes. Manual and scripted smoke tests passed on the 12 GB RTX 5070 Ti Laptop GPU at `--max-length 1024`, including a full validation pass.
-
-Full fine-tuning is not the recommended local Windows path. For this project, use LoRA first; merge/export later after the adapter is validated.
+Use LoRA while iterating. Full fine-tuning Qwen2.5-0.5B is possible in larger environments, but it is not the right next step until generation eval is strong.
 
 ## Evaluate
 
-Before and after training, evaluate against the locked test set:
+Capture predictions:
 
 ```powershell
-python tools\evals\run_eval.py --dataset datasets\splitmaa_functiongemma\test.jsonl --predictions reports\functiongemma_eval\baseline_predictions.jsonl --report reports\functiongemma_eval\baseline.json
+pnpm eval:qwen:manual-v4:capture
 ```
 
-The test set is intentionally not used for training.
+Score predictions:
+
+```powershell
+pnpm eval:qwen:manual-v4
+```
+
+The locked manual test set remains canonical staging JSONL, not Qwen chat JSONL, because the evaluator compares generated JSON against `expected`.
+
+Minimum before app wiring:
+
+- schema-valid rate `>= 0.95`
+- workflow accuracy `>= 0.85`
+- operation sequence accuracy `>= 0.80`
+- no systematic invented trusted IDs
+- no systematic prose after JSON
 
 ## Export
 
-After choosing a checkpoint, export/convert for LiteRT-LM or mobile using the current Google AI Edge conversion path. Do not fine-tune a `.litertlm` artifact directly; train the Hugging Face FunctionGemma model, then convert the selected result.
+After choosing a checkpoint:
+
+1. Merge LoRA into the base model.
+2. Run full locked-test generation eval again.
+3. Quantize for mobile, probably Q4 first.
+4. Package as an optional local AI model download, not inside the base app binary.
+
+Expected mobile model pack size for Qwen2.5-0.5B:
+
+- raw model: about `953 MB`
+- Q4 quantized model pack: roughly `300-400 MB`
+- app plus model installed size: roughly `450-650 MB`
+
+## Archived FunctionGemma Path
+
+FunctionGemma artifacts and docs stay in the repo for audit/history and article material. Do not delete them yet. The active training path is Qwen JSON output unless a future bakeoff reverses the decision.
